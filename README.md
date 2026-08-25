@@ -1,7 +1,6 @@
 # SKILLS
 
-运营 Agent 能力库。一仓多包，按场景装；凭证不上库。
-
+运营 Agent 能力库。
 <small>
 
 | Skill | 定位 | 入口 |
