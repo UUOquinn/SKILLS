@@ -14,7 +14,7 @@
       "name": "ams-default-contact",
       "path": "skills/ams-default-contact",
       "entry": "SKILL.md",
-      "description": "腾讯广告 AMS 批量绑定账户联系人（API 优先）",
+      "description": "腾讯 DSP AMS：子客批量选中账户联系人（API，禁止逐条点页面）",
       "keywords": ["AMS", "默认联系人", "账户联系人", "bind_link_person", "e.qq.com"]
     },
     {

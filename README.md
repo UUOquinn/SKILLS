@@ -1,17 +1,33 @@
 # SKILLS
 
-**单一仓库 · 多 Skill 项目（monorepo）**
+运营侧 Agent 能力的 **monorepo**：一个仓库、多个独立 Skill。每个包可单独链到 Cursor；Cookie / Token / 跑批结果不上库。
 
-每个子目录是一个独立可安装的 Cursor Agent Skill（契约文档 ± 脚本）。凭证、Cookie、跑批结果只放本机，不上库。
+## Catalog
 
-| 包 | 能力 | 入口 |
-|----|------|------|
-| [alliance-workbench-api](./skills/alliance-workbench-api/) | 联盟诊断工作台本机 HTTP API（`:3000/api/*`） | [SKILL.md](./skills/alliance-workbench-api/SKILL.md) |
-| [ams-default-contact](./skills/ams-default-contact/) | 腾讯 DSP AMS API 批量绑定「账户联系人」 | [SKILL.md](./skills/ams-default-contact/SKILL.md) |
-| [query-mapping](./skills/query-mapping/) | 查询维度映射 · 离线/实时数据集 | [SKILL.md](./skills/query-mapping/SKILL.md) |
-| [query-cpm](./skills/query-cpm/) | 媒体 CPM 下降排查与结构拆解 | [SKILL.md](./skills/query-cpm/SKILL.md) |
+按工作面分组。点包名进目录；Agent 入口一律是包内 `SKILL.md`。
 
-机器可读索引：[catalog.json](./catalog.json)
+### 工作台
+
+本机联盟诊断工作台（`:3000`）——只打本地代理，不直连上游域名。
+
+| Skill | 形态 | 覆盖 |
+|-------|------|------|
+| [alliance-workbench-api](./skills/alliance-workbench-api/) | 契约 | 查询 · 审核 · 延期 · 定投 · 屏蔽 · 数据集 · DataAgent 旁路 · 监控壳 |
+
+### 投放后台
+
+| Skill | 形态 | 覆盖 |
+|-------|------|------|
+| [ams-default-contact](./skills/ams-default-contact/) | 契约 + 脚本 | 腾讯 DSP AMS：子客批量选中「账户联系人」（API，禁止逐条点页面） |
+
+### 取数与归因
+
+| Skill | 形态 | 覆盖 |
+|-------|------|------|
+| [query-mapping](./skills/query-mapping/) | 手册 | 时间 / 流量主 / 广告主 / 场景 / 转化目标字段映射；离线 `85587` vs 实时 `129496` |
+| [query-cpm](./skills/query-cpm/) | 手册 | 媒体 CPM 下降：预算结构、场景拆解、同场景 CTR / CVR（先走 mapping 再查数） |
+
+索引文件：[`catalog.json`](./catalog.json)（安装器 / CI 可读，与上表同源）。
 
 ---
 
