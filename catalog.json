@@ -4,6 +4,13 @@
   "layout": "skills/<package>",
   "packages": [
     {
+      "name": "alliance-workbench-api",
+      "path": "skills/alliance-workbench-api",
+      "entry": "SKILL.md",
+      "description": "联盟诊断工作台本机 HTTP API 契约（:3000/api/*）",
+      "keywords": ["联盟工作台", "API", "strategy", "audit", "postpone", "dataset", "3000"]
+    },
+    {
       "name": "ams-default-contact",
       "path": "skills/ams-default-contact",
       "entry": "SKILL.md",

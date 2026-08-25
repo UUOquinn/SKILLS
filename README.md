@@ -6,6 +6,7 @@
 
 | 包 | 能力 | 入口 |
 |----|------|------|
+| [alliance-workbench-api](./skills/alliance-workbench-api/) | 联盟诊断工作台本机 HTTP API（`:3000/api/*`） | [SKILL.md](./skills/alliance-workbench-api/SKILL.md) |
 | [ams-default-contact](./skills/ams-default-contact/) | 腾讯广告 AMS 批量绑定「账户联系人」 | [SKILL.md](./skills/ams-default-contact/SKILL.md) |
 | [query-mapping](./skills/query-mapping/) | 查询维度映射 · 离线/实时数据集选择 | [SKILL.md](./skills/query-mapping/SKILL.md) |
 | [query-cpm](./skills/query-cpm/) | 媒体 CPM 下降排查与结构拆解 | [SKILL.md](./skills/query-cpm/SKILL.md) |
@@ -23,11 +24,8 @@ SKILLS/                          ← 本仓库（monorepo 根）
 ├── catalog.json                 ← 包清单（name / path / keywords）
 ├── .gitignore
 └── skills/                      ← 所有 Skill 项目落在这里
-    ├── ams-default-contact/     ← 独立包
-    │   ├── SKILL.md             ← 必填：Agent 入口（YAML frontmatter）
-    │   ├── API.md               ← 可选：上游契约
-    │   ├── manifest.json        ← 可选：包元数据
-    │   └── scripts/             ← 可选：可执行脚本（敏感文件 gitignore）
+    ├── alliance-workbench-api/  ← 工作台 HTTP API 契约
+    ├── ams-default-contact/     ← 独立包（含 scripts/）
     ├── query-mapping/
     └── query-cpm/
 ```
@@ -43,10 +41,16 @@ git clone https://github.com/UUOquinn/SKILLS.git
 cd SKILLS
 
 # 安装某一个 Skill 到 Cursor（示例）
+ln -s "$(pwd)/skills/alliance-workbench-api" ~/.cursor/skills/alliance-workbench-api
 ln -s "$(pwd)/skills/ams-default-contact" ~/.cursor/skills/ams-default-contact
 ln -s "$(pwd)/skills/query-mapping" ~/.cursor/skills/query-mapping
 ln -s "$(pwd)/skills/query-cpm" ~/.cursor/skills/query-cpm
 ```
+
+### alliance-workbench-api（契约）
+
+工作台本机 API 全文：[skills/alliance-workbench-api/API.md](./skills/alliance-workbench-api/API.md)  
+同源实现：[alliance-advertiser-funnel-web/docs/API.md](https://github.com/UUOquinn/alliance-advertiser-funnel-web/blob/main/docs/API.md)
 
 ### ams-default-contact（含脚本）
 

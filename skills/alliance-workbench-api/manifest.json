@@ -1,0 +1,27 @@
+{
+  "name": "alliance-workbench-api",
+  "version": "1.0.0",
+  "displayName": "联盟诊断工作台 API",
+  "description": "本机 :3000 /api/* 契约：查询·审核·延期·定投·屏蔽·数据集·DataAgent 旁路；效果监控为壳。",
+  "author": "alliance-workbench",
+  "entry": "SKILL.md",
+  "source": "https://github.com/UUOquinn/alliance-advertiser-funnel-web/blob/main/docs/API.md",
+  "files": [
+    "SKILL.md",
+    "API.md",
+    "manifest.json"
+  ],
+  "keywords": [
+    "联盟工作台",
+    "API",
+    "strategy",
+    "audit",
+    "postpone",
+    "shield-platform",
+    "game-premium",
+    "dataset",
+    "DataAgent",
+    "COOKIE_EXPIRED",
+    "3000"
+  ]
+}
