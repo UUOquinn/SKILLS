@@ -6,8 +6,8 @@
 
 | 包 | 能力 | 入口 |
 |----|------|------|
-| [ams-default-contact](./skills/ams-default-contact/) | 腾讯广告 AMS 批量绑定「账户联系人」 | [SKILL.md](./skills/ams-default-contact/SKILL.md) |
-| [query-mapping](./skills/query-mapping/) | 查询维度映射 · 离线/实时数据集选择 | [SKILL.md](./skills/query-mapping/SKILL.md) |
+| [ams-default-contact](./skills/ams-default-contact/) | 腾讯DSP AMS API批量绑定「账户联系人」 | [SKILL.md](./skills/ams-default-contact/SKILL.md) |
+| [query-mapping](./skills/query-mapping/) | query-mapping · 离线/实时数据集 | [SKILL.md](./skills/query-mapping/SKILL.md) |
 | [query-cpm](./skills/query-cpm/) | 媒体 CPM 下降排查与结构拆解 | [SKILL.md](./skills/query-cpm/SKILL.md) |
 
 机器可读索引：[catalog.json](./catalog.json)
