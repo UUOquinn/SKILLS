@@ -1,0 +1,11 @@
+{
+  "baseUrl": "https://e.qq.com",
+  "agencyUid": 10000001,
+  "bmId": 0,
+  "cookie": "从浏览器 /agp/advertiser/ 请求复制整行 Cookie（勿提交仓库、勿贴聊天）",
+  "customerBusinessId": 0,
+  "linkPersonId": 0,
+  "regCertificationNo": "可选：拉列表时用的执照号；不填则只做绑定",
+  "uids": [20000001],
+  "chunkSize": 20
+}

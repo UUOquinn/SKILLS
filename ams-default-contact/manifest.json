@@ -1,0 +1,26 @@
+{
+  "name": "ams-default-contact",
+  "version": "1.0.0",
+  "displayName": "AMS 账户默认联系人",
+  "description": "腾讯广告 AMS 服务商后台批量绑定账户联系人（API 优先，禁止浏览器逐条点）。凭证仅本机 api.json。",
+  "author": "alliance-workbench",
+  "entry": "SKILL.md",
+  "files": [
+    "SKILL.md",
+    "API.md",
+    "scripts/bind-contact.js",
+    "scripts/api.example.json",
+    "scripts/uids.example.txt",
+    "scripts/.gitignore"
+  ],
+  "keywords": [
+    "AMS",
+    "腾讯广告",
+    "默认联系人",
+    "账户联系人",
+    "bind_link_person",
+    "advertiser-add-account-am",
+    "agencyUid",
+    "e.qq.com"
+  ]
+}
