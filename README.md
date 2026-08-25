@@ -6,7 +6,7 @@
 
 | 包 | 能力 | 入口 |
 |----|------|------|
-| [alliance-workbench-api](./skills/alliance-workbench-api/) | 联盟诊断工作台本机 HTTP API（`:3000/api/*`） | [SKILL.md](./skills/alliance-workbench-api/SKILL.md) |
+| [alliance-workbench-api](./skills/alliance-workbench-api/) | 联盟诊断工作台本机 HTTP API（3000/api/） | [SKILL.md](./skills/alliance-workbench-api/SKILL.md) |
 | [ams-default-contact](./skills/ams-default-contact/) | 腾讯 DSP AMS API 批量绑定「账户联系人」 | [SKILL.md](./skills/ams-default-contact/SKILL.md) |
 | [query-mapping](./skills/query-mapping/) | 查询维度映射 · 离线/实时数据集 | [SKILL.md](./skills/query-mapping/SKILL.md) |
 | [query-cpm](./skills/query-cpm/) | 媒体 CPM 下降排查与结构拆解 | [SKILL.md](./skills/query-cpm/SKILL.md) |
