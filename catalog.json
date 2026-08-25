@@ -1,6 +1,6 @@
 {
   "name": "SKILLS",
-  "description": "Cursor Agent Skills monorepo — 单一仓库多项目",
+  "description": "运营能力 monorepo：工作台 API · AMS 联系人 · 取数口径与 CPM",
   "layout": "skills/<package>",
   "packages": [
     {
