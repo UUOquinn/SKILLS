@@ -1,0 +1,13 @@
+{
+  "name": "query-mapping",
+  "version": "1.0.0",
+  "displayName": "Query Mapping",
+  "description": "查询维度字段映射与离线/实时数据集选择",
+  "entry": "SKILL.md",
+  "keywords": [
+    "query-mapping",
+    "维度",
+    "85587",
+    "129496"
+  ]
+}

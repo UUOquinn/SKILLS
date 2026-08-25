@@ -1,0 +1,13 @@
+{
+  "name": "query-cpm",
+  "version": "1.0.0",
+  "displayName": "Query CPM",
+  "description": "媒体 CPM 下降排查与结构拆解",
+  "entry": "SKILL.md",
+  "keywords": [
+    "CPM",
+    "CTR",
+    "CVR",
+    "媒体对比"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "SKILLS",
+  "description": "Cursor Agent Skills monorepo — 单一仓库多项目",
+  "layout": "skills/<package>",
+  "packages": [
+    {
+      "name": "ams-default-contact",
+      "path": "skills/ams-default-contact",
+      "entry": "SKILL.md",
+      "description": "腾讯广告 AMS 批量绑定账户联系人（API 优先）",
+      "keywords": ["AMS", "默认联系人", "账户联系人", "bind_link_person", "e.qq.com"]
+    },
+    {
+      "name": "query-mapping",
+      "path": "skills/query-mapping",
+      "entry": "SKILL.md",
+      "description": "查询维度字段映射与离线/实时数据集选择",
+      "keywords": ["query-mapping", "维度", "85587", "129496"]
+    },
+    {
+      "name": "query-cpm",
+      "path": "skills/query-cpm",
+      "entry": "SKILL.md",
+      "description": "媒体 CPM 下降排查与结构拆解",
+      "keywords": ["CPM", "CTR", "CVR", "媒体对比"]
+    }
+  ]
+}

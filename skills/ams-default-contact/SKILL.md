@@ -40,7 +40,7 @@ flowchart TD
 ## 快速开始
 
 ```bash
-SKILL_ROOT=ams-default-contact/scripts   # 本仓库根目录下
+SKILL_ROOT=skills/ams-default-contact/scripts   # 本 monorepo 根目录下
 cd "$SKILL_ROOT"
 
 cp api.example.json api.json
@@ -53,7 +53,7 @@ node bind-contact.js --file uids.txt    # 用文件覆盖 uid 列表
 node bind-contact.js --bind-only        # 改走 bind_link_person（校验账号状态更严）
 ```
 
-也可链到 Cursor 个人技能目录：`~/.cursor/skills/ams-default-contact`（与本仓库同源）。
+也可链到 Cursor 个人技能目录：`~/.cursor/skills/ams-default-contact`（指向本包目录即可）。
 
 ## 用户输入怎么处理
 

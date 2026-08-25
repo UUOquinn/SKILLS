@@ -1,56 +1,71 @@
 # SKILLS
 
-可复用的 **Cursor Agent Skills** 合集：契约文档 + 可执行脚本。凭证、Cookie、跑批结果只放本机，不上库。
+**单一仓库 · 多 Skill 项目（monorepo）**
 
-| Skill | 能力 | 入口 |
-|-------|------|------|
-| [ams-default-contact](./ams-default-contact/) | 腾讯广告 AMS 批量绑定「账户联系人」 | [SKILL.md](./ams-default-contact/SKILL.md) |
+每个子目录是一个独立可安装的 Cursor Agent Skill（契约文档 ± 脚本）。凭证、Cookie、跑批结果只放本机，不上库。
+
+| 包 | 能力 | 入口 |
+|----|------|------|
+| [ams-default-contact](./skills/ams-default-contact/) | 腾讯广告 AMS 批量绑定「账户联系人」 | [SKILL.md](./skills/ams-default-contact/SKILL.md) |
+| [query-mapping](./skills/query-mapping/) | 查询维度映射 · 离线/实时数据集选择 | [SKILL.md](./skills/query-mapping/SKILL.md) |
+| [query-cpm](./skills/query-cpm/) | 媒体 CPM 下降排查与结构拆解 | [SKILL.md](./skills/query-cpm/SKILL.md) |
+
+机器可读索引：[catalog.json](./catalog.json)
 
 ---
 
-## ams-default-contact
+## 仓库布局
 
-服务商后台（`e.qq.com`）把已有联系人选中到子客账户——对应开户页「账户联系人 / 默认联系人」。
+```
+SKILLS/                          ← 本仓库（monorepo 根）
+├── README.md                    ← 总览 / 目录
+├── CONTRIBUTING.md              ← 如何新增 / 发布一个 Skill
+├── catalog.json                 ← 包清单（name / path / keywords）
+├── .gitignore
+└── skills/                      ← 所有 Skill 项目落在这里
+    ├── ams-default-contact/     ← 独立包
+    │   ├── SKILL.md             ← 必填：Agent 入口（YAML frontmatter）
+    │   ├── API.md               ← 可选：上游契约
+    │   ├── manifest.json        ← 可选：包元数据
+    │   └── scripts/             ← 可选：可执行脚本（敏感文件 gitignore）
+    ├── query-mapping/
+    └── query-cpm/
+```
 
-| 原则 | 说明 |
-|------|------|
-| API 优先 | `scripts/bind-contact.js`，禁止浏览器逐条点 |
-| 凭证本机 | `api.json` 已 gitignore |
-| 默认路径 | `POST /agp/advertiser/update`（`--bind-only` 才走 `bind_link_person`） |
+**约定：** 一个 Skill = `skills/<name>/` 下一个完整包；包与包互不耦合，可单独软链到 `~/.cursor/skills/<name>`。
+
+---
+
+## 快速使用
 
 ```bash
-cd ams-default-contact/scripts
-cp api.example.json api.json   # 填 Cookie / agencyUid / linkPersonId
-node bind-contact.js --dry-run
-node bind-contact.js --file uids.txt
+git clone https://github.com/UUOquinn/SKILLS.git
+cd SKILLS
+
+# 安装某一个 Skill 到 Cursor（示例）
+ln -s "$(pwd)/skills/ams-default-contact" ~/.cursor/skills/ams-default-contact
+ln -s "$(pwd)/skills/query-mapping" ~/.cursor/skills/query-mapping
+ln -s "$(pwd)/skills/query-cpm" ~/.cursor/skills/query-cpm
 ```
 
-契约：[ams-default-contact/API.md](./ams-default-contact/API.md)
+### ams-default-contact（含脚本）
+
+```bash
+cd skills/ams-default-contact/scripts
+cp api.example.json api.json   # 本机填 Cookie，勿提交
+node bind-contact.js --dry-run
+```
+
+契约：[skills/ams-default-contact/API.md](./skills/ams-default-contact/API.md)
 
 ---
 
-## 仓库约定
-
-```
-SKILLS/
-├── README.md
-└── <skill-name>/
-    ├── SKILL.md          # Agent 入口（YAML frontmatter）
-    ├── API.md            # 可选：上游契约
-    ├── manifest.json     # 可选：元数据
-    └── scripts/          # 可选：可执行脚本；敏感文件 gitignore
-```
+## 安全
 
 | 规则 | 说明 |
 |------|------|
 | 不上库 | Cookie、Token、执照号、真实 uid 跑批结果 |
-| 占位示例 | `api.example.json` / `uids.example.txt` 仅用假 ID |
-| 安装 | 克隆本仓，或把单个 skill 目录链到 `~/.cursor/skills/` |
+| 占位示例 | `*.example.json` / `uids.example.txt` 仅用假 ID |
+| PR / Issue | 勿粘贴真实 Cookie 或内网账号列表 |
 
-```bash
-git clone https://github.com/UUOquinn/SKILLS.git
-# 可选：链到 Cursor
-ln -s "$(pwd)/ams-default-contact" ~/.cursor/skills/ams-default-contact
-```
-
-> **安全提示**：Issue / PR 中勿粘贴真实 Cookie 或内网账号列表。
+新增包请读 [CONTRIBUTING.md](./CONTRIBUTING.md)。
