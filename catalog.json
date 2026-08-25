@@ -7,28 +7,28 @@
       "name": "alliance-workbench-api",
       "path": "skills/alliance-workbench-api",
       "entry": "SKILL.md",
-      "description": "联盟诊断工作台本机 HTTP API 契约（:3000/api/*）",
+      "description": "联盟工作台控制面：本机 :3000 全量 HTTP 契约（查询/审核/延期/定投/屏蔽/查数）",
       "keywords": ["联盟工作台", "API", "strategy", "audit", "postpone", "dataset", "3000"]
     },
     {
       "name": "ams-default-contact",
       "path": "skills/ams-default-contact",
       "entry": "SKILL.md",
-      "description": "腾讯 DSP AMS：子客批量选中账户联系人（API，禁止逐条点页面）",
+      "description": "AMS 联系人编排：腾讯 DSP 服务商后台 API 批量选中子客账户联系人",
       "keywords": ["AMS", "默认联系人", "账户联系人", "bind_link_person", "e.qq.com"]
     },
     {
       "name": "query-mapping",
       "path": "skills/query-mapping",
       "entry": "SKILL.md",
-      "description": "查询维度字段映射与离线/实时数据集选择",
+      "description": "取数口径引擎：维度字段映射与离线/实时数据集选择",
       "keywords": ["query-mapping", "维度", "85587", "129496"]
     },
     {
       "name": "query-cpm",
       "path": "skills/query-cpm",
       "entry": "SKILL.md",
-      "description": "媒体 CPM 下降排查与结构拆解",
+      "description": "CPM 归因诊断：预算结构、场景占比与同场景 CTR/CVR 拆解",
       "keywords": ["CPM", "CTR", "CVR", "媒体对比"]
     }
   ]
