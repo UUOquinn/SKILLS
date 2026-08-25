@@ -18,7 +18,7 @@
 
 ---
 
-# 联盟工作台 · HTTP API
+# HTTP API
 
 > 本机 Base：`http://127.0.0.1:3000` · Orient 由服务端 Playwright / Cookie 代理 · **无用户 Bearer**  
 > 上游真实域名不入库 · 效果监控为占位壳（`shell: true`）  
