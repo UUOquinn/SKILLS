@@ -1,6 +1,7 @@
 # SKILLS
 
-运营 Agent 能力库。
+运营 Agent 能力库。一仓多包，按场景装；凭证不上库。
+
 <small>
 
 | Skill | 定位 | 入口 |
@@ -12,6 +13,15 @@
 
 </small>
 
+机器索引：[catalog.json](./catalog.json) · 新增包：[CONTRIBUTING.md](./CONTRIBUTING.md)
+
+<details>
+<summary><b>安装到 Cursor</b></summary>
+
+```bash
+git clone https://github.com/UUOquinn/SKILLS.git
+cd SKILLS
+ln -s "$(pwd)/skills/<name>" ~/.cursor/skills/<name>
 ```
 
 AMS 脚本（本机填 Cookie，勿提交）：
@@ -26,7 +36,7 @@ node bind-contact.js --dry-run
 
 ---
 
-#  API
+# 联盟工作台 · HTTP API
 
 > 本机 Base：`http://127.0.0.1:3000` · Orient 由服务端 Playwright / Cookie 代理 · **无用户 Bearer**  
 > 上游真实域名不入库 · 效果监控为占位壳（`shell: true`）  
@@ -52,7 +62,6 @@ node bind-contact.js --dry-run
 | [14. 调用示例](#14-调用示例) | **curl 速查** — health / query / auto-approve / postpone | [§14](#14-调用示例) |
 
 </small>
-
 
 ---
 
