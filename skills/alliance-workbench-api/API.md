@@ -5,7 +5,7 @@
 > **同步自：** [docs/API.md](https://github.com/UUOquinn/alliance-advertiser-funnel-web/blob/main/docs/API.md)  
 > **更新说明：** 与公开仓库实现同步；**策略效果监控**为占位壳（`shell: true`）。上游真实域名不入库。
 
-**目录：** [约定](#1-约定) · [索引](#2-快速索引) · [系统](#3-系统) · [日志](#4-工作台日志) · [查询](#5-策略查询--行业映射) · [详情/延期](#6-策略详情--延期提交--撤回) · [审核](#7-策略审核) · [延期托管](#8-策略延期托管) · [游戏定投](#9-游戏优质媒体定投) · [定向屏蔽](#10-定向屏蔽) · [数据集](#11-数据集bi) · [DataAgent](#12-dataagent旁路) · [效果监控壳](#13-策略效果监控占位壳) · [示例](#14-调用示例)
+**目录：** [约定](#1-约定) · [能力索引](#2-能力索引) · [系统](#3-系统) · [日志](#4-工作台日志) · [查询](#5-策略查询--行业映射) · [详情/延期](#6-策略详情--延期提交--撤回) · [审核](#7-策略审核) · [延期托管](#8-策略延期托管) · [游戏定投](#9-游戏优质媒体定投) · [定向屏蔽](#10-定向屏蔽) · [数据集](#11-数据集bi) · [DataAgent](#12-dataagent旁路) · [效果监控壳](#13-策略效果监控占位壳) · [示例](#14-调用示例)
 
 ---
 
@@ -62,55 +62,37 @@
 
 ---
 
-## 2. 快速索引
+## 2. 能力索引
 
-| Method | Path | 模块 |
-|--------|------|------|
-| GET | `/api/health` | 系统 |
-| GET | `/api/cookie/status` | 系统 |
-| GET/POST | `/api/workbench/logs` | 工作台日志 |
-| GET | `/api/strategy/meta` | 策略查询 |
-| POST | `/api/strategy/query` | 策略查询 |
-| POST | `/api/strategy/industry/map` | 行业映射 |
-| POST | `/api/strategy/renew/get` | 策略详情 |
-| POST | `/api/strategy/renew/submit` | 策略延期提交 |
-| POST | `/api/strategy/audit/get` | 同 renew/get |
-| POST | `/api/strategy/audit/query` | 同 renew/get |
-| POST | `/api/strategy/audit/withdraw` | 撤回审核 |
-| POST | `/api/strategy/audit/changeStatus` | 改审核状态 |
-| POST | `/api/strategy/audit/batchApprove` | 批量改状态 |
-| POST | `/api/strategy/audit/flow` | 审核编排 |
-| POST | `/api/strategy/audit/pushFull` | 强制推全 |
-| GET | `/api/strategy/audit/users` | 审核人列表 |
-| GET | `/api/strategy/audit/realtime-whitelist` | 自动审白名单 |
-| GET | `/api/strategy/audit/auto-approve/status` | 自动审状态 |
-| POST | `/api/strategy/audit/auto-approve/trigger` | 触发自动审 |
-| POST | `/api/strategy/audit/queryByCreator` | 按提交人查审核单 |
-| POST | `/api/strategy/audit/queryByStrategy` | 按策略查审核单 |
-| GET | `/api/strategy/postpone/registry` | 延期托管表 |
-| GET | `/api/strategy/postpone/editors` | 延期编辑人 |
-| GET | `/api/strategy/postpone/status` | 延期守护状态 |
-| POST | `/api/strategy/postpone/registry/upsert` | 托管增改 |
-| POST | `/api/strategy/postpone/registry/delete` | 托管删除 |
-| POST | `/api/strategy/postpone/editors/upsert` | 编辑人增改 |
-| POST | `/api/strategy/postpone/editors/delete` | 编辑人删除 |
-| POST | `/api/strategy/postpone/trigger` | 触发延期扫描 |
-| POST | `/api/strategy/game-premium/media-by-accounts` | 游戏定投·按账户 |
-| POST | `/api/strategy/game-premium/media-by-name` | 游戏定投·按名称 |
-| POST | `/api/strategy/game-premium/create` | 游戏定投·创建 |
-| POST | `/api/strategy/shield-platform/create` | 定向屏蔽·创建 |
-| GET | `/api/dataset/list` | BI 数据集列表 |
-| POST | `/api/dataset/query` | BI 查数 |
-| POST | `/api/dataset/metadata` | BI 元数据 |
-| GET | `/api/dataagent/status` | DataAgent（旁路） |
-| POST | `/api/dataagent/chat` | DataAgent 对话（旁路） |
-| POST | `/api/dataagent/cookie` | 保存 DataAgent Cookie |
-| GET | `/api/dataagent/scheduled-tasks` | 定时任务列表 |
-| GET | `/api/dataagent/scheduled-tasks/detail` | 定时任务详情 |
-| GET | `/api/dataagent/scheduled-tasks/instances` | 定时任务执行实例 |
-| POST | `/api/dataagent/scheduled-tasks/create` | 创建定时任务 |
-| POST | `/api/dataagent/scheduled-tasks/update-or-delete` | 编辑或删除定时任务 |
-| GET/POST | `/api/strategy/effect-monitor*` | **占位壳** |
+公开仓**不展示** Method / Path 全量表。下面按模块看能力面；具体路由仅在本机工作台与私有契约中维护。
+
+```mermaid
+flowchart LR
+  A[系统 · 会话] --> B[策略查询]
+  B --> C[详情 / 延期]
+  C --> D[审核编排]
+  C --> E[延期托管]
+  B --> F[定投 / 屏蔽]
+  B --> G[结构化查数]
+  G --> H[NL 旁路]
+  D --> I[效果监控壳]
+```
+
+| 模块 | 能力（公开描述） | 读 | 写 | 备注 |
+|------|------------------|----|----|------|
+| 系统 | 探活、会话 / 代理态诊断 | ✓ | — | 不打上游业务 |
+| 工作台日志 | 本机运行日志查询 / 追加 / 清理 | ✓ | ✓ | 本地存储 |
+| 策略查询 | 按开发者 / 广告位 / 应用查策略；行业映射 | ✓ | — | |
+| 详情 / 延期 | 拉详情、改结束时间并提审、撤回 | ✓ | ✓ | |
+| 审核编排 | 改态、批量通过、自动审、推全、按人/策略查单 | ✓ | ✓ | |
+| 延期托管 | 托管表、编辑人、守护状态、触发扫描 | ✓ | ✓ | |
+| 游戏定投 | 按账户 / 名称拉媒体并创建定投 | ✓ | ✓ | |
+| 定向屏蔽 | 创建屏蔽类策略 | — | ✓ | |
+| 数据集 | 列表 / 结构化查数 / 元数据 | ✓ | — | 离线 / 实时占位集 |
+| DataAgent | NL 对话、定时任务（旁路） | ✓ | ✓ | 非主路径 |
+| 效果监控 | 占位壳 | ✓ | ✓ | `shell: true`，未开放 |
+
+需要完整路由表时，在**本机已脱敏约定下的私有文档**查阅，勿把 Path 贴回本公开仓。
 
 ---
 
