@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "long_running": true,
+  "confidence": "high",
+  "evidence": [
+    "async_polling",
+    "remote_agent"
+  ],
+  "assessment_sources": [
+    "user_intent",
+    "skill_files"
+  ],
+  "a2a_chat_sync": false,
+  "runner": "call_remote_agent",
+  "method": "CALLBACK",
+  "needs_remote_guard": true,
+  "skill": {
+    "long_running": true,
+    "derived_from": [
+      "scripts/execute_sql.py"
+    ],
+    "prose_alert": false,
+    "prose_evidence": []
+  },
+  "scripts": {
+    "scripts/execute_sql.py": {
+      "long_running": true,
+      "confidence": "high",
+      "evidence": [
+        "async_polling",
+        "remote_agent"
+      ],
+      "runner": "call_remote_agent",
+      "method": "CALLBACK"
+    }
+  }
+}

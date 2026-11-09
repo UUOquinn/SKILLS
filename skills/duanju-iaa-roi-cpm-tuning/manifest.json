@@ -1,0 +1,13 @@
+{
+  "name" : "duanju-iaa-roi-cpm-tuning",
+  "version" : "1.0.23",
+  "ks-meta" : {
+    "dependency" : [ "flow-strategy-ops" ],
+    "displayName" : "短剧 IAA 超成本率顶价压价",
+    "platform" : [ "MyFlicker-Work模式", "MyFlicker-Code模式" ],
+    "author" : {
+      "type" : "user",
+      "username" : [ "wb_example_user" ]
+    }
+  }
+}

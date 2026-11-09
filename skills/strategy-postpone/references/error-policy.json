@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "skill": "strategy-postpone",
+  "policies": {
+    "UV_NOT_FOUND":        {"action": "STOP",              "retryable": false},
+    "SSO_EXPIRED":         {"action": "STOP",              "retryable": true, "retry_hint": "登录后重试"},
+    "AUTH_FAILED":         {"action": "STOP",              "retryable": false},
+    "STRATEGY_NOT_FOUND":  {"action": "SKIP_CONTINUE",     "retryable": false},
+    "INVALID_IDS":         {"action": "ASK_USER",          "retryable": true},
+    "API_TIMEOUT":         {"action": "RETRY_ONCE_THEN_STOP", "retryable": true, "max_retries": 1},
+    "API_4XX":             {"action": "SHOW_ERROR",        "retryable": false},
+    "API_5XX":             {"action": "STOP",              "retryable": false},
+    "NETWORK_ERROR":       {"action": "STOP",              "retryable": false},
+    "UNEXPECTED_ERROR":    {"action": "STOP",              "retryable": false},
+    "SIGINT":              {"action": "STOP",              "retryable": false}
+  }
+}

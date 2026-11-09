@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "default_action": "STOP",
+  "policies": {
+    "SSO_EXPIRED": {
+      "exit_code": 2,
+      "action": "REAUTH",
+      "retryable": false,
+      "hint": "调用 kuaishou-sso-login-client 完成认证后重跑该段，不要原地重试"
+    },
+    "AUTH_FAILED": {
+      "exit_code": 2,
+      "action": "ASK_USER",
+      "retryable": false,
+      "hint": "账号无看板或策略平台权限，需用户申请"
+    },
+    "CONFIG_MISSING": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "配置文件路径不存在"
+    },
+    "CONFIG_INVALID": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "按 msg 修正配置字段，参考 references/config-schema.md"
+    },
+    "TEMPLATE_MISSING": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "fetch.template 路径相对配置文件所在目录"
+    },
+    "EMPTY_WINDOW": {
+      "exit_code": 1,
+      "action": "DIAGNOSE",
+      "retryable": false,
+      "hint": "先用 --raw-output 确认 __time 是否落在正确日期，再考虑数据延迟；连续两轮为空必须暂停报告"
+    },
+    "INPUT_MISSING": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "上一段未产出，回看上一段返回"
+    },
+    "INPUT_EMPTY": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "输入文件无数据行"
+    },
+    "DUPLICATE_KEY": {
+      "exit_code": 3,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "先按主键聚合再重跑，不要手删重复行"
+    },
+    "BAND_GAP": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "evaluate.bands 有断层，补全后重跑；空隙会静默表现为不动"
+    },
+    "WRITE_REJECTED": {
+      "exit_code": 1,
+      "action": "SKIP_AND_REPORT",
+      "retryable": false,
+      "hint": "该对象未记台账，记录报错继续下一个，最后在未执行里列出"
+    },
+    "UNEXPECTED_ERROR": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "读 stderr 的异常类型与栈，不要盲目重试"
+    }
+  },
+  "notes": {
+    "evaluate_code_2": "evaluate.py 返回 code=2 且 ok=true 表示有对象落在护栏外（HOLD_NEEDS_CONFIRM），属正常分支：这些对象不写入，单列等确认",
+    "exit_code_precedence": "退出码与业务 JSON 冲突时以非零退出码为准",
+    "guardrail": "大量 HOLD_NEEDS_CONFIRM 是护栏在拦，禁止调整护栏参数使其通过"
+  }
+}

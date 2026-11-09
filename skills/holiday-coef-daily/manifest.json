@@ -1,0 +1,8 @@
+{
+  "name": "holiday-coef-daily",
+  "version": "1.0.0",
+  "ks-meta": {
+    "displayName": "短剧假期系数日更",
+    "platform": ["MyFlicker-Work模式", "MyFlicker-Code模式"]
+  }
+}

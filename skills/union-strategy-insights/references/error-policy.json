@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "policies": {
+    "SSO_EXPIRED": { "action": "ASK_USER", "retryable": true, "max_retries": 0, "message_template": "SSO 登录已过期。请在浏览器中访问任意 example.corp 页面完成认证，然后重新执行。" },
+    "AUTH_FAILED": { "action": "ASK_USER", "retryable": false, "max_retries": 0, "message_template": "当前账号无权限执行该操作，请联系管理员开通权限。" },
+    "API_TIMEOUT": { "action": "RETRY_ONCE_THEN_STOP", "retryable": true, "max_retries": 1, "message_template": "请求超时（已重试 1 次仍失败）。请检查 VPN 连接，稍后重试。" },
+    "API_4XX": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "请求参数错误：" },
+    "API_5XX": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "目标服务暂时不可用（错误码 5xx），请稍后重试。" },
+    "API_ERROR": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "API 调用失败：" },
+    "NETWORK_ERROR": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "网络不可达，请检查 VPN 连接。" },
+    "PREFIX_NOT_FOUND": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "策略 ID 未命中任何已知前缀，请确认 ID 是否正确或通过 --prefix 手动指定类型。" },
+    "STRATEGY_NOT_FOUND": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "策略 ID 查询返回空结果，可能不存在或已被删除。" },
+    "MISSING_ID": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "缺少策略 ID，请提供 --id 或 --ids 参数。" },
+    "FILE_NOT_FOUND": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "文件不存在，请检查路径。" },
+    "UNKNOWN_COMMAND": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "未知命令，请使用 --help 查看支持的命令。" },
+    "DIMENSION_INVALID": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "不支持的 ID 维度。仅支持 appId/uid/posId（search）或 uid/app_id/pos_id（query-alias）。" },
+    "BATCH_TOO_LARGE": { "action": "ASK_USER", "retryable": false, "max_retries": 0, "message_template": "单次最多 50 个 ID，请分批查询（同维度一起查，不同维度分开查）。" },
+    "DICT_PARSE_FAILED": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "行业字典源解析失败，仍可用内置静态字典兜底。" },
+    "OLAP_QUERY_FAILED": { "action": "STOP", "retryable": false, "max_retries": 0, "message_template": "流量侧 OLAP 模式查询失败，请核对时间窗、字段及模板；扫描超限可缩至单日。" }
+  }
+}

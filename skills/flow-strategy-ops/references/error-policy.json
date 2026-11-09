@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "default": {"action": "STOP", "max_retries": 0},
+  "errors": {
+    "SSO_EXPIRED": {"action": "ASK_USER", "max_retries": 0},
+    "AUTH_FAILED": {"action": "ASK_USER", "max_retries": 0},
+    "INDUSTRY_VERSION_MISMATCH": {"action": "STOP", "max_retries": 0},
+    "VALIDATION_FAILED": {"action": "STOP", "max_retries": 0},
+    "API_TIMEOUT": {"action": "RETRY_ONCE_THEN_STOP", "max_retries": 1, "read_only_only": true},
+    "NETWORK_ERROR": {"action": "STOP", "max_retries": 0},
+    "API_4XX": {"action": "STOP", "max_retries": 0},
+    "API_5XX": {"action": "STOP", "max_retries": 0},
+    "API_BUSINESS_ERROR": {"action": "STOP", "max_retries": 0},
+    "INVALID_RESPONSE": {"action": "STOP", "max_retries": 0},
+    "EXPORT_FAILED": {"action": "STOP", "max_retries": 0},
+    "INVALID_ARGUMENT": {"action": "STOP", "max_retries": 0},
+    "INVALID_DIMENSION": {"action": "STOP", "max_retries": 0},
+    "NOT_FOUND": {"action": "STOP", "max_retries": 0},
+    "NOT_WRITABLE": {"action": "STOP", "max_retries": 0},
+    "BATCH_NOT_SUPPORTED": {"action": "STOP", "max_retries": 0},
+    "INTERRUPTED": {"action": "STOP", "max_retries": 0},
+    "UNEXPECTED_ERROR": {"action": "STOP", "max_retries": 0}
+  }
+}

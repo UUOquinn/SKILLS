@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "exit_codes": {
+    "0": "CONTINUE",
+    "1": "STOP",
+    "2": "ASK_USER",
+    "130": "STOP"
+  },
+  "errors": {
+    "API_TIMEOUT": "RETRY_ONCE_THEN_STOP",
+    "API_4XX": "STOP",
+    "API_5XX": "STOP",
+    "AUTH_FAILED": "STOP",
+    "NETWORK_ERROR": "STOP",
+    "API_ERROR": "STOP"
+  }
+}

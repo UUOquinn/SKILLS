@@ -1,0 +1,8 @@
+{
+  "name": "ssp-operation-query",
+  "version": "1.0.0",
+  "ks-meta": {
+    "displayName": "SSP Bot",
+    "platform": ["MyFlicker-Work模式", "MyFlicker-Code模式"]
+  }
+}

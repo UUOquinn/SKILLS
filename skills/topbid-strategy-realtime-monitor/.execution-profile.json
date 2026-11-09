@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "long_running": false,
+  "confidence": "medium",
+  "evidence": [],
+  "assessment_sources": [
+    "skill_files"
+  ],
+  "a2a_chat_sync": false,
+  "runner": "exec",
+  "method": "CALLBACK",
+  "needs_remote_guard": false,
+  "skill": {
+    "long_running": false,
+    "derived_from": [
+      "scripts/monitor.py"
+    ],
+    "prose_alert": false,
+    "prose_evidence": []
+  },
+  "scripts": {
+    "scripts/monitor.py": {
+      "long_running": false,
+      "confidence": "medium",
+      "evidence": [],
+      "runner": "exec",
+      "method": "CALLBACK"
+    },
+    "scripts/inspect_strategy.py": {
+      "long_running": false,
+      "confidence": "low",
+      "evidence": [],
+      "runner": "exec",
+      "method": "CALLBACK"
+    }
+  }
+}

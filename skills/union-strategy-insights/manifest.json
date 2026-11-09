@@ -1,0 +1,18 @@
+{
+  "entry" : "SKILL.md",
+  "keywords" : [ "Operation", "Orient", "KwaiBI", "定投", "mergeEdit", "dataset", "85587", "129496", "屏蔽查询", "反查屏蔽", "行业消耗", "产品消耗" ],
+  "displayName" : "联盟策效",
+  "author" : "alliance-workbench",
+  "name" : "union-strategy-insights",
+  "description" : "联盟工作台已验证的 Operation 与 KwaiBI 上游 REST API 契约：策略 get/query/mergeEdit、审核、推全、按 ID 反查屏蔽策略及行业/产品；支持 129496 OLAP 模式流量侧维度消耗查询，保留 KwaiBI 元数据、历史查询和异常兜底。", 
+  "files" : [ "SKILL.md", "tools-operation.md", "tools-kwaibi.md", "references/shield-search.md", "references/industry-code-name.json" ],
+  "version" : "1.2.0",
+  "ks-meta" : {
+    "displayName" : "联盟策效",
+    "platform" : [ "MyFlicker-Work模式", "MyFlicker-Code模式" ],
+    "author" : {
+      "type" : "user",
+      "username" : [ "wb_example_user" ]
+    }
+  }
+}

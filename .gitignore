@@ -16,3 +16,16 @@ Thumbs.db
 **/*cookie*.json
 **/.env
 **/.env.*
+**/sso-state.json
+**/*credentials*
+
+# Run artifacts
+**/data/
+**/audit/
+**/audit-trace/
+**/*.jsonl
+**/adjust_ledger.csv
+**/bases_*.json
+**/decision_*.json
+**/decide_err_*.txt
+**/roi_*.csv

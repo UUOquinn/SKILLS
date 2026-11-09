@@ -1,6 +1,6 @@
 {
   "name": "SKILLS",
-  "description": "运营能力 monorepo：工作台 API · AMS 联系人 · 取数口径与 CPM",
+  "description": "运营 Agent Skills monorepo — 单一仓库多项目；凭证不上库",
   "layout": "skills/<package>",
   "packages": [
     {
@@ -8,28 +8,187 @@
       "path": "skills/alliance-workbench-api",
       "entry": "SKILL.md",
       "description": "联盟工作台控制面：本机 :3000 全量 HTTP 契约（查询/审核/延期/定投/屏蔽/查数）",
-      "keywords": ["联盟工作台", "API", "strategy", "audit", "postpone", "dataset", "3000"]
+      "keywords": [
+        "联盟工作台",
+        "API",
+        "strategy",
+        "audit",
+        "postpone",
+        "dataset",
+        "3000"
+      ]
     },
     {
       "name": "ams-default-contact",
       "path": "skills/ams-default-contact",
       "entry": "SKILL.md",
       "description": "AMS 联系人编排：腾讯 DSP 服务商后台 API 批量选中子客账户联系人",
-      "keywords": ["AMS", "默认联系人", "账户联系人", "bind_link_person", "e.qq.com"]
+      "keywords": [
+        "AMS",
+        "默认联系人",
+        "账户联系人",
+        "bind_link_person",
+        "e.qq.com"
+      ]
     },
     {
       "name": "query-mapping",
       "path": "skills/query-mapping",
       "entry": "SKILL.md",
       "description": "取数口径引擎：维度字段映射与离线/实时数据集选择",
-      "keywords": ["query-mapping", "维度", "85587", "129496"]
+      "keywords": [
+        "query-mapping",
+        "维度",
+        "85587",
+        "129496"
+      ]
     },
     {
       "name": "query-cpm",
       "path": "skills/query-cpm",
       "entry": "SKILL.md",
       "description": "CPM 归因诊断：预算结构、场景占比与同场景 CTR/CVR 拆解",
-      "keywords": ["CPM", "CTR", "CVR", "媒体对比"]
+      "keywords": [
+        "CPM",
+        "CTR",
+        "CVR",
+        "媒体对比"
+      ]
+    },
+    {
+      "name": "duanju-iaa-account-screening",
+      "path": "skills/duanju-iaa-account-screening",
+      "entry": "SKILL.md",
+      "description": "短剧 IAA 账户筛选流水线（OLAP/番茄多步筛户）",
+      "keywords": [
+        "duanju-iaa-account-screening"
+      ]
+    },
+    {
+      "name": "duanju-iaa-overcost-ladder-tuning",
+      "path": "skills/duanju-iaa-overcost-ladder-tuning",
+      "entry": "SKILL.md",
+      "description": "短剧 IAA 超成本阶梯调价",
+      "keywords": [
+        "duanju-iaa-overcost-ladder-tuning"
+      ]
+    },
+    {
+      "name": "duanju-iaa-roi-cpm-tuning",
+      "path": "skills/duanju-iaa-roi-cpm-tuning",
+      "entry": "SKILL.md",
+      "description": "短剧 IAA ROI/CPM 联动调价",
+      "keywords": [
+        "duanju-iaa-roi-cpm-tuning"
+      ]
+    },
+    {
+      "name": "flow-strategy-ops",
+      "path": "skills/flow-strategy-ops",
+      "entry": "SKILL.md",
+      "description": "流量策略运营 API（创建/查询/改态）",
+      "keywords": [
+        "flow-strategy-ops"
+      ]
+    },
+    {
+      "name": "holiday-coef-daily",
+      "path": "skills/holiday-coef-daily",
+      "entry": "SKILL.md",
+      "description": "节假日系数日更叠加",
+      "keywords": [
+        "holiday-coef-daily"
+      ]
+    },
+    {
+      "name": "kconf-generic-api",
+      "path": "skills/kconf-generic-api",
+      "entry": "SKILL.md",
+      "description": "KConf 通用读写/批量/分级发布 API",
+      "keywords": [
+        "kconf-generic-api"
+      ]
+    },
+    {
+      "name": "kconf-universe-add-chain-gray",
+      "path": "skills/kconf-universe-add-chain-gray",
+      "entry": "SKILL.md",
+      "description": "联盟新链路通用灰度配置",
+      "keywords": [
+        "kconf-universe-add-chain-gray"
+      ]
+    },
+    {
+      "name": "kwaibi-sql-access-exec",
+      "path": "skills/kwaibi-sql-access-exec",
+      "entry": "SKILL.md",
+      "description": "KwaiBI SQL 取数执行",
+      "keywords": [
+        "kwaibi-sql-access-exec"
+      ]
+    },
+    {
+      "name": "olap-pipeline-runner",
+      "path": "skills/olap-pipeline-runner",
+      "entry": "SKILL.md",
+      "description": "OLAP 取数→enrich→evaluate→write 流水线",
+      "keywords": [
+        "olap-pipeline-runner"
+      ]
+    },
+    {
+      "name": "ssp-operation-query",
+      "path": "skills/ssp-operation-query",
+      "entry": "SKILL.md",
+      "description": "SSP 运营侧结构化查询",
+      "keywords": [
+        "ssp-operation-query"
+      ]
+    },
+    {
+      "name": "strategy-postpone",
+      "path": "skills/strategy-postpone",
+      "entry": "SKILL.md",
+      "description": "策略批量延期提审",
+      "keywords": [
+        "strategy-postpone"
+      ]
+    },
+    {
+      "name": "topbid-strategy-realtime-monitor",
+      "path": "skills/topbid-strategy-realtime-monitor",
+      "entry": "SKILL.md",
+      "description": "TopBid 策略实时监控",
+      "keywords": [
+        "topbid-strategy-realtime-monitor"
+      ]
+    },
+    {
+      "name": "union-operation-bot",
+      "path": "skills/union-operation-bot",
+      "entry": "SKILL.md",
+      "description": "联盟运营 Bot 编排入口",
+      "keywords": [
+        "union-operation-bot"
+      ]
+    },
+    {
+      "name": "union-strategy-audit",
+      "path": "skills/union-strategy-audit",
+      "entry": "SKILL.md",
+      "description": "联盟策略审核编排",
+      "keywords": [
+        "union-strategy-audit"
+      ]
+    },
+    {
+      "name": "union-strategy-insights",
+      "path": "skills/union-strategy-insights",
+      "entry": "SKILL.md",
+      "description": "联盟策略洞察（KwaiBI/OLAP/运营）",
+      "keywords": [
+        "union-strategy-insights"
+      ]
     }
   ]
 }

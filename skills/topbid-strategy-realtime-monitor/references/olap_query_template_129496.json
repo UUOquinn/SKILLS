@@ -1,0 +1,798 @@
+{
+  "chartId": -1,
+  "sheetId": -1,
+  "tabId": -1,
+  "dashboardId": 0,
+  "dataSetId": 129496,
+  "fields": [
+    {
+      "dataSetId": 129496,
+      "name": "账户ID",
+      "nickName": "账户ID",
+      "ordinalAggregatorType": "",
+      "ordinalColumnType": "dimension",
+      "type": "dimension",
+      "valueType": "string",
+      "functionType": "",
+      "returnType": "",
+      "functionExpression": "",
+      "isExtend": false,
+      "urn": "ks:dimension:ad_v2/account_id",
+      "hotField": true,
+      "isSystemField": false,
+      "lodMetricFlag": false,
+      "nativeSqlMetricFlag": false,
+      "gaiaCaseWhenMetricFlag": false,
+      "useNewDefaultFormat": true,
+      "id": 2212690,
+      "fieldId": "6fd986b4-ea57-44db-9a13-dfa9daef993a",
+      "sorter": {
+        "fieldId": 2212690,
+        "order": "",
+        "type": "SIMPLE"
+      },
+      "showName": "账户ID",
+      "showFormat": "",
+      "fieldComment": "广告主投放广告使用的账号ID，经UC(客开)开户生成，一个广告主可拥有多个账户ID",
+      "indicatorAttr": "",
+      "abnormalValueConfig": "hidden",
+      "attributes": {
+        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/account_id",
+        "agg": "false",
+        "metricInsightRules": "[]",
+        "metricInsight": "false",
+        "twiceCalc": "false"
+      },
+      "isCount": false,
+      "groupPercentType": "",
+      "fieldCellStyle": null,
+      "axisId": "rowDimension"
+    },
+    {
+      "dataSetId": 129496,
+      "name": "__time",
+      "nickName": "时间",
+      "ordinalAggregatorType": "",
+      "supportGranularityList": [
+        {
+          "type": "SECOND",
+          "available": false,
+          "displayName": "秒",
+          "tip": "联盟总消耗、浅度超成本率、平均CPM顶价系数、平均CPA顶价系数、系统出价、(浅度)转化数、平均浅度出价、次日留存数(次留数)、素材CPM、系统改价系数(新版本)、统一后验CVR、统一先验CVR，不支持按秒聚合",
+          "urn": "ks:dimension:public/f_second"
+        },
+        {
+          "type": "MINUTE",
+          "available": true,
+          "displayName": "分",
+          "tip": "您可以获取【分】维度的数据",
+          "urn": "ks:dimension:public/f_minute"
+        },
+        {
+          "type": "HOUR",
+          "available": true,
+          "displayName": "小时",
+          "tip": "您可以获取【小时】维度的数据",
+          "urn": "ks:dimension:public/f_hour"
+        },
+        {
+          "type": "DAY",
+          "available": true,
+          "displayName": "日",
+          "tip": "您可以获取【日】维度的数据",
+          "urn": "ks:dimension:public/f_date"
+        },
+        {
+          "type": "WEEK",
+          "available": true,
+          "displayName": "周",
+          "tip": "您可以获取【周】维度的数据",
+          "urn": "ks:dimension:public/f_week"
+        },
+        {
+          "type": "MONTH",
+          "available": true,
+          "displayName": "月",
+          "tip": "您可以获取【月】维度的数据",
+          "urn": "ks:dimension:public/f_month"
+        },
+        {
+          "type": "QUARTER",
+          "available": true,
+          "displayName": "季度",
+          "tip": "您可以获取【季度】维度的数据",
+          "urn": "ks:dimension:public/f_quarter"
+        },
+        {
+          "type": "YEAR",
+          "available": true,
+          "displayName": "年",
+          "tip": "您可以获取【年】维度的数据",
+          "urn": "ks:dimension:public/f_year"
+        },
+        {
+          "type": "ALL",
+          "available": true,
+          "displayName": "汇总",
+          "tip": "您可以获取【汇总】维度的数据",
+          "urn": "tmp_all"
+        },
+        {
+          "type": "NONE",
+          "available": false,
+          "displayName": "无",
+          "tip": "联盟总消耗、浅度超成本率、平均CPM顶价系数、平均CPA顶价系数、系统出价、(浅度)转化数、平均浅度出价、次日留存数(次留数)、素材CPM、系统改价系数(新版本)、统一后验CVR、统一先验CVR，不支持按无聚合",
+          "urn": "tmp_none"
+        },
+        {
+          "type": "HOUR_TOTAL",
+          "available": true,
+          "displayName": "截止到小时",
+          "tip": "",
+          "urn": "ks:dimension:public/f_hour"
+        },
+        {
+          "type": "MINUTE_TOTAL",
+          "available": true,
+          "displayName": "截止到分钟",
+          "tip": "",
+          "urn": "ks:dimension:public/f_minute"
+        }
+      ],
+      "ordinalColumnType": "virutal",
+      "type": "dimension",
+      "valueType": "datetime",
+      "returnType": "",
+      "functionExpression": "",
+      "isExtend": false,
+      "urn": "",
+      "hotField": true,
+      "isSystemField": true,
+      "lodMetricFlag": false,
+      "nativeSqlMetricFlag": false,
+      "gaiaCaseWhenMetricFlag": false,
+      "granularity": "minute",
+      "useNewDefaultFormat": true,
+      "timeTotalPadding": false,
+      "id": 2211389,
+      "fieldId": "fa1930f4-5686-42d0-921b-fdb55ea9ce6a",
+      "sorter": {
+        "fieldId": 2211389,
+        "order": "desc",
+        "type": "SIMPLE",
+        "uuid": "fa1930f4-5686-42d0-921b-fdb55ea9ce6a",
+        "isOnlySort": false,
+        "weight": 2,
+        "metricSorter": {},
+        "customValueList": []
+      },
+      "showName": "时间(分钟)",
+      "format": "YYYY-MM-DD HH:mm",
+      "showFormat": "",
+      "fieldComment": "",
+      "indicatorAttr": "",
+      "abnormalValueConfig": "hidden",
+      "attributes": {
+        "agg": "false",
+        "metricInsightRules": "[]",
+        "metricInsight": "false",
+        "twiceCalc": "false"
+      },
+      "isCount": false,
+      "groupPercentType": "",
+      "fieldCellStyle": null,
+      "axisId": "rowDimension"
+    },
+    {
+      "dataSetId": 129496,
+      "name": "指标合集2.0",
+      "nickName": "指标合集",
+      "ordinalAggregatorType": "",
+      "ordinalColumnType": "",
+      "type": "dimension",
+      "valueType": "string",
+      "functionType": "",
+      "returnType": "",
+      "functionExpression": "",
+      "isExtend": false,
+      "hotField": true,
+      "virtualType": "pivotMetricNameNew",
+      "isSystemField": false,
+      "useNewDefaultFormat": true,
+      "id": -6,
+      "fieldId": "5e0b2735-3e2e-4409-8de3-32fd3c465249",
+      "sorter": {
+        "fieldId": -6,
+        "order": "",
+        "type": "SIMPLE"
+      },
+      "showName": "指标合集",
+      "showFormat": "",
+      "fieldComment": "",
+      "indicatorAttr": "",
+      "abnormalValueConfig": "hidden",
+      "attributes": {},
+      "isCount": false,
+      "groupPercentType": "",
+      "fieldCellStyle": null,
+      "axisId": "columnDimension"
+    },
+    {
+      "dataSetId": 129496,
+      "name": "联盟总消耗",
+      "nickName": "联盟总消耗",
+      "ordinalAggregatorType": "",
+      "ordinalColumnType": "metric",
+      "type": "metric",
+      "valueType": "number",
+      "functionType": "",
+      "returnType": "value",
+      "functionExpression": "",
+      "isExtend": false,
+      "urn": "ks:metric:ad_v2/union_total_cost_amt",
+      "configAttribution": false,
+      "hotField": true,
+      "isSystemField": false,
+      "id": 2215299,
+      "fieldId": "d0e04d26-39ca-402d-aa57-204726bc6a98",
+      "sorter": {
+        "fieldId": 2215299,
+        "order": "desc",
+        "type": "SIMPLE",
+        "uuid": "d0e04d26-39ca-402d-aa57-204726bc6a98",
+        "metricSorter": {},
+        "customValueList": [],
+        "isOnlySort": false,
+        "weight": 1
+      },
+      "showName": "联盟总消耗",
+      "format": {
+        "fill": " ",
+        "align": ">",
+        "sign": "-",
+        "symbol": "",
+        "zero": false,
+        "comma": true,
+        "type": "f",
+        "trim": true,
+        "typeName": "MONEY",
+        "unit": "YUAN",
+        "unitName": "",
+        "precision": 2,
+        "baseUnit": "YUAN"
+      },
+      "showFormat": "",
+      "fieldComment": "账户消费对应的总收入，也叫实际消耗，单位：元。总消耗=现金消耗+前返扣费+后返扣费+激励账户实收+框返账户实收+信用账户实收+电商采买实收。",
+      "indicatorAttr": "",
+      "abnormalValueConfig": "hidden",
+      "attributes": {
+        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_total_cost_amt",
+        "primaryColIds": "[2212690,2215310,2215361,2212707]",
+        "agg": "true",
+        "metricInsightRules": "[]",
+        "metricInsight": "true",
+        "twiceCalc": "false"
+      },
+      "isCount": true,
+      "unitVO": {
+        "fieldId": 2215299,
+        "creator": "not-login",
+        "used": true,
+        "customized": false,
+        "typeName": "MONEY",
+        "unitName": "YUAN",
+        "convertUnitName": "",
+        "formatEnable": false,
+        "dataSetId": 129496
+      },
+      "groupPercentType": "",
+      "fieldCellStyle": null,
+      "axisId": "metric"
+    },
+    {
+      "dataSetId": 129496,
+      "name": "IAA广告变现ROI",
+      "nickName": "IAA广告变现ROI",
+      "ordinalAggregatorType": "",
+      "ordinalColumnType": "metric",
+      "type": "metric",
+      "valueType": "number",
+      "functionType": "",
+      "returnType": "value",
+      "functionExpression": "",
+      "isExtend": false,
+      "urn": "ks:metric:ad_v2/union_billing_income_roi_game",
+      "configAttribution": false,
+      "hotField": true,
+      "isSystemField": false,
+      "lodMetricFlag": false,
+      "nativeSqlMetricFlag": false,
+      "gaiaCaseWhenMetricFlag": false,
+      "useNewDefaultFormat": true,
+      "id": 7098032,
+      "fieldId": "6edf565f-6644-4af4-885d-808860baa8bd",
+      "sorter": {
+        "fieldId": 7098032,
+        "order": "",
+        "type": "SIMPLE"
+      },
+      "showName": "IAA广告变现ROI",
+      "format": {
+        "fill": "",
+        "align": ">",
+        "sign": "-",
+        "symbol": "",
+        "zero": false,
+        "comma": true,
+        "type": "f",
+        "trim": true,
+        "precision": 2
+      },
+      "showFormat": "",
+      "fieldComment": "LTV/总消耗",
+      "indicatorAttr": "",
+      "abnormalValueConfig": "hidden",
+      "attributes": {
+        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_billing_income_roi_game",
+        "primaryColIds": "[2212690,2215310,2215361,2212707]",
+        "agg": "true",
+        "metricInsightRules": "[]",
+        "metricInsight": "true",
+        "twiceCalc": "false"
+      },
+      "isCount": true,
+      "groupPercentType": "",
+      "fieldCellStyle": null,
+      "axisId": "metric"
+    },
+    {
+      "dataSetId": 129496,
+      "name": "浅度超成本率",
+      "nickName": "浅度超成本率",
+      "ordinalAggregatorType": "",
+      "ordinalColumnType": "metric",
+      "type": "metric",
+      "valueType": "number",
+      "functionType": "",
+      "returnType": "value",
+      "functionExpression": "",
+      "isExtend": false,
+      "urn": "ks:metric:ad_v2/union_over_cost_rate",
+      "configAttribution": false,
+      "hotField": true,
+      "isSystemField": false,
+      "lodMetricFlag": false,
+      "nativeSqlMetricFlag": false,
+      "gaiaCaseWhenMetricFlag": false,
+      "useNewDefaultFormat": true,
+      "id": 2215353,
+      "fieldId": "17084b78-b397-4650-831b-510f99305774",
+      "sorter": {
+        "fieldId": 2215353,
+        "order": "",
+        "type": "SIMPLE"
+      },
+      "showName": "浅度超成本率",
+      "format": {
+        "fill": "",
+        "align": ">",
+        "sign": "-",
+        "symbol": "",
+        "zero": false,
+        "comma": true,
+        "type": "f",
+        "trim": true,
+        "precision": 2
+      },
+      "showFormat": "",
+      "fieldComment": "单元浅度成本超出比率\n单出价：付费roi——付费/消耗/min(roi系数)其他——消耗/预期消耗-1\n双出价：消耗/预期消耗-1",
+      "indicatorAttr": "",
+      "abnormalValueConfig": "hidden",
+      "attributes": {
+        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_over_cost_rate",
+        "primaryColIds": "[2212690,2215310,2215361,2212707]",
+        "agg": "true",
+        "metricInsightRules": "[]",
+        "metricInsight": "true",
+        "twiceCalc": "false"
+      },
+      "isCount": true,
+      "groupPercentType": "",
+      "fieldCellStyle": null,
+      "axisId": "metric"
+    },
+    {
+      "dataSetId": 129496,
+      "name": "平均CPM顶价系数",
+      "nickName": "平均CPM顶价系数",
+      "ordinalAggregatorType": "",
+      "ordinalColumnType": "metric",
+      "type": "metric",
+      "valueType": "number",
+      "functionType": "",
+      "returnType": "value",
+      "functionExpression": "",
+      "isExtend": false,
+      "urn": "ks:metric:ad_v2/avg_cpm_factor",
+      "configAttribution": false,
+      "hotField": true,
+      "isSystemField": false,
+      "lodMetricFlag": false,
+      "nativeSqlMetricFlag": false,
+      "gaiaCaseWhenMetricFlag": false,
+      "useNewDefaultFormat": true,
+      "id": 2983666,
+      "fieldId": "09cef7aa-4283-44b9-8a09-bd54a687615d",
+      "sorter": {
+        "fieldId": 2983666,
+        "order": "",
+        "type": "SIMPLE"
+      },
+      "showName": "平均CPM顶价系数",
+      "format": {
+        "fill": "",
+        "align": ">",
+        "sign": "-",
+        "symbol": "",
+        "zero": false,
+        "comma": true,
+        "type": "f",
+        "trim": true,
+        "precision": 2
+      },
+      "showFormat": "",
+      "fieldComment": "用于衡量CPM顶价工具在系统改价阶段的影响力波动情况的复合指标，应当使用盖亚逻辑配置",
+      "indicatorAttr": "",
+      "abnormalValueConfig": "hidden",
+      "attributes": {
+        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/avg_cpm_factor",
+        "primaryColIds": "[2212690,2215310,2215361,2212707]",
+        "agg": "true",
+        "metricInsightRules": "[]",
+        "metricInsight": "true",
+        "twiceCalc": "false"
+      },
+      "isCount": true,
+      "groupPercentType": "",
+      "fieldCellStyle": null,
+      "axisId": "metric"
+    },
+    {
+      "dataSetId": 129496,
+      "name": "ROI出价系数_浅度",
+      "nickName": "ROI出价系数_浅度",
+      "ordinalAggregatorType": "",
+      "ordinalColumnType": "metric",
+      "type": "metric",
+      "valueType": "number",
+      "functionType": "",
+      "returnType": "value",
+      "functionExpression": "",
+      "isExtend": false,
+      "urn": "ks:metric:ad_v2/dsp_cust_bid_ad_amt_1d_shallow_roi_system_price",
+      "configAttribution": false,
+      "hotField": true,
+      "isSystemField": false,
+      "lodMetricFlag": false,
+      "nativeSqlMetricFlag": false,
+      "gaiaCaseWhenMetricFlag": false,
+      "useNewDefaultFormat": true,
+      "id": 7098033,
+      "fieldId": "7609178b-e4e1-43d8-8be1-8d90f756c307",
+      "sorter": {
+        "fieldId": 7098033,
+        "order": "",
+        "type": "SIMPLE"
+      },
+      "showName": "ROI出价系数_浅度",
+      "format": {
+        "fill": "",
+        "align": ">",
+        "sign": "-",
+        "symbol": "",
+        "zero": false,
+        "comma": true,
+        "type": "f",
+        "trim": true,
+        "precision": 2
+      },
+      "showFormat": "",
+      "fieldComment": "客户浅度ROI出价系数（包含dsp首日roi出价、espROI出价、卖货ROI）",
+      "indicatorAttr": "",
+      "abnormalValueConfig": "hidden",
+      "attributes": {
+        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_cust_bid_ad_amt_1d_shallow_roi_system_price",
+        "primaryColIds": "[2212690,2215310,2215361,2212707]",
+        "agg": "true",
+        "metricInsightRules": "[]",
+        "metricInsight": "true",
+        "twiceCalc": "false"
+      },
+      "isCount": true,
+      "groupPercentType": "",
+      "fieldCellStyle": null,
+      "axisId": "metric"
+    }
+  ],
+  "rowLimit": 100000,
+  "useCache": true,
+  "filters": [
+    {
+      "filterType": "datetime",
+      "targetId": 2211389,
+      "originalFilterValue": {
+        "isDynamic": true,
+        "value": [
+          0,
+          0
+        ],
+        "timeType": [
+          "day",
+          "day"
+        ],
+        "selectType": [
+          "fixed",
+          "fixed"
+        ],
+        "dynamicSelectType": [
+          "normal",
+          "normal"
+        ],
+        "label": ""
+      },
+      "filterValue": {
+        "startTime": 1789401600000,
+        "endTime": 1789487999999,
+        "condition": "date"
+      },
+      "default": true,
+      "contextFilter": true,
+      "isSystemField": true,
+      "disabled": false,
+      "disabledTip": "",
+      "firstSystemField": true,
+      "oldIndex": 0,
+      "urn": "",
+      "name": "__time",
+      "showName": "时间",
+      "order": 0,
+      "selectType": "Multipul",
+      "showType": "Dropdown",
+      "showInWidget": false,
+      "nameInWidget": "时间",
+      "isWhiteList": false,
+      "visibleList": [],
+      "isDropdownAllSelectShow": true,
+      "isDropdownAllShow": true,
+      "isDropdownAllDefault": false,
+      "nickName": "时间",
+      "type": "dimension",
+      "isExtend": false,
+      "valueType": "datetime",
+      "compareType": null,
+      "lodGroupByFields": [],
+      "uuid": "9ed8f73a-f523-4faa-8786-73acca9ade0c",
+      "hasAutoCalcTime": true
+    },
+    {
+      "filterValue": {
+        "condition": "in",
+        "value": [
+          "首日变现ROI（短剧IAA专用）"
+        ],
+        "compareType": ""
+      },
+      "targetId": 2215378,
+      "urn": "ks:dimension:ad_v2/ocpx_action_type",
+      "name": "转化目标（原优化目标）",
+      "order": 1,
+      "filterType": "string",
+      "selectType": "Multipul",
+      "showType": "Dropdown",
+      "showInWidget": false,
+      "nameInWidget": "转化目标（原优化目标）",
+      "isWhiteList": false,
+      "visibleList": [],
+      "isDropdownAllSelectShow": true,
+      "isDropdownAllShow": true,
+      "isDropdownAllDefault": false,
+      "nickName": "转化目标（原优化目标）",
+      "type": "dimension",
+      "isExtend": false,
+      "valueType": "string",
+      "originalFilterValue": {
+        "condition": "in",
+        "value": [
+          "首日变现ROI（短剧IAA专用）"
+        ]
+      },
+      "compareType": null,
+      "lodGroupByFields": [],
+      "isSystemField": false,
+      "uuid": "e8ab2ad1-0bb0-4a95-a16b-f8fa5f389dee",
+      "disabled": false,
+      "disabledTip": ""
+    }
+  ],
+  "resultFilters": [],
+  "viewFilters": [],
+  "metricFilter": [],
+  "isOlap": true,
+  "useScene": "olap",
+  "isInsight": false,
+  "datasetType": "gaia",
+  "ppConfigs": [],
+  "baseTimeFieldId": 2211389,
+  "granularity": "minute",
+  "ignoreResultFilter": true,
+  "dataSetFieldList": [
+    {
+      "dataSetId": 129496,
+      "fieldId": -1321379,
+      "unitVO": {
+        "used": true,
+        "customized": false,
+        "typeName": "",
+        "unitName": "",
+        "convertUnitName": "",
+        "showFormat": {
+          "displayNum": false,
+          "thousandth": false,
+          "filterEndZero": false,
+          "chooseDecimal": true,
+          "digit": 0
+        },
+        "formatEnable": false,
+        "contentName": ""
+      }
+    },
+    {
+      "dataSetId": 129496,
+      "fieldId": -1321756,
+      "unitVO": {
+        "used": true,
+        "customized": false,
+        "typeName": "",
+        "unitName": "",
+        "convertUnitName": "",
+        "showFormat": {
+          "displayNum": false,
+          "thousandth": false,
+          "filterEndZero": false,
+          "chooseDecimal": true,
+          "digit": 0
+        },
+        "formatEnable": false,
+        "contentName": ""
+      }
+    },
+    {
+      "dataSetId": 129496,
+      "fieldId": 2215299,
+      "unitVO": {
+        "fieldId": 2215299,
+        "creator": "not-login",
+        "used": true,
+        "customized": false,
+        "typeName": "MONEY",
+        "unitName": "YUAN",
+        "convertUnitName": "",
+        "formatEnable": false,
+        "dataSetId": 129496
+      }
+    },
+    {
+      "dataSetId": 129496,
+      "fieldId": 7098032
+    },
+    {
+      "dataSetId": 129496,
+      "fieldId": -6
+    },
+    {
+      "dataSetId": 129496,
+      "fieldId": 2212690
+    },
+    {
+      "dataSetId": 129496,
+      "fieldId": 2215353
+    },
+    {
+      "dataSetId": 129496,
+      "fieldId": 2983666
+    },
+    {
+      "dataSetId": 129496,
+      "fieldId": 7098033
+    },
+    {
+      "dataSetId": 129496,
+      "fieldId": 2211389
+    }
+  ],
+  "chartType": "TABLE_PIVOT",
+  "type": 8,
+  "topNConfigList": [],
+  "summaryConfig": {
+    "rowSummaryEnable": true,
+    "rowSummaryPosition": "BOTTOM",
+    "rowSummaryFields": [
+      {
+        "rowFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "d0e04d26-39ca-402d-aa57-204726bc6a98"
+      },
+      {
+        "rowFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "6edf565f-6644-4af4-885d-808860baa8bd"
+      },
+      {
+        "rowFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "17084b78-b397-4650-831b-510f99305774"
+      },
+      {
+        "rowFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "09cef7aa-4283-44b9-8a09-bd54a687615d"
+      },
+      {
+        "rowFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "7609178b-e4e1-43d8-8be1-8d90f756c307"
+      }
+    ],
+    "columnSummaryEnable": true,
+    "columnSummaryPosition": "LEFT",
+    "columnSummaryFields": [
+      {
+        "columnFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "d0e04d26-39ca-402d-aa57-204726bc6a98"
+      },
+      {
+        "columnFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "6edf565f-6644-4af4-885d-808860baa8bd"
+      },
+      {
+        "columnFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "17084b78-b397-4650-831b-510f99305774"
+      },
+      {
+        "columnFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "09cef7aa-4283-44b9-8a09-bd54a687615d"
+      },
+      {
+        "columnFunctionType": "SUM",
+        "summaryType": "ORIGIN",
+        "fieldId": "7609178b-e4e1-43d8-8be1-8d90f756c307"
+      }
+    ]
+  },
+  "allRowPosition": "TOP",
+  "samePeriodCompare": true,
+  "samePeriodCompareRange": [
+    "cycle"
+  ],
+  "groupCrossUpgrade": true,
+  "valueTypes": [
+    "RAW",
+    "VALUE",
+    "TIP"
+  ],
+  "invoker": {
+    "params": {
+      "isIframe": true,
+      "referPage": "https://internal.example.corp/",
+      "ancestorOrigins": "https://internal.example.corp",
+      "moduleVersion": "3.1",
+      "queryTmplSetType": "TEMP_SHARED",
+      "queryTmplSetId": "64385633",
+      "queryTmplId": "64385633"
+    }
+  }
+}

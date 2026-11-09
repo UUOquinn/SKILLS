@@ -1,0 +1,11 @@
+{
+  "SSO_EXPIRED": {"code": 2, "action": "ASK_USER", "retryable": true},
+  "AUTH_FAILED": {"code": 2, "action": "ASK_USER", "retryable": false},
+  "INVALID_CONFIG": {"code": 1, "action": "STOP", "retryable": false},
+  "INVALID_ARGUMENT": {"code": 1, "action": "STOP", "retryable": false},
+  "NOT_FOUND": {"code": 1, "action": "STOP", "retryable": false},
+  "API_4XX": {"code": 1, "action": "STOP", "retryable": false},
+  "API_5XX": {"code": 1, "action": "STOP", "retryable": false},
+  "NETWORK_ERROR": {"code": 1, "action": "STOP", "retryable": false},
+  "OLAP_QUERY_FAILED": {"code": 1, "action": "STOP", "retryable": false}
+}

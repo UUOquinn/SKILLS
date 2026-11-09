@@ -1,0 +1,85 @@
+{
+  "version": "1.0",
+  "scripts": [
+    "scripts/fetch_roi.py",
+    "scripts/fetch_bases.py",
+    "scripts/decide.py",
+    "scripts/append_ledger.py",
+    "scripts/test_decide.py"
+  ],
+  "exit_codes": {
+    "0": {"meaning": "成功或已给出引导", "action": "CONTINUE"},
+    "1": {"meaning": "执行失败", "action": "STOP"},
+    "2": {"meaning": "需要人工确认或权限不足", "action": "ASK_USER"},
+    "3": {"meaning": "输入数据不合规，需重新取数", "action": "STOP"},
+    "130": {"meaning": "用户中断", "action": "STOP"}
+  },
+  "errors": {
+    "SSO_EXPIRED": {
+      "exit_code": 2,
+      "action": "ASK_USER",
+      "retryable": false,
+      "hint": "内网 SSO 已失效。让用户重新完成内网认证后再跑本轮，不要绕过、不要用浏览器代操作。"
+    },
+    "AUTH_FAILED": {
+      "exit_code": 2,
+      "action": "ASK_USER",
+      "retryable": false,
+      "hint": "当前账号无该看板或该接口权限。停止本轮并告知用户申请权限。"
+    },
+    "EMPTY_WINDOW": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": true,
+      "hint": "窗口内没有任何账户数据，通常是实时数据未回补。等下一轮再跑，禁止拿空结果去写策略。"
+    },
+    "TEMPLATE_MISSING": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "references/olap_query_template.json 丢失。该模板必须整份原样提交，不能手拼替代。"
+    },
+    "DUPLICATE_ACCOUNT": {
+      "exit_code": 3,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "输入 CSV 里同一账户出现多行。回到取数环节按账户ID聚合，禁止手工删行或对 ROI 取算术平均。"
+    },
+    "INVALID_ARGUMENT": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "参数不合法。核对命令行参数后重跑，不要猜测补默认值。"
+    },
+    "INPUT_NOT_FOUND": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "输入文件不存在。确认上一步是否真的落盘成功，不要跳过取数直接决策。"
+    },
+    "TEST_FAILED": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "决策表测试未通过。禁止在测试红的状态下跑生产，先修 decide.py 或修测试预期。"
+    },
+    "API_ERROR": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "上游接口返回业务错误。原样记录报错文案，写请求不自动重试，避免重复提交策略。"
+    },
+    "UNEXPECTED_ERROR": {
+      "exit_code": 1,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "未预期异常。读 stderr 的诊断行定位，不要盲目重试写操作。"
+    },
+    "INTERRUPTED": {
+      "exit_code": 130,
+      "action": "STOP",
+      "retryable": false,
+      "hint": "用户中断。先读台账确认哪些账户已成功写入，再决定是否续跑。"
+    }
+  }
+}

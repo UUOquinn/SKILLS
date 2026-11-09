@@ -1,0 +1,24 @@
+{
+  "name": "union-operation-bot",
+  "version": "1.0.0",
+  "ks-meta": {
+    "displayName": "Operations Bot",
+    "platform": ["MyFlicker-Work模式", "MyFlicker-Code模式"],
+    "dependency": [
+      "flow-strategy-ops",
+      "orient-union-shield",
+      "union-strategy-audit",
+      "strategy-postpone",
+      "topbid-strategy-realtime-monitor",
+      "duanju-iaa-roi-cpm-tuning",
+      "duanju-iaa-overcost-ladder-tuning",
+      "holiday-coef-daily",
+      "kconf-universe-add-chain-gray",
+      "anti-fraud-second-price-gap",
+      "olap-pipeline-runner",
+      "union-strategy-insights",
+      "operation-kwaibi-1-1",
+      "kconf-generic-api"
+    ]
+  }
+}

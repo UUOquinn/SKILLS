@@ -1,0 +1,9 @@
+{
+  "name": "strategy-postpone",
+  "version": "1.4.0",
+  "ks-meta": {
+    "displayName": "策略延期",
+    "platform": ["MyFlicker-Work模式", "MyFlicker-Code模式"],
+    "dependency": ["batch-task-orchestrator"]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "batch_candidate": true,
+  "evidence": {
+    "enumerable_objects": true,
+    "decomposable_actions": true,
+    "aggregatable_results": false,
+    "ordering_dependencies": false,
+    "external_rate_limits": false,
+    "sensitive_side_effects": false,
+    "idempotency_or_lookup": false,
+    "explicit_top_n": false,
+    "multi_object_action": true
+  },
+  "assessment_sources": [
+    "user_intent"
+  ],
+  "user_decision": "enable_lightweight",
+  "execution_mode": "lightweight_sequential",
+  "read_only": true,
+  "max_items": 3,
+  "single_item_retry": true
+}

@@ -1,0 +1,13 @@
+{
+  "name" : "union-strategy-audit",
+  "version" : "1.0.11",
+  "ks-meta" : {
+    "dependency" : [ "batch-task-orchestrator" ],
+    "displayName" : "联盟审核",
+    "platform" : [ "MyFlicker-Work模式", "MyFlicker-Code模式" ],
+    "author" : {
+      "type" : "user",
+      "username" : [ "wb_example_user" ]
+    }
+  }
+}

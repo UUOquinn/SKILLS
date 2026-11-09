@@ -1,0 +1,28 @@
+{
+  "scripts": {
+    "fetch_roi.py": {
+      "avg_ms": 5000,
+      "p95_ms": 8000,
+      "network": true
+    },
+    "fetch_bases.py": {
+      "avg_ms": 2000,
+      "p95_ms": 4000,
+      "network": true
+    },
+    "decide.py": {
+      "avg_ms": 100,
+      "p95_ms": 300,
+      "network": false
+    },
+    "append_ledger.py": {
+      "avg_ms": 100,
+      "p95_ms": 200,
+      "network": false
+    }
+  },
+  "round_total_avg_ms": 10000,
+  "note": "每轮取数+基数+决策约10s，写入按账户数线性增长（~100ms/条）",
+  "runner": "exec",
+  "method": "CALLBACK"
+}

@@ -1,0 +1,9 @@
+{
+  "user_decision": "disable",
+  "decision": "disable",
+  "assessed_at": "2026-09-16",
+  "assessment_sources": ["user_intent"],
+  "rationale": "用户在创建对话中被明确询问「这个新 Skill 要不要支持批量处理」，答复为「不要」。写入设计为单条接口：写策略是高影响生产操作，逐条成功后立刻记台账才能保证中断可恢复、不重复写。循环由调用方驱动。",
+  "batch_capability": "none",
+  "notes": "SKILL.md 设「不支持批量」专节，说明约束理由与量级代价。"
+}

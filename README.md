@@ -10,8 +10,25 @@
 | [ams-default-contact](./skills/ams-default-contact/) | **AMS 联系人** — 腾讯 DSP 服务商后台，API 批量选中子客「账户联系人」，禁止开户页逐条点选 | [SKILL.md](./skills/ams-default-contact/SKILL.md) |
 | [query-mapping](./skills/query-mapping/) | **取数口径引擎** — 时间 / 流量主 / 广告主 / 场景 / 转化目标 → 字段映射；离线 `85587` vs 实时 `129496` | [SKILL.md](./skills/query-mapping/SKILL.md) |
 | [query-cpm](./skills/query-cpm/) | **CPM 归因诊断** — 媒体 CPM 下滑拆预算结构、场景占比与同场景 CTR / CVR（先 mapping 再查数） | [SKILL.md](./skills/query-cpm/SKILL.md) |
+| [strategy-postpone](./skills/strategy-postpone/) | **策略延期** — 批量顺延结束时间并提审 | [SKILL.md](./skills/strategy-postpone/SKILL.md) |
+| [flow-strategy-ops](./skills/flow-strategy-ops/) | **流量策略运营** — SSO → REST 创建 / 查询 / 改态 | [SKILL.md](./skills/flow-strategy-ops/SKILL.md) |
+| [union-strategy-audit](./skills/union-strategy-audit/) | **联盟策略审核** — 审核编排与审计轨迹 | [SKILL.md](./skills/union-strategy-audit/SKILL.md) |
+| [union-strategy-insights](./skills/union-strategy-insights/) | **联盟策略洞察** — Operation / KwaiBI / OLAP 快路径 | [SKILL.md](./skills/union-strategy-insights/SKILL.md) |
+| [union-operation-bot](./skills/union-operation-bot/) | **联盟运营 Bot** — 运营编排入口 | [SKILL.md](./skills/union-operation-bot/SKILL.md) |
+| [kconf-generic-api](./skills/kconf-generic-api/) | **KConf 通用 API** — 读写 / 批量 / 分级发布 | [SKILL.md](./skills/kconf-generic-api/SKILL.md) |
+| [kconf-universe-add-chain-gray](./skills/kconf-universe-add-chain-gray/) | **联盟新链路灰度** — `universeAddChainGrayConfig` | [SKILL.md](./skills/kconf-universe-add-chain-gray/SKILL.md) |
+| [kwaibi-sql-access-exec](./skills/kwaibi-sql-access-exec/) | **KwaiBI SQL** — SQL 取数执行 | [SKILL.md](./skills/kwaibi-sql-access-exec/SKILL.md) |
+| [olap-pipeline-runner](./skills/olap-pipeline-runner/) | **OLAP 流水线** — fetch → enrich → evaluate → write | [SKILL.md](./skills/olap-pipeline-runner/SKILL.md) |
+| [ssp-operation-query](./skills/ssp-operation-query/) | **SSP 运营查询** — 结构化运营侧取数 | [SKILL.md](./skills/ssp-operation-query/SKILL.md) |
+| [holiday-coef-daily](./skills/holiday-coef-daily/) | **节假日系数** — 日更叠加 | [SKILL.md](./skills/holiday-coef-daily/SKILL.md) |
+| [topbid-strategy-realtime-monitor](./skills/topbid-strategy-realtime-monitor/) | **TopBid 监控** — 策略实时监控 | [SKILL.md](./skills/topbid-strategy-realtime-monitor/SKILL.md) |
+| [duanju-iaa-account-screening](./skills/duanju-iaa-account-screening/) | **短剧 IAA 筛户** — OLAP / 番茄多步账户筛选 | [SKILL.md](./skills/duanju-iaa-account-screening/SKILL.md) |
+| [duanju-iaa-overcost-ladder-tuning](./skills/duanju-iaa-overcost-ladder-tuning/) | **短剧 IAA 阶梯调价** — 超成本阶梯 | [SKILL.md](./skills/duanju-iaa-overcost-ladder-tuning/SKILL.md) |
+| [duanju-iaa-roi-cpm-tuning](./skills/duanju-iaa-roi-cpm-tuning/) | **短剧 IAA ROI/CPM** — 浅度超成本率联动调价 | [SKILL.md](./skills/duanju-iaa-roi-cpm-tuning/SKILL.md) |
 
 </small>
+
+机器可读索引：[catalog.json](./catalog.json)。上游真实域名 / Cookie / SSO 用户名 / 跑批产物不上库，仓库内均为占位。
 
 
 

@@ -1,0 +1,16 @@
+{
+  "REMOTE_AGENT_REQUIRED": {"code": 2, "action": "RETRY_WITH_CALL_REMOTE_AGENT", "retryable": true},
+  "SQL_EMPTY": {"code": 1, "action": "STOP", "retryable": false},
+  "WRITE_SQL_DENIED": {"code": 1, "action": "ASK_USER", "retryable": true},
+  "FILE_NOT_FOUND": {"code": 1, "action": "ASK_USER", "retryable": true},
+  "TASK_FAILED": {"code": 1, "action": "STOP", "retryable": false},
+  "TASK_KILLED": {"code": 1, "action": "STOP", "retryable": false},
+  "TASK_TIMEOUT": {"code": 1, "action": "STOP", "retryable": true},
+  "EXEC_FAILED": {"code": 1, "action": "STOP", "retryable": true},
+  "AUTH_FAILED": {"code": 1, "action": "ASK_USER", "retryable": true},
+  "SSO_EXPIRED": {"code": 1, "action": "ASK_USER", "retryable": true},
+  "API_5XX": {"code": 1, "action": "STOP", "retryable": true},
+  "API_TIMEOUT": {"code": 1, "action": "STOP", "retryable": true},
+  "NETWORK_ERROR": {"code": 1, "action": "STOP", "retryable": true},
+  "UV_NOT_FOUND": {"code": 1, "action": "STOP", "retryable": false}
+}

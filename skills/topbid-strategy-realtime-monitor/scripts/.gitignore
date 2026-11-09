@@ -1,0 +1,6 @@
+*.local.json
+.cookie
+api.json
+last-result.tsv
+uids-retry.txt
+uids.txt

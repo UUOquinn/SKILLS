@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "long_running": false,
+  "confidence": "low",
+  "evidence": [],
+  "assessment_sources": [
+    "user_intent",
+    "skill_files"
+  ],
+  "a2a_chat_sync": false,
+  "runner": "exec",
+  "method": "CALLBACK",
+  "needs_remote_guard": false,
+  "skill": {
+    "long_running": false,
+    "derived_from": [],
+    "prose_alert": false,
+    "prose_evidence": []
+  },
+  "scripts": {
+    "scripts/screen_accounts.py": {
+      "long_running": false,
+      "confidence": "low",
+      "evidence": [],
+      "runner": "exec",
+      "method": "CALLBACK"
+    },
+    "scripts/screen_step2.py": {
+      "long_running": false,
+      "confidence": "low",
+      "evidence": [],
+      "runner": "exec",
+      "method": "CALLBACK"
+    },
+    "scripts/screen_step3.py": {
+      "long_running": false,
+      "confidence": "low",
+      "evidence": [],
+      "runner": "exec",
+      "method": "CALLBACK"
+    },
+    "scripts/tomato_common.py": {
+      "long_running": false,
+      "runner": "exec",
+      "method": "CALLBACK"
+    },
+    "scripts/tomato_screen_step1.py": {
+      "long_running": false,
+      "runner": "exec",
+      "method": "CALLBACK"
+    },
+    "scripts/tomato_screen_step2.py": {
+      "long_running": false,
+      "runner": "exec",
+      "method": "CALLBACK"
+    },
+    "scripts/tomato_screen_step3.py": {
+      "long_running": false,
+      "runner": "exec",
+      "method": "CALLBACK"
+    },
+    "scripts/tomato_screen_step4.py": {
+      "long_running": false,
+      "runner": "exec",
+      "method": "CALLBACK"
+    },
+    "scripts/tomato_screen_step5.py": {
+      "long_running": false,
+      "runner": "exec",
+      "method": "CALLBACK"
+    }
+  }
+}

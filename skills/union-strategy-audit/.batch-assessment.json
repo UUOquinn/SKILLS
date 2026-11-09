@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "skill": "union-strategy-audit",
+  "decision_source": "skill-creator batch readiness gate + SKILL.md 既有批量契约（v1.0.11）",
+  "user_decision": "enable_orchestrated",
+  "execution_mode": "serial_orchestrated",
+  "read_only": false,
+  "max_items": 50,
+  "single_item_retry": true,
+  "assessed_at": "2026-10-12T03:22:00+08:00",
+  "assessor_user": "wb_example_user",
+  "evidence": {
+    "enumerable_objects": true,
+    "decomposable_actions": true,
+    "aggregatable_results": true,
+    "ordering_dependencies": true,
+    "external_rate_limits": false,
+    "sensitive_side_effects": true,
+    "idempotency_or_lookup": true,
+    "explicit_top_n": false,
+    "multi_object_action": true
+  },
+  "assessment_sources": ["user_intent", "skill_files"],
+  "user_intent": "用户在群聊/私聊发送「联盟审核 1001,1002」批量审核指令；V1.0.11 已支持最多 50 条串行编排审核（通过→发布→门闩推全），并需对打分策略逐条跳过；本次修改仅内置溯源落盘，不改变批量能力。",
+  "risks": [
+    "存在顺序依赖，需要 DAG/串行阶段建模",
+    "写副作用（审核/发布/推全），需稳定 action_id 与 --check-action 回查"
+  ],
+  "contracts": {
+    "process_one": "flow_one / change_one / push_one，按策略 ID 独立处理",
+    "item_retry": "--item <id> 单项补跑入口",
+    "action_id": "stable_action_id(sid, action) 派生，--check-action 回查权威详情",
+    "checkpoint": "后端审核服务状态为权威幂等源，重复动作不重复生效",
+    "dependency": "batch-task-orchestrator"
+  }
+}

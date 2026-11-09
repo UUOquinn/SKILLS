@@ -1,0 +1,13 @@
+{
+  "name": "duanju-iaa-overcost-ladder-tuning",
+  "version": "1.0.0",
+  "ks-meta": {
+    "dependency": ["flow-strategy-ops"],
+    "displayName": "短剧IAA超成本率阶梯压价",
+    "platform": ["MyFlicker-Work模式", "MyFlicker-Code模式"],
+    "author": {
+      "type": "user",
+      "username": ["wb_example_user"]
+    }
+  }
+}

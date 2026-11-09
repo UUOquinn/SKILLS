@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "long_running": false,
+  "confidence": "low",
+  "evidence": [],
+  "assessment_sources": [
+    "user_intent",
+    "skill_files"
+  ],
+  "a2a_chat_sync": false,
+  "runner": "exec",
+  "method": "CALLBACK",
+  "needs_remote_guard": false,
+  "skill": {
+    "long_running": false,
+    "derived_from": [],
+    "prose_alert": false,
+    "prose_evidence": []
+  },
+  "scripts": {
+    "scripts/flow_api.py": {
+      "long_running": false,
+      "confidence": "low",
+      "evidence": [],
+      "runner": "exec",
+      "method": "CALLBACK"
+    }
+  }
+}

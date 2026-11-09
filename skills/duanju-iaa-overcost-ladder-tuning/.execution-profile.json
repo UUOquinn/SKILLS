@@ -1,0 +1,13 @@
+{
+  "long_running": false,
+  "confidence": "low",
+  "evidence": [],
+  "assessment_sources": [
+    "user_intent",
+    "skill_files"
+  ],
+  "a2a_chat_sync": false,
+  "runner": "exec",
+  "method": "CALLBACK",
+  "needs_remote_guard": false
+}

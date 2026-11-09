@@ -1,0 +1,9 @@
+{
+  "name": "topbid-strategy-realtime-monitor",
+  "version": "1.0.0",
+  "ks-meta": {
+    "dependency": ["batch-task-orchestrator"],
+    "displayName": "顶价扶持策略实时监控",
+    "platform": ["MyFlicker-Work模式", "MyFlicker-Code模式"]
+  }
+}
