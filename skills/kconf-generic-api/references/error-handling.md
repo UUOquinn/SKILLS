@@ -1,4 +1,4 @@
-# Error Handling — kconf-generic-api
+# Error Handling — configservice-generic-api
 
 执行任何脚本遇到报错，必须先读取本文件，并优先按脚本返回的 `code` / `exit code` 和 `next_action` 执行。禁止跳过查表步骤自行发挥（改写脚本、偷其他 Skill 代码、降级到原生 python3/pip）。
 
@@ -10,16 +10,16 @@
 |-----------|------|------|
 | `UV_NOT_FOUND` | 停止，引导用户安装 uv | 系统未安装 `uv` |
 | `DEPENDENCY_MISSING` | 停止，引导用户安装 `batch-task-orchestrator` 依赖 | `ks-aimate` 或依赖 Skill 缺失 |
-| `SSO_EXPIRED` | 引导用户重新登录 | Token 过期 |
-| `AUTH_FAILED` | 询问用户 / 提示联系管理员 | 权限不足（KConf 权限或直改被拒） |
+| `AUTH_EXPIRED` | 引导用户重新登录 | Token 过期 |
+| `AUTH_FAILED` | 询问用户 / 提示联系管理员 | 权限不足（ConfigService 权限或直改被拒） |
 | `API_TIMEOUT` | 重试 1 次，仍失败则中止 | 网络超时 |
-| `API_4XX` | 展示 KConf 返回的 `message` 给用户 | 参数非法、key 不存在、precheck 未过 |
-| `API_5XX` | 中止，告知用户稍后重试 | KConf 服务端故障 |
+| `API_4XX` | 展示 ConfigService 返回的 `message` 给用户 | 参数非法、key 不存在、precheck 未过 |
+| `API_5XX` | 中止，告知用户稍后重试 | ConfigService 服务端故障 |
 | `NETWORK_ERROR` | 提示用户检查 VPN | 网络不可达 |
-| `RATE_LIMITED` | 退避后重试 1 次，仍失败则中止 | KConf `result=104` 请求过于频繁（搜索接口易触发） |
+| `RATE_LIMITED` | 退避后重试 1 次，仍失败则中止 | ConfigService `result=104` 请求过于频繁（搜索接口易触发） |
 | `FILE_NOT_FOUND` | 询问用户路径 | `--content-file`/`--keys-file`/`--params-file` 不存在 |
 | `PERMISSION_DENIED` | 提示用户检查权限 | 文件/目录无权限 |
-| `KCONF_RESULT_NOT_1` | 展示 `message`，中止 | KConf 响应包 `result != 1` |
+| `KCONF_RESULT_NOT_1` | 展示 `message`，中止 | ConfigService 响应包 `result != 1` |
 | `VERIFY_MISMATCH` | 停止，明确告知回查未通过 | 写操作后回查发现配置未按预期生效 |
 | `BATCH_TIMEOUT` | 停止，报告已完成/未完成 key 列表 | 整批运行超过 10 分钟，直接判定失败，不做续跑 |
 | `BATCH_SIZE_EXCEEDED` | 停止，提示拆批 | 单批 key 数超过 50 |
@@ -30,20 +30,20 @@
 ### UV_NOT_FOUND
 对用户说：当前系统未安装 uv 工具，请执行 `curl -LsSf https://astral.sh/uv/install.sh | sh` 安装后回复"已安装"。
 
-### SSO_EXPIRED
-对用户说：SSO Token 已过期，请重新登录内网后回复"已登录"。
+### AUTH_EXPIRED
+对用户说：Auth Token 已过期，请重新登录内网后回复"已登录"。
 
 ### API_TIMEOUT
 重试 1 次，仍失败则中止；对用户说：请求超时（已重试 1 次），请检查 VPN 后重试。
 
 ### RATE_LIMITED
-等 3~5 秒后重试 1 次，仍失败则中止；对用户说：KConf 频控触发（请求过于频繁），已稍作等待重试，若仍失败请稍后再试。搜索/目录批量操作时主动降低请求频率。
+等 3~5 秒后重试 1 次，仍失败则中止；对用户说：ConfigService 频控触发（请求过于频繁），已稍作等待重试，若仍失败请稍后再试。搜索/目录批量操作时主动降低请求频率。
 
 ### API_4XX / KCONF_RESULT_NOT_1
-将 KConf 返回的 `message` 原样呈现给用户，由用户决定下一步。
+将 ConfigService 返回的 `message` 原样呈现给用户，由用户决定下一步。
 
 ### API_5XX
-立即中止，不重试；对用户说：KConf 服务暂时不可用，请稍后重试。
+立即中止，不重试；对用户说：ConfigService 服务暂时不可用，请稍后重试。
 
 ### VERIFY_MISMATCH
 停止，明确说明写操作已提交但回查未确认生效（可能仍在灰度或审批中），附带回查到的实际内容，让用户判断。

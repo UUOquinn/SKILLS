@@ -8,7 +8,7 @@
   "TASK_TIMEOUT": {"code": 1, "action": "STOP", "retryable": true},
   "EXEC_FAILED": {"code": 1, "action": "STOP", "retryable": true},
   "AUTH_FAILED": {"code": 1, "action": "ASK_USER", "retryable": true},
-  "SSO_EXPIRED": {"code": 1, "action": "ASK_USER", "retryable": true},
+  "AUTH_EXPIRED": {"code": 1, "action": "ASK_USER", "retryable": true},
   "API_5XX": {"code": 1, "action": "STOP", "retryable": true},
   "API_TIMEOUT": {"code": 1, "action": "STOP", "retryable": true},
   "NETWORK_ERROR": {"code": 1, "action": "STOP", "retryable": true},

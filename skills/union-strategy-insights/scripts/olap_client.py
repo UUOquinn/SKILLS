@@ -11,17 +11,17 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
-"""129496 的 OLAP 模式查询客户端。
+"""DS_REALTIME 的 OLAP 模式查询客户端。
 
 模板必须来自已验证的 OLAP 看板请求；本脚本只替换日期和可选的单一 ID 维度过滤，
 不尝试拼造字段对象，避免过滤条件被服务端静默忽略。
 
-接入点：请求发往 kwaibi.corp 的 /api/v1/data/query，携带 OLAP 查询模式头
-（Kwaibi-View-Query-Type: 8 + kwaibi-request-module: olap），底层由 OLAP 引擎执行。
-olap.corp 域名在当前 SSO 环境直连不可用（401），不要改回直连。
+接入点：请求发往 bi.example.corp 的 /api/v1/data/query，携带 OLAP 查询模式头
+（Kwaibi-View-Query-Type: 8 + bi-request-module: olap），底层由 OLAP 引擎执行。
+olap.example.corp 域名在当前 Auth 环境直连不可用（401），不要改回直连。
 """
 
 import argparse
@@ -33,13 +33,13 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
 from kwaibi_client import _is_null_group, olap_field
 
-OLAP_URL = "https://bi-platform.example.corp/api/v1/data/query"
+OLAP_URL = "https://bi.example.corp/api/v1/data/query"
 TZ = timezone(timedelta(hours=8))
-DATASET_ID = 129496
+DATASET_ID = DS_REALTIME
 
 DIMENSION_FIELDS = {
     "uid": (2212697, "开发者id"),
@@ -103,19 +103,19 @@ def query(template_path: Path, start: datetime, end: datetime, dim: str | None, 
     if dim:
         add_id_filter(body, dim, ids)
 
-    response = SmartSSOSession().request(
+    response = SmartAuthSession().request(
         "POST", OLAP_URL, json=body,
         headers={
             "Accept": "application/json",
             "Kwaibi-View-Query-Type": "8",
-            "kwaibi-request-module": "olap",
+            "bi-request-module": "olap",
             "Referer": referer,
         },
         timeout=180,
     )
     content_type = (response.headers.get("Content-Type") or "").lower()
     if response.status_code in (401, 302) or "text/html" in content_type:
-        raise PermissionError("SSO_EXPIRED")
+        raise PermissionError("AUTH_EXPIRED")
     if response.status_code == 403:
         raise PermissionError("AUTH_FAILED")
     response.raise_for_status()
@@ -137,7 +137,7 @@ def query(template_path: Path, start: datetime, end: datetime, dim: str | None, 
             continue
         rows.append(cells)
     return {
-        "source": "olap_129496",
+        "source": "olap_realtime",
         "columns": columns,
         "rows": rows,
         "rowCount": len(rows),
@@ -147,7 +147,7 @@ def query(template_path: Path, start: datetime, end: datetime, dim: str | None, 
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="129496 OLAP 模式查询（kwaibi.corp）")
+    parser = argparse.ArgumentParser(description="DS_REALTIME OLAP 模式查询（bi.example.corp）")
     parser.add_argument("--template", required=True)
     parser.add_argument("--start", type=int, required=True, help="epoch ms")
     parser.add_argument("--end", type=int, required=True, help="epoch ms")

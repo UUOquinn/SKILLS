@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """直连 OLAP 取数并按账户聚合 ROI，替代对话式取数。
@@ -36,11 +36,11 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-OLAP_URL = "https://internal.example.corp/api/v1/data/query"
+OLAP_URL = "https://app.example.corp/api/v1/data/query"
 SHARE_ID = "64385633"
-DATASET_ID = "129496"
+DATASET_ID = "DS_REALTIME"
 REFERER = (
-    f"https://internal.example.corp/main?enter_from=tianji"
+    f"https://app.example.corp/main?enter_from=tianji"
     f"&shareId={SHARE_ID}&dataSetId={DATASET_ID}"
 )
 TZ = timezone(timedelta(hours=8))
@@ -138,12 +138,12 @@ def query_olap(session: Any, body: dict[str, Any]) -> dict[str, Any]:
         headers={
             "Accept": "application/json",
             "Kwaibi-View-Query-Type": "8",
-            "kwaibi-request-module": "olap",
+            "bi-request-module": "olap",
             "Referer": REFERER,
         },
         timeout=180,
     )
-    # SSO 失效不总是直接给 401/302：部分网关会跟随跳转并最终返回 200 的
+    # Auth 失效不总是直接给 401/302：部分网关会跟随跳转并最终返回 200 的
     # 登录 HTML。若只看状态码，后面 json() 抛 JSONDecodeError 会被包装成
     # UNEXPECTED_ERROR，排查者无法知道该刷新 olap.example.corp 的登录态。
     final_url = str(getattr(resp, "url", ""))
@@ -154,7 +154,7 @@ def query_olap(session: Any, body: dict[str, Any]) -> dict[str, Any]:
         or "text/html" in content_type
     )
     if resp.status_code in (401, 302) or is_login_page:
-        raise PermissionError("SSO_EXPIRED")
+        raise PermissionError("AUTH_EXPIRED")
     if resp.status_code == 403:
         raise PermissionError("AUTH_FAILED")
     resp.raise_for_status()
@@ -295,10 +295,10 @@ def main() -> int:
         end = now - timedelta(minutes=args.lag_minutes)
         start = end - timedelta(minutes=args.window_minutes)
 
-        from ks_aimate.sso_login_client import SmartSSOSession
+        from auth_helper.sso_login_client import SmartAuthSession
 
         template = json.loads(TEMPLATE_PATH.read_text(encoding="utf-8"))
-        session = SmartSSOSession()
+        session = SmartAuthSession()
         fetched = query_olap(session, build_body(template, start, end))
 
         if args.raw_output:
@@ -332,9 +332,9 @@ def main() -> int:
     except PermissionError as exc:
         code = str(exc)
         hint = (
-            "OLAP（olap.example.corp）登录态已失效，请刷新该域名的 SSO 后重试；"
+            "OLAP（olap.example.corp）登录态已失效，请刷新该域名的 Auth 后重试；"
             "adsdata 域名的 cookie 不会用于本脚本"
-            if code == "SSO_EXPIRED"
+            if code == "AUTH_EXPIRED"
             else "当前账号无 OLAP 看板 / 接口权限"
         )
         return _fail(code, hint, code=2)

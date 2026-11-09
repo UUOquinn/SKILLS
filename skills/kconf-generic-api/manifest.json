@@ -2,7 +2,7 @@
   "name": "kconf-generic-api",
   "version": "1.0.0",
   "ks-meta": {
-    "displayName": "KConf 通用配置中心 API",
+    "displayName": "ConfigService 通用配置中心 API",
     "platform": ["MyFlicker-Work模式", "MyFlicker-Code模式"],
     "dependency": ["batch-task-orchestrator"]
   }

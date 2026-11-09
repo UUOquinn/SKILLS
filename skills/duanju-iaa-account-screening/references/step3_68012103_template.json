@@ -38,7 +38,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/license_group",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/license_group",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -78,7 +78,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/define_client_name",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/define_client_name",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -118,7 +118,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/product_name",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/product_name",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -158,7 +158,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/account_id",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/account_id",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -214,7 +214,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
         "primaryColIds": "[3797664,3797590,3797612,3797789,3797679,3797762]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -224,7 +224,7 @@
       "isCount": true,
       "unitVO": {
         "fieldId": 3797598,
-        "creator": "wb_example_user",
+        "creator": "sandbox_user",
         "used": true,
         "customized": false,
         "typeName": "MONEY",
@@ -289,7 +289,7 @@
       "isCount": true,
       "unitVO": {
         "fieldId": 5780700,
-        "creator": "wb_example_user",
+        "creator": "sandbox_user",
         "used": true,
         "customized": false,
         "typeName": "ORDER_OF_MAGNITUDE",
@@ -350,7 +350,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
         "primaryColIds": "[3797664,3797590,3797612,3797789,3797679,3797762]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -1256,7 +1256,7 @@
           "fieldComment": "(总消耗 / 预期消耗) - 1",
           "isFieldCommentSet": false,
           "attributes": {
-            "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
+            "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
             "primaryColIds": "[3797664,3797590,3797612,3797789,3797679,3797762]",
             "agg": "true",
             "metricInsightRules": "[]",
@@ -1333,7 +1333,7 @@
           "fieldComment": "变现LTV/总消耗",
           "isFieldCommentSet": false,
           "attributes": {
-            "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/buy_item_usr_amt",
+            "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/buy_item_usr_amt",
             "primaryColIds": "[3797664,3797590,3797612,3797789,3797679,3797762]",
             "agg": "true",
             "metricInsightRules": "[]",
@@ -1410,7 +1410,7 @@
           "fieldComment": "广告主投放时产生的总收入，对外名称为花费，单位：元。总消耗=现金钱包消耗+前返扣费+后返扣费+激励账户实收+框返账户实收+信用账户实收+电商采买实收（别名扩展钱包）+优惠券消耗+纯现金消耗。粉条场景下要额外加上XYZ豆钻，且要排除掉优惠券消耗。",
           "isFieldCommentSet": false,
           "attributes": {
-            "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
+            "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
             "primaryColIds": "[3797664,3797590,3797612,3797789,3797679,3797762]",
             "agg": "true",
             "metricInsightRules": "[]",
@@ -1426,7 +1426,7 @@
           "computedType": {},
           "unitVO": {
             "fieldId": 3797598,
-            "creator": "wb_example_user",
+            "creator": "sandbox_user",
             "used": true,
             "customized": false,
             "typeName": "MONEY",
@@ -1511,7 +1511,7 @@
           "fieldComment": "广告主投放时产生的总收入，对外名称为花费，单位：元。总消耗=现金钱包消耗+前返扣费+后返扣费+激励账户实收+框返账户实收+信用账户实收+电商采买实收（别名扩展钱包）+优惠券消耗+纯现金消耗。粉条场景下要额外加上XYZ豆钻，且要排除掉优惠券消耗。",
           "isFieldCommentSet": false,
           "attributes": {
-            "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
+            "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
             "primaryColIds": "[3797664,3797590,3797612,3797789,3797679,3797762]",
             "agg": "true",
             "metricInsightRules": "[]",
@@ -1527,7 +1527,7 @@
           "computedType": {},
           "unitVO": {
             "fieldId": 3797598,
-            "creator": "wb_example_user",
+            "creator": "sandbox_user",
             "used": true,
             "customized": false,
             "typeName": "MONEY",

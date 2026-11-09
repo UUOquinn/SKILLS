@@ -11,10 +11,10 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
-"""读取 flowControl 顶价策略，输出类型/scope/监控维度（只读）。
+"""读取 boostControl 顶价策略，输出类型/scope/监控维度（只读）。
 
 用法：
   uv run <skill_directory>/scripts/inspect_strategy.py --ids 27123,27124
@@ -30,9 +30,9 @@ import sys
 import time
 from typing import Any
 
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
-BASE_URL = "https://ops-platform.example.corp/ops/rest/flowControl"
+BASE_URL = "https://ops.example.corp/ops/rest/boostControl"
 TOP_PRICE_TYPES = {3: "顶价", 5: "CPA顶价"}
 # get 接口对非顶价策略的 typeDesc 可能返回空串，这里提供兜底名
 TYPE_NAMES = {1: "绿通", 3: "顶价", 4: "打折", 5: "CPA顶价", 10: "索引加白"}
@@ -73,7 +73,7 @@ def parse_ids(raw: str) -> list[int]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="读取 flowControl 顶价策略维度")
+    parser = argparse.ArgumentParser(description="读取 boostControl 顶价策略维度")
     parser.add_argument("--ids", required=True, help="逗号分隔的策略 ID")
     parser.add_argument("--timeout", type=int, default=30)
     args = parser.parse_args()
@@ -87,12 +87,12 @@ def main() -> int:
               "duration_ms": int((time.monotonic() - started) * 1000)})
         return 1
 
-    session = SmartSSOSession()
+    session = SmartAuthSession()
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Origin": "https://ops-platform.example.corp",
-        "Referer": "https://ops-platform.example.corp/flow",
+        "Origin": "https://ops.example.corp",
+        "Referer": "https://ops.example.corp/flow",
     }
 
     results: list[dict[str, Any]] = []
@@ -106,14 +106,14 @@ def main() -> int:
             results.append({"id": sid, "error": "NETWORK_ERROR", "msg": str(exc)})
             continue
         if resp.status_code in (301, 302, 307, 308, 401):
-            emit({"ok": False, "code": 2, "error": "SSO_EXPIRED",
-                  "msg": "SSO 登录态失效，请在内网浏览器访问任意 example.corp 页面完成认证后重试",
+            emit({"ok": False, "code": 2, "error": "AUTH_EXPIRED",
+                  "msg": "Auth 登录态失效，请在内网浏览器访问任意 example.corp 页面完成认证后重试",
                   "next_action": {"type": "ASK_USER", "retryable": True},
                   "duration_ms": int((time.monotonic() - started) * 1000)})
             return 2
         if resp.status_code == 403:
             emit({"ok": False, "code": 2, "error": "AUTH_FAILED",
-                  "msg": "当前账号无 flowControl 接口权限",
+                  "msg": "当前账号无 boostControl 接口权限",
                   "next_action": {"type": "ASK_USER", "retryable": False},
                   "duration_ms": int((time.monotonic() - started) * 1000)})
             return 2

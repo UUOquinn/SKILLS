@@ -1,5 +1,5 @@
 {
-  "SSO_EXPIRED": {"code": 2, "action": "ASK_USER", "retryable": true},
+  "AUTH_EXPIRED": {"code": 2, "action": "ASK_USER", "retryable": true},
   "AUTH_FAILED": {"code": 2, "action": "ASK_USER", "retryable": false},
   "INVALID_CONFIG": {"code": 1, "action": "STOP", "retryable": false},
   "INVALID_ARGUMENT": {"code": 1, "action": "STOP", "retryable": false},

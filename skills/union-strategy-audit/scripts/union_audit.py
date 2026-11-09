@@ -11,7 +11,7 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 
@@ -28,9 +28,9 @@ import sys
 import time
 from datetime import datetime, timedelta, timezone
 
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
-BASE_URL = "https://ops-platform.example.corp/ops/rest"
+BASE_URL = "https://ops.example.corp/ops/rest"
 
 STATUS_DESC = {
     1: "待审核", 2: "待发布", 3: "审核中",
@@ -56,7 +56,7 @@ CREATOR_ACTION_TO_STATUS_KEY = {
 
 class AuditClient:
     def __init__(self):
-        self.session = SmartSSOSession()
+        self.session = SmartAuthSession()
         self.base = BASE_URL
 
     def _request(self, method, path, body=None):
@@ -74,15 +74,15 @@ class AuditClient:
 
 
 # 审核单/详情探测的唯一顺序，遵循联盟审核状态机约定。
-PREFIXES = ["orientControl", "flowControl", "darkControl", "mediaControl", "innerControl", "shareRatioControl"]
+PREFIXES = ["targetingControl", "boostControl", "shadowControl", "placementControl", "internalControl", "shareControl"]
 # 立即推全接口只允许这三类策略，其他前缀即使有详情也不可写推全。
-PUSH_PREFIXES = {"orientControl", "darkControl", "flowControl"}
+PUSH_PREFIXES = {"targetingControl", "shadowControl", "boostControl"}
 WORKABLE_AUDIT_STATUSES = (1, 6, 12)
 
 def unwrap(payload):
     if not isinstance(payload, dict):
         raise RuntimeError("响应格式异常: %r" % (payload,))
-    # operation-tool 格式: {status: 200/10051, message: "...", data: ...}
+    # ops-platform 格式: {status: 200/10051, message: "...", data: ...}
     if "status" in payload and payload["status"] != 200:
         raise RuntimeError(str(payload.get("message") or "未知错误"))
     if "data" in payload:
@@ -122,9 +122,9 @@ def query_one(client, sid):
     }
 
 
-# 审核单内嵌的策略 control 块。`flowControl.typeDesc`（打折判据）只在这些块里出现：
+# 审核单内嵌的策略 control 块。`boostControl.typeDesc`（打折判据）只在这些块里出现：
 # `/{prefix}/get` 返回的策略详情不含 typeDesc，只有裸 type，无法据此判定。
-CONTROL_KEYS = ("flowControl", "orientControl", "darkControl", "mediaControl", "innerControl", "shareRatioControl")
+CONTROL_KEYS = ("boostControl", "targetingControl", "shadowControl", "placementControl", "internalControl", "shareControl")
 
 # 单会话内缓存「策略 ID -> 审核单列表」，避免同一策略在判定与展示时重复请求审核单。
 _APPROVE_CACHE = {}
@@ -134,12 +134,12 @@ def fetch_approve_records(client, sid):
     """拉取策略的审核单列表（一次请求，会话内缓存）。
 
     `/approve/query` 的响应里每条审核单内嵌一个 control 块，形如：
-        records[].flowControl = {"id": <策略ID>, "name": ..., "type": 4, "typeDesc": "打折"}
+        records[].boostControl = {"id": <策略ID>, "name": ..., "type": 4, "typeDesc": "打折"}
 
     两个易错点：
       1. 块内 `id` 是**策略 ID**；审核单自身 ID 是 `records[].id`（形如 49043），两者不同。
-      2. **同一数字 ID 可同时存在于多个命名空间**——实测策略 15091 在 flowControl
-         （顶价）、orientControl（新屏蔽）、darkControl（暗投控比）下各有同名策略。
+      2. **同一数字 ID 可同时存在于多个命名空间**——实测策略 15091 在 boostControl
+         （顶价）、targetingControl（新屏蔽）、shadowControl（暗投控比）下各有同名策略。
          因此 `typeDesc` 必须与它所在的命名空间一起理解，不能跨命名空间混用。
 
     取不到审核单返回空列表，调用方须按「未知」处理，不得当作放行依据。
@@ -163,7 +163,7 @@ def fetch_approve_records(client, sid):
 def fetch_control_block(client, sid, only_key=None):
     """取审核单内嵌的 control 块，返回首个 `control.id == sid` 的块。
 
-    `only_key` 可限定只在某个命名空间（如 flowControl）内查找。
+    `only_key` 可限定只在某个命名空间（如 boostControl）内查找。
     找不到（或该策略尚未提交审核）时返回的 typeDesc 为 None，调用方按「未知」处理。
     """
     empty = {"typeDesc": None, "controlKey": None, "controlType": None,
@@ -189,10 +189,10 @@ def fetch_control_block(client, sid, only_key=None):
 
 
 def strategy_type_desc(snapshot, client):
-    """策略的 flowControl.typeDesc（拿不到则为 None），用于结果模板展示。"""
-    block = fetch_control_block(client, snapshot.get("id"), only_key="flowControl")
+    """策略的 boostControl.typeDesc（拿不到则为 None），用于结果模板展示。"""
+    block = fetch_control_block(client, snapshot.get("id"), only_key="boostControl")
     if block.get("typeDesc") is None:
-        # flowControl 下没有该 id（如纯屏蔽类策略），退回任意命名空间供展示。
+        # boostControl 下没有该 id（如纯屏蔽类策略），退回任意命名空间供展示。
         block = fetch_control_block(client, snapshot.get("id"))
     return block.get("typeDesc")
 
@@ -206,20 +206,20 @@ def is_deferred_invalid(snapshot):
 
 
 def is_discount_strategy(snapshot, client):
-    """唯一判据：flowControl.typeDesc == 打折（精确相等），禁止按名称/备注模糊猜测。
+    """唯一判据：boostControl.typeDesc == 打折（精确相等），禁止按名称/备注模糊猜测。
 
     必须回查审核单：策略详情接口（`/{prefix}/get`）不返回 typeDesc，只按详情判断
     会永远得到 False，导致打折策略被放行。
 
-    只读 flowControl 命名空间——用户规则明确限定 `flowControl.typeDesc`，
-    不从 orientControl/darkControl 等其它块推断。
+    只读 boostControl 命名空间——用户规则明确限定 `boostControl.typeDesc`，
+    不从 targetingControl/shadowControl 等其它块推断。
 
-    为硬排除安全，扫描该策略**所有**审核单的 flowControl 块：任一为「打折」即命中。
+    为硬排除安全，扫描该策略**所有**审核单的 boostControl 块：任一为「打折」即命中。
     拿不到审核单时返回 False 并置 `_discountUnknown` 标记，调用方按「未知」处理。
     """
     sid = snapshot.get("id")
     for rec in fetch_approve_records(client, sid):
-        block = rec.get("flowControl")
+        block = rec.get("boostControl")
         if not isinstance(block, dict) or not block.get("typeDesc"):
             continue
         try:
@@ -228,8 +228,8 @@ def is_discount_strategy(snapshot, client):
         except (TypeError, ValueError):
             continue
         if block.get("typeDesc") == "打折":
-            snapshot["_flowControlBlock"] = {
-                "typeDesc": block.get("typeDesc"), "controlKey": "flowControl",
+            snapshot["_boostControlBlock"] = {
+                "typeDesc": block.get("typeDesc"), "controlKey": "boostControl",
                 "controlType": block.get("type"), "approveId": rec.get("id"),
                 "approveStatus": rec.get("status"),
                 "ruleName": rec.get("ruleName") or block.get("name"),
@@ -241,13 +241,13 @@ def is_discount_strategy(snapshot, client):
 
 
 def skipped_discount_item(sid, snapshot, auditor=None):
-    block = snapshot.get("_flowControlBlock") or {}
+    block = snapshot.get("_boostControlBlock") or {}
     return {
         "id": sid,
         "ok": True,
         "skipped": True,
         "skipReason": "DISCOUNT_FLOWCONTROL_TYPEDESC",
-        "message": "已跳过：flowControl.typeDesc=打折，禁止审核",
+        "message": "已跳过：boostControl.typeDesc=打折，禁止审核",
         "auditor": auditor or None,
         "strategyTypeDesc": block.get("typeDesc") or "打折",
         "strategy": snapshot,
@@ -492,7 +492,7 @@ def write_trace(args, result):
             "tsMs": int(now.timestamp() * 1000),
             "tz": "Asia/Shanghai",
             "operator": getattr(args, "auditor", None) or None,  # 指令发起人（业务口径）
-            "systemUser": os.environ.get("USER") or os.environ.get("USERNAME") or None,  # SSO 执行者
+            "systemUser": os.environ.get("USER") or os.environ.get("USERNAME") or None,  # Auth 执行者
             "action": getattr(args, "action", None),
             "strategyIds": ids or None,
             "result": {
@@ -617,7 +617,7 @@ def build_brief(items):
             "strategyTypeDesc": item.get("strategyTypeDesc"),
             "deferredInvalidCandidate": item.get("deferredInvalidCandidate"),
             "actionId": item.get("actionId"),
-            "approveId": item.get("approveId") or (strategy.get("_flowControlBlock") or {}).get("approveId"),
+            "approveId": item.get("approveId") or (strategy.get("_boostControlBlock") or {}).get("approveId"),
             "elapsedSec": item.get("elapsedSec"),
             "message": item.get("message"),
             "prefix": fields.get("_prefix"),
@@ -765,7 +765,7 @@ def main():
                     # 不能在不确定这是什么策略的情况下执行审核/发布/推全。
                     if not snapshot.get("ok"):
                         return snapshot
-                    # 打折策略是业务硬排除项：flowControl.typeDesc=打折时不发任何写请求。
+                    # 打折策略是业务硬排除项：boostControl.typeDesc=打折时不发任何写请求。
                     if is_discount_strategy(snapshot, client):
                         return skipped_discount_item(sid, snapshot, args.auditor)
                     # status=5 的延期提审只标记，最终能否通过仍以服务端状态校验为准。

@@ -1,5 +1,5 @@
 {
-  "name" : "kconf-universe-add-chain-gray",
+  "name" : "configservice-universe-add-chain-gray",
   "version" : "1.0.5",
   "ks-meta" : {
     "dependency" : [ "batch-task-orchestrator" ],
@@ -7,7 +7,7 @@
     "platform" : [ "MyFlicker-Work模式", "MyFlicker-Code模式" ],
     "author" : {
       "type" : "user",
-      "username" : [ "wb_example_user" ]
+      "username" : [ "sandbox_user" ]
     }
   }
 }

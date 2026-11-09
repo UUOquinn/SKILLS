@@ -12,11 +12,11 @@
     "130": {"meaning": "用户中断", "action": "STOP"}
   },
   "errors": {
-    "SSO_EXPIRED": {
+    "AUTH_EXPIRED": {
       "exit_code": 2,
       "action": "ASK_USER",
       "retryable": false,
-      "hint": "内网 SSO 已失效。让用户重新完成内网认证后再跑本轮，不要绕过、不要用浏览器代操作。"
+      "hint": "内网 Auth 已失效。让用户重新完成内网认证后再跑本轮，不要绕过、不要用浏览器代操作。"
     },
     "AUTH_FAILED": {
       "exit_code": 2,

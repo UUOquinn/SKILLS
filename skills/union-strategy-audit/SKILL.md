@@ -1,6 +1,6 @@
 ---
 name: union-strategy-audit
-description: 群聊或私聊中 @机器人 执行联盟广告策略实时审核命令。只要用户消息包含「联盟审核 12345」「强制审核 12345」「联盟审核 审核人 张三」等命令式短句，即使只有“联盟审核 + 数字ID”这种极短输入，也必须触发本 skill，并优先于普通联盟策略查询、联盟广告咨询、数据查询或问答类 skill。`联盟审核 12345` 与 `强制审核 12345` 语义完全一致，默认执行审核全流程（通过→发布→条件推全），不支持“审核拒绝”语义；`联盟审核 审核人 张三` 表示按审核人批量执行同样的默认全流程，也不支持“审核拒绝”。支持单个或多个策略 ID（空格/逗号/换行分隔）以及群聊里 @机器人 后直接发送短命令。不触发：对“联盟审核”概念解释、查审核/查询审核状态、单独的审核拒绝意图、查询策略内容详情之外的普通策略检索（用 operation-kwaibi-1-1）、KwaiBI 效果数据查询、非联盟广告策略审核。
+description: 群聊或私聊中 @机器人 执行联盟广告策略实时审核命令。只要用户消息包含「联盟审核 12345」「强制审核 12345」「联盟审核 审核人 张三」等命令式短句，即使只有“联盟审核 + 数字ID”这种极短输入，也必须触发本 skill，并优先于普通联盟策略查询、联盟广告咨询、数据查询或问答类 skill。`联盟审核 12345` 与 `强制审核 12345` 语义完全一致，默认执行审核全流程（通过→发布→条件推全），不支持“审核拒绝”语义；`联盟审核 审核人 张三` 表示按审核人批量执行同样的默认全流程，也不支持“审核拒绝”。支持单个或多个策略 ID（空格/逗号/换行分隔）以及群聊里 @机器人 后直接发送短命令。不触发：对“联盟审核”概念解释、查审核/查询审核状态、单独的审核拒绝意图、查询策略内容详情之外的普通策略检索（用 operation-bi-1-1）、BI 效果数据查询、非联盟广告策略审核。
 ---
 
 <!-- skill-creator: askuser-with-text-fallback-v1 -->
@@ -27,14 +27,14 @@ description: 群聊或私聊中 @机器人 执行联盟广告策略实时审核�
 
 任何其他审核单状态、独立“通过/驳回/发布/拒绝/推全”指令、策略编辑/延期/新建/名单变更，均**不发写请求**。
 
-「审核人」是操作者身份，仅记录在结果中，不传给后端。后端审批人身份由底层 SSO 决定，见「身份契约」。
+「审核人」是操作者身份，仅记录在结果中，不传给后端。后端审批人身份由底层 Auth 决定，见「身份契约」。
 
-## 身份契约（底层 SSO 与后端审批人）
+## 身份契约（底层 Auth 与后端审批人）
 
-- 脚本底层通过 `ks_aimate` 的 `SmartSSOSession` 直连 ops-platform，后端看到的审批人**恒为执行沙箱属主的 SSO 身份**（本沙箱为 `wb_example_user`），与 `--auditor` 传的操作者无关。
-- 策略平台规则是**创建者不能审核自己的策略**，因此审核动作必须在属主沙箱内执行：本 skill 只有在 `wb_example_user` 的沙箱里运行才有效。若被安装到其他用户的沙箱，底层会解析成那个用户的 SSO 身份，审自己的策略会被平台直接拒绝。
+- 脚本底层通过 `auth_helper` 的 `SmartAuthSession` 直连 ops-platform，后端看到的审批人**恒为执行沙箱属主的 Auth 身份**（本沙箱为 `sandbox_user`），与 `--auditor` 传的操作者无关。
+- 策略平台规则是**创建者不能审核自己的策略**，因此审核动作必须在属主沙箱内执行：本 skill 只有在 `sandbox_user` 的沙箱里运行才有效。若被安装到其他用户的沙箱，底层会解析成那个用户的 Auth 身份，审自己的策略会被平台直接拒绝。
 - `--auditor` / 「审核人 xxx」只记录在 skill 输出与溯源日志里，用于标注"这次指令是谁发的"，不是后端的审批身份。
-- 溯源双字段：`operator`（指令发起人，业务口径）与 `systemUser`（实际 SSO 执行者，落地口径）分开记录，缺一不可。
+- 溯源双字段：`operator`（指令发起人，业务口径）与 `systemUser`（实际 Auth 执行者，落地口径）分开记录，缺一不可。
 
 ## 强制审核说明
 
@@ -47,25 +47,25 @@ description: 群聊或私聊中 @机器人 执行联盟广告策略实时审核�
 **排除条件（精确匹配，禁止用名称/备注等文本模糊猜测）**：
 
 ```
-flowControl.typeDesc === "打折"
+boostControl.typeDesc === "打折"
 ```
 
-**取值来源**：该字段**不在**策略详情接口（`/{prefix}/get`）里——详情只有裸 `type`，无法判定打折。必须回查审核单接口 `/approve/query`，从 `records[].flowControl.typeDesc` 取。脚本已封装为 `is_discount_strategy()`，单会话内缓存审核单，每策略仅 1 次额外请求。详见 `references/api-reference.md`。
+**取值来源**：该字段**不在**策略详情接口（`/{prefix}/get`）里——详情只有裸 `type`，无法判定打折。必须回查审核单接口 `/approve/query`，从 `records[].boostControl.typeDesc` 取。脚本已封装为 `is_discount_strategy()`，单会话内缓存审核单，每策略仅 1 次额外请求。详见 `references/api-reference.md`。
 
-**命名空间限定**：只读 `flowControl` 命名空间。同一数字 ID 可能同时存在于 `orientControl`/`darkControl` 等多个命名空间（实测 15091 同时是顶价、新屏蔽、暗投控比三条策略），跨命名空间取值会误判。判定时扫描该策略全部审核单中的 `flowControl` 块，任一为「打折」即命中。
+**命名空间限定**：只读 `boostControl` 命名空间。同一数字 ID 可能同时存在于 `targetingControl`/`shadowControl` 等多个命名空间（实测 15091 同时是顶价、新屏蔽、暗投控比三条策略），跨命名空间取值会误判。判定时扫描该策略全部审核单中的 `boostControl` 块，任一为「打折」即命中。
 
-命中上述条件的策略禁止进入审核、发布或推全链路：不调用任何状态变更接口，结果标记为`skipped=true`，并输出“已跳过：flowControl.typeDesc=打折，禁止审核”。批量任务逐条检查，命中打折的策略跳过，其余策略继续按原顺序审核。
+命中上述条件的策略禁止进入审核、发布或推全链路：不调用任何状态变更接口，结果标记为`skipped=true`，并输出“已跳过：boostControl.typeDesc=打折，禁止审核”。批量任务逐条检查，命中打折的策略跳过，其余策略继续按原顺序审核。
 
 **取不到审核单时不得放行**：若回查不到该策略的审核单（尚未提交审核等），`typeDesc` 为未知，脚本标记 `discountUnknown=true`。此时**不得**默认按“非打折”处理，须在结果中如实展示“typeDesc 未知”，由用户判断。
 
 ## 批量能力说明
 
-批量能力评估结论：已启用串行编排批量模式（最多 50 条）。批量`联盟审核`与`强制审核`逐条先读取详情并回查审核单判定打折；`flowControl.typeDesc=打折`时直接跳过，其他策略才执行完整流程。前一条结束后才开始下一条；单项失败或跳过不阻断后续策略，最终汇总成功/失败/跳过数。详情中`status=5`且带延期信息时标记为延期失效候选并直接尝试审核。单项补跑：对失败的单个 id 用`--item <id>`重新执行同一命令即可。默认参数：`--concurrency 1 --batch-size 50 --max-runtime 900 --authoritative-source audit_get`。每次写操作生成稳定`action_id`；重放前用`--check-action <action_id> --ids <id>`从权威详情接口回查。后端审核服务是状态与幂等性的权威来源，重复动作不会重复生效。
+批量能力评估结论：已启用串行编排批量模式（最多 50 条）。批量`联盟审核`与`强制审核`逐条先读取详情并回查审核单判定打折；`boostControl.typeDesc=打折`时直接跳过，其他策略才执行完整流程。前一条结束后才开始下一条；单项失败或跳过不阻断后续策略，最终汇总成功/失败/跳过数。详情中`status=5`且带延期信息时标记为延期失效候选并直接尝试审核。单项补跑：对失败的单个 id 用`--item <id>`重新执行同一命令即可。默认参数：`--concurrency 1 --batch-size 50 --max-runtime 900 --authoritative-source audit_get`。每次写操作生成稳定`action_id`；重放前用`--check-action <action_id> --ids <id>`从权威详情接口回查。后端审核服务是状态与幂等性的权威来源，重复动作不会重复生效。
 
 ## 执行规则
 
 1. **解析指令**：从用户消息中提取策略 id（4 位以上数字，逗号/空格/换行分隔均可）、命令动作、审核人（`联盟审核 审核人 xxx`、`& 审核人 xxx`、`审核人 xxx` 或 `审核人=xxx`）。解析不出 id、审核人或动作时，用 `askUser` 询问补齐，不要猜测。
-2. **状态机门禁**：`联盟审核`、`强制审核`、`联盟审核 审核人 xxx`视为已明确授权；脚本先以 `POST /approve/query` 定位审核单，只允许 `status=1/6/12` 进入流程。打折策略（`flowControl.typeDesc === "打折"`）直接跳过；其他状态同样直接跳过。所有跳过均不调用状态变更或推全接口。
+2. **状态机门禁**：`联盟审核`、`强制审核`、`联盟审核 审核人 xxx`视为已明确授权；脚本先以 `POST /approve/query` 定位审核单，只允许 `status=1/6/12` 进入流程。打折策略（`boostControl.typeDesc === "打折"`）直接跳过；其他状态同样直接跳过。所有跳过均不调用状态变更或推全接口。
 3. **调用脚本**（仅审核状态机入口）：
 
 ```bash
@@ -95,7 +95,7 @@ uv run <skill_directory>/scripts/union_audit.py \
 - 打折排除、查无此 ID、失败或未收敛时，必须保留 `skipReason`/`message`，不要把失败包装成成功。
 - 批量时先输出`成功 N / 失败 M / 跳过 K`，再按输入顺序逐条输出上述 4 行以内回执。
 - 只有用户明确说“详情”“展开”“为什么”“查策略配置”时，才从 `data.items` 读取对应单条的 `strategy.fields` 和 `steps`，并按所问维度展开；不得主动输出名单、账户数或媒体数。
-5. **超时提示**：`flow` 全流程含推全收敛，最长约 3 分钟；脚本会打印进度。若单条超时，告知用户到 Orient 审核平台确认是否已在"推全中"，不要盲目整单重审。
+5. **超时提示**：`flow` 全流程含推全收敛，最长约 3 分钟；脚本会打印进度。若单条超时，告知用户到 Targeting 审核平台确认是否已在"推全中"，不要盲目整单重审。
 6. **失败排查**：先读 `<skill_directory>/references/error-handling.md` 按错误码行动。常见业务失败（如"无法应用于状态[发布成功]"）说明策略已不在可审状态，向用户解释，不要重试。
 7. **溯源自动落盘（不阻塞回执）**：`scripts/union_audit.py` 已内置溯源记录，任何写动作（`audit`/`force_audit`/`change`/`push`/带 `--creator-action` 的 `by_creator`）执行后自动追加 append-only JSONL 到 `<工作目录>/audit-trace/audit-YYYY-MM-DD.jsonl`（可用环境变量 `UNION_AUDIT_TRACE_DIR` 改目录），skill 重装不会丢，**无需手动调用**。落盘失败只写 stderr 一行提示，不阻断结果输出。只读操作（`query`/`users`/`match_user`/`--check-action`）不落盘。查询历史：
 
@@ -104,7 +104,7 @@ uv run <skill_directory>/scripts/union_audit.py \
 grep 15915 <工作目录>/audit-trace/audit-*.jsonl
 ```
 
-记录字段：`tsMs`、`operator`（指令发起人）、`systemUser`（SSO 执行者）、`action`、`strategyIds`、`result.items[]`（每条策略的 ok/skipped/typeDesc/message）。**落盘失败不影响审核结果展示**，仅在 stderr 提示。
+记录字段：`tsMs`、`operator`（指令发起人）、`systemUser`（Auth 执行者）、`action`、`strategyIds`、`result.items[]`（每条策略的 ok/skipped/typeDesc/message）。**落盘失败不影响审核结果展示**，仅在 stderr 提示。
 
 ## 审核状态机（1.4.0）
 
@@ -125,7 +125,7 @@ grep 15915 <工作目录>/audit-trace/audit-*.jsonl
 
 ## 查无此 ID 的处理（1.2.0 修复）
 
-`/{prefix}/get` 对 orientControl/flowControl/darkControl/mediaControl 四个命名空间全部未命中时（ID 错误、已删除、权限不可见、非联盟广告策略），`query_one` 返回 `{"ok": false, "message": "策略 #<id> 查询失败：...均未命中，请确认 ID 是否正确..."}`，不再抛出不可读的 `TypeError`。所有写路径（`audit`/`change`/`push`/`by_creator`）在拿到这个结果后立即短路返回，**不发任何写请求**——不能在身份未确认的情况下执行审核/发布/推全。批量 `query` 对坏 ID 单条隔离，不拖累同批其余 ID 的查询结果。
+`/{prefix}/get` 对 targetingControl/boostControl/shadowControl/placementControl 四个命名空间全部未命中时（ID 错误、已删除、权限不可见、非联盟广告策略），`query_one` 返回 `{"ok": false, "message": "策略 #<id> 查询失败：...均未命中，请确认 ID 是否正确..."}`，不再抛出不可读的 `TypeError`。所有写路径（`audit`/`change`/`push`/`by_creator`）在拿到这个结果后立即短路返回，**不发任何写请求**——不能在身份未确认的情况下执行审核/发布/推全。批量 `query` 对坏 ID 单条隔离，不拖累同批其余 ID 的查询结果。
 
 ## 多审核单选单（1.4.0 修复）
 
@@ -136,6 +136,6 @@ grep 15915 <工作目录>/audit-trace/audit-*.jsonl
 - 后端按策略状态天然幂等：重复审核已发布/已审核的策略会被拒绝并返回原因，不会重复生效。
 - 审核单接口需按状态过滤选单，不可直接取 `records[0]`——多命名空间/多版本会返回多条，取错单会导致「状态流转不合法」。
 - 审核人列表接口数据量大，`users` 输出会被脚本压缩为前 50 条提示。
-- 本 skill 只操作实时审核，不负责策略新建、编辑、延期（走 operation-kwaibi-1-1）。
+- 本 skill 只操作实时审核，不负责策略新建、编辑、延期（走 operation-bi-1-1）。
 - 溯源日志（`audit-trace/`）是本 skill 唯一的历史记录来源：平台侧只记系统自动审核，手工审核与发布重放均无痕，排查「谁审的」以溯源日志为准。
 

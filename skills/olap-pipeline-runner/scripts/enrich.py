@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """拉平台生效策略在本地建「主键 → 当前值」索引。管道第 2 段。
@@ -22,8 +22,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-BASE_URL = "https://ops-platform.example.corp/ops/rest"
-QUERY_PATH = f"{BASE_URL}/flowControl/query"
+BASE_URL = "https://ops.example.corp/ops/rest"
+QUERY_PATH = f"{BASE_URL}/boostControl/query"
 PAGE_SIZE = 100
 MAX_PAGES = 50
 
@@ -114,7 +114,7 @@ def fetch_effective(
             timeout=120,
         )
         if resp.status_code in (401, 302):
-            raise PermissionError("SSO_EXPIRED")
+            raise PermissionError("AUTH_EXPIRED")
         if resp.status_code == 403:
             raise PermissionError("AUTH_FAILED")
         resp.raise_for_status()
@@ -294,9 +294,9 @@ def main() -> int:
 
         keys = keys_from_csv(Path(args.input))
 
-        from ks_aimate.sso_login_client import SmartSSOSession
+        from auth_helper.sso_login_client import SmartAuthSession
 
-        session = SmartSSOSession()
+        session = SmartAuthSession()
         strategies = fetch_effective(
             session, id_field, value_field, status, industry_version,
         )
@@ -339,8 +339,8 @@ def main() -> int:
 
     except PermissionError as exc:
         code = str(exc)
-        if code == "SSO_EXPIRED":
-            return _fail("SSO_EXPIRED", "内网 SSO 已失效，请重新完成认证后重试", code=2)
+        if code == "AUTH_EXPIRED":
+            return _fail("AUTH_EXPIRED", "内网 Auth 已失效，请重新完成认证后重试", code=2)
         return _fail("AUTH_FAILED", "无权访问策略平台，确认账号权限", code=2)
     except Exception as exc:  # noqa: BLE001
         print(f"[enrich] {type(exc).__name__}: {exc}", file=sys.stderr)

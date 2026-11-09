@@ -3,7 +3,7 @@
   "skill": "strategy-postpone",
   "policies": {
     "UV_NOT_FOUND":        {"action": "STOP",              "retryable": false},
-    "SSO_EXPIRED":         {"action": "STOP",              "retryable": true, "retry_hint": "登录后重试"},
+    "AUTH_EXPIRED":         {"action": "STOP",              "retryable": true, "retry_hint": "登录后重试"},
     "AUTH_FAILED":         {"action": "STOP",              "retryable": false},
     "STRATEGY_NOT_FOUND":  {"action": "SKIP_CONTINUE",     "retryable": false},
     "INVALID_IDS":         {"action": "ASK_USER",          "retryable": true},

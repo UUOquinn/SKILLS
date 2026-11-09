@@ -11,10 +11,10 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
-"""kconf_batch.py — 对多个 KConf key 批量执行同类操作（编排模式）。
+"""kconf_batch.py — 对多个 ConfigService key 批量执行同类操作（编排模式）。
 
 契约（固化，不可运行时更改）：
 - 并发度=2
@@ -32,9 +32,9 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from ks_aimate.sso_login_client import SmartSSOSession, SSOAuthRequiredError
+from auth_helper.sso_login_client import SmartAuthSession, SSOAuthRequiredError
 
-BASE = "https://kconf.example.corp"
+BASE = "https://config.example.corp"
 CONCURRENCY = 2
 MAX_ITEMS = 50
 TIMEOUT_SECONDS = 600
@@ -73,11 +73,11 @@ def make_action_id(key, action, params):
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:24]
 
 
-class KConfBatchClient:
-    """轻量内联版 KConfClient（避免跨脚本 import 路径问题）。"""
+class ConfigBatchClient:
+    """轻量内联版 ConfigClient（避免跨脚本 import 路径问题）。"""
 
     def __init__(self):
-        self.session = SmartSSOSession()
+        self.session = SmartAuthSession()
 
     def _call(self, method, path, params=None, json_body=None):
         resp = self.session.request(method, f"{BASE}{path}", params=params, json=json_body, timeout=30)
@@ -222,7 +222,7 @@ def main():
     run_p.add_argument("--concurrency", type=int, default=CONCURRENCY)
     run_p.add_argument("--batch-size", type=int, default=MAX_ITEMS, help="单批最大 key 数上限")
     run_p.add_argument("--max-runtime", type=int, default=TIMEOUT_SECONDS, help="整批最长运行时间（秒），超时直接失败")
-    run_p.add_argument("--authoritative-source", default="kconf-get", help="写后回查的权威数据源，默认重新 GET /api/w/config/get 回查")
+    run_p.add_argument("--authoritative-source", default="configservice-get", help="写后回查的权威数据源，默认重新 GET /api/w/config/get 回查")
     run_p.add_argument("--check-action", default=None, help="跳过已执行过的该 action_id（幂等去重）")
     run_p.add_argument("--item", default=None, help="process_one 单项入口：只对这个 key 补跑，不进入批量并发")
 
@@ -257,7 +257,7 @@ def main():
     else:
         params_map = {k: {} for k in keys}
 
-    client = KConfBatchClient()
+    client = ConfigBatchClient()
     results = []
     start = time.time()
     deadline = start + args.max_runtime
@@ -270,7 +270,7 @@ def main():
                 if time.time() > deadline:
                     raise TimeoutError()
     except SSOAuthRequiredError:
-        emit({"ok": False, "code": 2, "error": "SSO_EXPIRED", "msg": "SSO 登录态已失效，请重新登录内网后重试", "next_action": {"type": "ASK_USER"}}, 2)
+        emit({"ok": False, "code": 2, "error": "AUTH_EXPIRED", "msg": "Auth 登录态已失效，请重新登录内网后重试", "next_action": {"type": "ASK_USER"}}, 2)
     except TimeoutError:
         done_keys = {r["key"] for r in results}
         pending = [k for k in keys if k not in done_keys]

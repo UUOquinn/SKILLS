@@ -1,11 +1,11 @@
 ---
-name: kwaibi-sql-access-exec
+name: bi-sql-access-exec
 description: >
-  通过 SSO 直连 KwaiBI SQL 取数接口，代为执行 Hive/ClickHouse 等 SQL 并把结果下载为 CSV 到工作区。
+  通过 Auth 直连 BI SQL 取数接口，代为执行 Hive/ClickHouse 等 SQL 并把结果下载为 CSV 到工作区。
   自动创建并复用执行 notebook，提交后轮询任务状态，成功后拉取 CSV。
   当用户说执行 SQL、代跑、跑一下这条 SQL、sql-access 执行、取数并下载 CSV 时使用。
-  不适用：SQL 的编写与优化（交给 kwaibi-sql-unit-hh 或用户）、看板 dataset 结构化查数
-  （走 operation-kwaibi-1-1）、需要审批的写操作或敏感数据下载。
+  不适用：SQL 的编写与优化（交给 bi-sql-unit-hh 或用户）、看板 dataset 结构化查数
+  （走 operation-bi-1-1）、需要审批的写操作或敏感数据下载。
 ---
 
 <!-- skill-creator: askuser-with-text-fallback-v1 -->
@@ -18,8 +18,8 @@ description: >
 
 ## 定位
 
-- 平台：KwaiBI SQL 取数（bi-platform.example.corp），SQL 编辑页 shareId=105af2bd-4ed2-42b3-a0f9-8b1c8799bfb6
-- 鉴权：脚本内嵌 `SmartSSOSession`（ks-aimate），自动管理 SSO 登录态，不需要用户提供 Cookie 或 token
+- 平台：BI SQL 取数（bi.example.corp），SQL 编辑页 shareId=105af2bd-4ed2-42b3-a0f9-8b1c8799bfb6
+- 鉴权：脚本内嵌 `SmartAuthSession`（ks-aimate），自动管理 Auth 登录态，不需要用户提供 Cookie 或 token
 - 默认只执行只读语句（SELECT / WITH / SHOW / DESC / EXPLAIN）；写语句需 `--allow-write`
 
 ## 执行路由（必读）
@@ -47,7 +47,7 @@ uv run <skill_directory>/scripts/execute_sql.py --sql-file tmp/query.sql
 | 参数 | 默认 | 说明 |
 |------|------|------|
 | `--sql` / `--sql-file` | stdin | SQL 来源 |
-| `--name` | kwaibi-sql-access-exec | 自建 notebook 名（首次创建、之后复用） |
+| `--name` | bi-sql-access-exec | 自建 notebook 名（首次创建、之后复用） |
 | `--out` | tmp/kwaibi_result.csv | CSV 结果路径 |
 | `--timeout-sec` | 1800 | 轮询超时 |
 | `--poll-sec` | 5 | 轮询间隔 |
@@ -62,7 +62,7 @@ uv run <skill_directory>/scripts/execute_sql.py --sql-file tmp/query.sql
 
 ## Agent 工作流
 
-1. 确认 SQL 来源（用户给 / kwaibi-sql-unit-hh 生成），确认只读意图
+1. 确认 SQL 来源（用户给 / bi-sql-unit-hh 生成），确认只读意图
 2. 用 AskUser 确认后再执行写语句（用户要写语句时）
 3. 通过 `call_remote_agent` 运行上面的命令；短查询一般 1～3 分钟，大查询可达 30 分钟
 4. 读 stdout 最后一行 JSON：`code=0` → 报告 `rows`、`csv_path`（用文件标签交付）；`code≠0` → 查错误表
@@ -78,6 +78,6 @@ uv run <skill_directory>/scripts/execute_sql.py --sql-file tmp/query.sql
 ## 边界
 
 - 批量能力评估结论：轻量顺序模式（轻量批量）；批量体现在单条 SQL 内的多 ID，单次一个任务，不做多任务编排；单项补跑入口 `--item "<单条 SQL>"`
-- 平台删除 notebook 接口对 API 自建 notebook 有缺陷：脚本复用同一个 notebook，避免垃圾文件；如页面出现 `kwaibi-sql-access-exec` 文件请保留
+- 平台删除 notebook 接口对 API 自建 notebook 有缺陷：脚本复用同一个 notebook，避免垃圾文件；如页面出现 `bi-sql-access-exec` 文件请保留
 - 不生成 SQL、不改写用户 SQL；敏感数据下载需走平台审批的由平台拦截
-- 与市场技能 ks-kwaibi-sql-exec / devops-query-sql 能力重叠：本 skill 为接口直连方案（SSO），响应更快；浏览器方案可作为兜底
+- 与市场技能 ks-bi-sql-exec / devops-query-sql 能力重叠：本 skill 为接口直连方案（Auth），响应更快；浏览器方案可作为兜底

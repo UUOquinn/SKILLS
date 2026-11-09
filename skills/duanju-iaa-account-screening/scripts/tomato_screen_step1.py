@@ -8,7 +8,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """番茄短剧筛选 Step 1：大池子筛账户（可投范围=七猫/爱奇艺/番茄，消耗>0.1）"""

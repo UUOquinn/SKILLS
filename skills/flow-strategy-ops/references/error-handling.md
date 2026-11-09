@@ -5,8 +5,8 @@
 
 | error | exit | 动作 |
 |---|---:|---|
-| `SSO_EXPIRED` | 2 | 请求用户重新完成内网认证；不要代开网页操作 |
-| `AUTH_FAILED` | 2 | 告知用户当前账号无 flowControl 权限 |
+| `AUTH_EXPIRED` | 2 | 请求用户重新完成内网认证；不要代开网页操作 |
+| `AUTH_FAILED` | 2 | 告知用户当前账号无 boostControl 权限 |
 | `VALIDATION_FAILED` | 1 | 展示 msg 中的真实原因（缺必填字段/名单冲突等）；对照 API.md 补字段后重试。**不是**行业版本问题 |
 | `INDUSTRY_VERSION_MISMATCH` | 1 | msg 明确提到行业版本时才会报此错；检查顶层/广告维度 `industryVersion` 后重试 |
 | `API_TIMEOUT` | 1 | 只读操作可重试一次；写操作停止，先查状态避免重复提交 |

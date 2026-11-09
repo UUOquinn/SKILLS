@@ -3,10 +3,10 @@
 基址：
 
 ```
-https://ops-platform.example.corp/ops/rest
+https://ops.example.corp/ops/rest
 ```
 
-鉴权：内网 SSO Cookie（浏览器会话 / 代理注入）。成功壳常见 `status: 200`；**不能**只看 status，见「空壳」节。
+鉴权：内网 Auth Cookie（浏览器会话 / 代理注入）。成功壳常见 `status: 200`；**不能**只看 status，见「空壳」节。
 
 行业版本：提交/查询常需 `industryVersion: "6.6"`（放顶层或 `adCluster` 内）。
 
@@ -16,19 +16,19 @@ https://ops-platform.example.corp/ops/rest
 
 | apiPrefix | 类型 | 提审接口 |
 |-----------|------|----------|
-| `orientControl` | 定向 | `mergeEditV2` |
-| `flowControl` | 扶持 | `mergeEdit` |
-| `darkControl` | 暗投 | `mergeEdit` |
-| `mediaControl` | 媒体 | `mergeEdit` |
-| `innerControl` | 内循环 | `mergeEdit` |
-| `shareRatioControl` | 流量分成（页路由 `/stream`） | `mergeEdit` |
+| `targetingControl` | 定向 | `submitEdit` |
+| `boostControl` | 扶持 | `submitEdit` |
+| `shadowControl` | 暗投 | `submitEdit` |
+| `placementControl` | 媒体 | `submitEdit` |
+| `internalControl` | 内循环 | `submitEdit` |
+| `shareControl` | 流量分成（页路由 `/stream`） | `submitEdit` |
 
-- **无** `generalControl`。综合页 `/general` 走 `allControl/query` 聚合，**无**独立 get/mergeEdit。
+- **无** `generalControl`。综合页 `/general` 走 `allControl/query` 聚合，**无**独立 get/submitEdit。
 - 探测顺序：上表自上而下；第一个通过「空壳校验」的即命中。
 
 ### 空壳校验（`get` 必做）
 
-`orientControl/get` 对**不属于定向**的 ID 也常返回 `status=200`，但 `data` 为空。未命中若：
+`targetingControl/get` 对**不属于定向**的 ID 也常返回 `status=200`，但 `data` 为空。未命中若：
 
 - HTTP 非 2xx，或  
 - `data` 为 `null` / `{}` / `[]`，或  
@@ -52,7 +52,7 @@ GET /{apiPrefix}/get?id={strategyId}
 ## 2. 定向列表查询
 
 ```
-POST /orientControl/query
+POST /targetingControl/query
 Content-Type: application/json
 ```
 
@@ -83,7 +83,7 @@ Content-Type: application/json
 POST /allControl/query
 ```
 
-综合策略页聚合；**不能**当单策略 get/mergeEdit 前缀用。
+综合策略页聚合；**不能**当单策略 get/submitEdit 前缀用。
 
 ---
 
@@ -92,7 +92,7 @@ POST /allControl/query
 ### 定向
 
 ```
-POST /orientControl/mergeEditV2
+POST /targetingControl/submitEdit
 Content-Type: application/json
 ```
 
@@ -108,7 +108,7 @@ Content-Type: application/json
 ### 非定向（扶持/暗投/…）
 
 ```
-POST /{apiPrefix}/mergeEdit
+POST /{apiPrefix}/submitEdit
 ```
 
 透传业务字段（含 `scope` 等），剔除只读：`status`, `statusDesc`, `createTime`, `updateTime`, `toolBar`, `displayQuickPushBtn`, `_apiPrefix` 等。仍补 `adCluster.industryVersion`。
@@ -118,7 +118,7 @@ POST /{apiPrefix}/mergeEdit
 ## 5. 批量新建（定向）
 
 ```
-POST /orientControl/batchAddV2
+POST /targetingControl/batchCreate
 Content-Type: application/json
 ```
 
@@ -129,14 +129,14 @@ Content-Type: application/json
 | `7` | 定向屏蔽 |
 | `9` | 游戏优质媒体 / 预算定向（预算侧） |
 
-Body 以各业务模块为准；鉴权同 SSO。
+Body 以各业务模块为准；鉴权同 Auth。
 
 ---
 
 ## 6. 撤回
 
 ```
-POST /orientControl/withdraw
+POST /targetingControl/withdraw
 ```
 
 （工作台代理路径对应此上游；body/query 以抓包为准，常见带策略 id。）
@@ -150,7 +150,7 @@ POST /{apiPrefix}/quickPushAll?id={strategyId}&type={0|1|2}[&confirm=true]
 ```
 
 - Body：空 `{}`（参数走 **querystring**）  
-- 支持前缀（前端契约）：`orientControl` / `darkControl` / `flowControl`  
+- 支持前缀（前端契约）：`targetingControl` / `shadowControl` / `boostControl`  
 - `type`：`0` 普通立即推全；`1` 封禁期审批；`2` 封禁期立即推全  
 - 二次确认文案时带 `confirm=true`  
 - HTTP 成功只表示**受理**；策略侧可能停在 `status=10`「推全中」，需轮询至 `4` 生效 / `11` 失败 / 超时  
@@ -171,7 +171,7 @@ POST /approve/query
 
 按审核状态、策略 id / ruleId 等查审核单。`status` 枚举与策略运行态不同，常见：
 
-| code | 含义（Orient 文案） |
+| code | 含义（Targeting 文案） |
 |------|---------------------|
 | 1 | 待审核 |
 | 2 | 发布成功（终态） |
@@ -214,7 +214,7 @@ GET /common/listUser
 ## 已知坑
 
 1. `get` 空壳 + 误判定向 → 必须二次校验再试下一前缀  
-2. 定向必须 `mergeEditV2`，其它类型 `mergeEdit`（非 V2）  
+2. 定向必须 `submitEdit`，其它类型 `submitEdit`（非 V2）  
 3. 定向提交字段过多 → 412  
 4. `quickPushAll` 成功 ≠ 已生效  
-5. Operation Cookie ≠ KwaiBI Cookie  
+5. Operation Cookie ≠ BI Cookie  

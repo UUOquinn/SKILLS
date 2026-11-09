@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """直连 OLAP 取数，按账户聚合浅度超成本率与联盟总消耗（1 小时窗口）。
@@ -45,11 +45,11 @@ from typing import Any
 
 _STARTED_AT = time.perf_counter()
 
-OLAP_URL = "https://internal.example.corp/api/v1/data/query"
+OLAP_URL = "https://app.example.corp/api/v1/data/query"
 SHARE_ID = "64385633"
-DATASET_ID = "129496"
+DATASET_ID = "DS_REALTIME"
 REFERER = (
-    f"https://internal.example.corp/main?enter_from=tianji"
+    f"https://app.example.corp/main?enter_from=tianji"
     f"&shareId={SHARE_ID}&dataSetId={DATASET_ID}"
 )
 TZ = timezone(timedelta(hours=8))
@@ -134,7 +134,7 @@ def query_olap(session: Any, body: dict[str, Any]) -> dict[str, Any]:
         headers={
             "Accept": "application/json",
             "Kwaibi-View-Query-Type": "8",
-            "kwaibi-request-module": "olap",
+            "bi-request-module": "olap",
             "Referer": REFERER,
         },
         timeout=180,
@@ -147,7 +147,7 @@ def query_olap(session: Any, body: dict[str, Any]) -> dict[str, Any]:
         or "text/html" in content_type
     )
     if resp.status_code in (401, 302) or is_login_page:
-        raise PermissionError("SSO_EXPIRED")
+        raise PermissionError("AUTH_EXPIRED")
     if resp.status_code == 403:
         raise PermissionError("AUTH_FAILED")
     resp.raise_for_status()
@@ -254,10 +254,10 @@ def main() -> int:
         end = now - timedelta(minutes=args.lag_minutes)
         start = end - timedelta(minutes=args.window_minutes)
 
-        from ks_aimate.sso_login_client import SmartSSOSession
+        from auth_helper.sso_login_client import SmartAuthSession
 
         template = json.loads(TEMPLATE_PATH.read_text(encoding="utf-8"))
-        session = SmartSSOSession()
+        session = SmartAuthSession()
         fetched = query_olap(session, build_body(template, start, end))
 
         result = aggregate(fetched["columns"], fetched["rows"], start, end, account_filter)
@@ -285,8 +285,8 @@ def main() -> int:
     except PermissionError as exc:
         code = str(exc)
         hint = (
-            "OLAP（olap.example.corp）登录态已失效，请刷新该域名 SSO 后重试"
-            if code == "SSO_EXPIRED"
+            "OLAP（olap.example.corp）登录态已失效，请刷新该域名 Auth 后重试"
+            if code == "AUTH_EXPIRED"
             else "当前账号无 OLAP 看板 / 接口权限"
         )
         return _fail(code, hint, code=2)

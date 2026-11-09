@@ -13,7 +13,7 @@ description: 短剧假期系数策略时间窗更新：可自定义输入策略 
 
 **不要改**：系数、账户/产品维、`adCluster` / `mediaCluster` 业务字段、策略名（除非用户明确要求）。
 
-接口细节见 [references/API.md](references/API.md)；执行报错先查 [references/error-handling.md](references/error-handling.md)。鉴权优先走云端 SSO/OBO HTTP；禁止把 `sso-state.json` 当 Cookie。
+接口细节见 [references/API.md](references/API.md)；执行报错先查 [references/error-handling.md](references/error-handling.md)。鉴权优先走云端 Auth/OBO HTTP；禁止把 `sso-state.json` 当 Cookie。
 
 <!-- skill-creator: askuser-with-text-fallback-v1 -->
 
@@ -42,8 +42,8 @@ description: 短剧假期系数策略时间窗更新：可自定义输入策略 
 
 | 模式 | 写接口 | 何时用 | 默认 |
 |------|--------|--------|------|
-| **A 改原 ID** | `mergeEditV2`（定向）/ `mergeEdit`（其它） | 更新用户指定策略的时间窗 | **是** |
-| **B 每天新建** | `batchAddV2`（定向） | 要保留历史窗口、每天出新 ID | 否（需用户明确） |
+| **A 改原 ID** | `submitEdit`（定向）/ `submitEdit`（其它） | 更新用户指定策略的时间窗 | **是** |
+| **B 每天新建** | `batchCreate`（定向） | 要保留历史窗口、每天出新 ID | 否（需用户明确） |
 
 未指定模式 → 走 **A**。
 
@@ -81,7 +81,7 @@ uv run <skill_directory>/scripts/overlay_time.py --strategy-id 26558 --day 2026-
 
 ### 1. 鉴权
 
-用云端内置带 SSO/OBO 的 HTTP 工具打 Operation。失败（302/401/HTML login）→ **停**，报告「未登录 / 鉴权失败」，不要空转重试、不要改用 Data Agent。
+用云端内置带 Auth/OBO 的 HTTP 工具打 Operation。失败（302/401/HTML login）→ **停**，报告「未登录 / 鉴权失败」，不要空转重试、不要改用 Data Agent。
 
 ### 2. `get` 指定策略
 
@@ -102,14 +102,14 @@ GET /{apiPrefix}/get?id={strategyId}
 **模式 A：**
 
 ```
-POST /orientControl/mergeEditV2   # 若 apiPrefix=orientControl
-POST /{apiPrefix}/mergeEdit       # 其它前缀
+POST /targetingControl/submitEdit   # 若 apiPrefix=targetingControl
+POST /{apiPrefix}/submitEdit       # 其它前缀
 ```
 
 **模式 B：**
 
 ```
-POST /orientControl/batchAddV2
+POST /targetingControl/batchCreate
 ```
 
 - Body 去掉原策略 `id`（新建）；时间已叠好；业务字段从原策略拷贝
@@ -162,7 +162,7 @@ POST /{apiPrefix}/quickPushAll?id={id}&type=0
 
 1. **只改 beginTime / endTime**；严格使用用户确认的日期与具体时间
 2. **不要改系数与定向/媒体名单**
-3. 定向必须 `mergeEditV2`；非定向 `mergeEdit`
+3. 定向必须 `submitEdit`；非定向 `submitEdit`
 4. 若设置的窗口临近开始时间，要在汇报里标明审核可能来不及生效的风险
 5. 不把本流程当成通用延期/屏蔽创建；仅用于短剧假期系数策略的时间窗更新
 
@@ -186,6 +186,6 @@ POST /{apiPrefix}/quickPushAll?id={id}&type=0
 
 | 技能 | 关系 |
 |------|------|
-| `operation-kwaibi` | 上游 API / 鉴权契约；本技能是业务编排 |
+| `operation-bi` | 上游 API / 鉴权契约；本技能是业务编排 |
 | `strategy-postpone` | 到期 +1 月改 `endTime`；**不要**用延期逻辑改假期窗 |
 | 白名单自动审 | 可选加速；本技能不替代审核状态机 |

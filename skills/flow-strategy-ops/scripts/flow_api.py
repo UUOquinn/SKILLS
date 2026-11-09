@@ -12,10 +12,10 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
-"""flowControl API-only CLI. No cookies, browser automation, or UI fallback."""
+"""boostControl API-only CLI. No cookies, browser automation, or UI fallback."""
 
 from __future__ import annotations
 
@@ -32,10 +32,10 @@ from pathlib import Path
 from typing import Any
 
 import requests
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
-BASE_URL = "https://ops-platform.example.corp/ops/rest"
-FLOW_URL = f"{BASE_URL}/flowControl"
+BASE_URL = "https://ops.example.corp/ops/rest"
+FLOW_URL = f"{BASE_URL}/boostControl"
 DEFAULT_TIMEOUT = 30
 DROP_FIELDS = {
     "_apiPrefix", "_strategyType", "status", "statusDesc", "creatorName",
@@ -102,12 +102,12 @@ def parse_json(value: str, label: str) -> dict[str, Any]:
 class FlowClient:
     def __init__(self, timeout: int = DEFAULT_TIMEOUT):
         self.timeout = timeout
-        self.session = SmartSSOSession()
+        self.session = SmartAuthSession()
         self.headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "Origin": "https://ops-platform.example.corp",
-            "Referer": "https://ops-platform.example.corp/flow",
+            "Origin": "https://ops.example.corp",
+            "Referer": "https://ops.example.corp/flow",
         }
 
     def request(self, method: str, path: str, *, params: dict[str, Any] | None = None,
@@ -126,9 +126,9 @@ class FlowClient:
             raise FlowError("API_REQUEST_FAILED", f"Operation API 请求失败: {exc}") from exc
 
         if response.status_code in (301, 302, 307, 308, 401):
-            raise FlowError("SSO_EXPIRED", "当前 SSO 身份无效，请重新完成内网认证后再试", code=2, action="ASK_USER")
+            raise FlowError("AUTH_EXPIRED", "当前 Auth 身份无效，请重新完成内网认证后再试", code=2, action="ASK_USER")
         if response.status_code == 403:
-            raise FlowError("AUTH_FAILED", "当前账号无 flowControl 接口权限", code=2, action="ASK_USER")
+            raise FlowError("AUTH_FAILED", "当前账号无 boostControl 接口权限", code=2, action="ASK_USER")
         if response.status_code >= 500:
             raise FlowError("API_5XX", f"Operation 服务异常（HTTP {response.status_code}）")
         if response.status_code >= 400:
@@ -193,19 +193,19 @@ class FlowClient:
         assert_writable(detail, strategy_id)
         body = self.sanitize({**detail, **patch})
         body["id"] = detail.get("id", strategy_id)
-        return self.request("POST", "mergeEdit", body=body)
+        return self.request("POST", "submitEdit", body=body)
 
     def create(self, item: dict[str, Any]) -> Any:
         if "list" in item:
             raise FlowError("BATCH_NOT_SUPPORTED", "只支持单条新建，请直接传一个策略对象")
         body = self.sanitize(item)
-        return self.request("POST", "batchAddV2", body={"list": [body]})
+        return self.request("POST", "batchCreate", body={"list": [body]})
 
     def update_list(self, strategy_id: int, dim: str, ids: str, remove: bool) -> Any:
         """在指定策略的某个维度模板上新增/删除 ID 名单并提审。
 
         前提是调用方已提供明确的策略 ID：detail 必然存在（先 GET 核对）。
-        提交复用 mergeEdit 的「先 GET 全量，再合并 patch」语义：
+        提交复用 submitEdit 的「先 GET 全量，再合并 patch」语义：
         先校验维度与现有名单，再做集合增删，然后白名单裁剪并提审。
         """
         if dim not in LIST_DIMS:
@@ -240,7 +240,7 @@ class FlowClient:
         if not str(body.get("background") or "").strip():
             body["background"] = str(body.get("name") or "名单调整")
         body["id"] = detail.get("id", strategy_id)
-        self.request("POST", "mergeEdit", body=body)
+        self.request("POST", "submitEdit", body=body)
         return {
             "strategyId": strategy_id, "dimension": dim, "label": label,
             "action": verb, "changed": target, "existing_before": existing,
@@ -393,7 +393,7 @@ def assert_writable(detail: dict[str, Any], strategy_id: int) -> None:
     """写操作前置门禁：已失效/已删除的策略不能作为增删改的对象。
 
     原因：delete 后 get 仍能查到 isDel=true 的记录（逻辑删除），
-    对这类策略执行 mergeEdit/add-ids 要么无效要么污染数据，必须拦截。
+    对这类策略执行 submitEdit/add-ids 要么无效要么污染数据，必须拦截。
     """
     if not isinstance(detail, dict):
         raise FlowError("NOT_FOUND", f"未找到扶持策略 {strategy_id}")
@@ -418,7 +418,7 @@ def assert_writable(detail: dict[str, Any], strategy_id: int) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="扶持策略 flowControl API-only CLI")
+    parser = argparse.ArgumentParser(description="扶持策略 boostControl API-only CLI")
     parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT)
     sub = parser.add_subparsers(dest="command", required=True)
 

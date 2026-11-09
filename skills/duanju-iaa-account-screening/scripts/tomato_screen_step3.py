@@ -8,7 +8,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """番茄短剧筛选 Step 3：累加排除 Step2 账户，消耗 10000~30000 + 超成本率<0.15"""
@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from tomato_common import (ScreenError, TZ, as_raw, fetch, make_body, normalize_step1,
-                    response_json, kconf_antou_ids, KCONF_BASE, KCONF_KEY, AB_KEY, file_link)
+                    response_json, config_whitelist_ids, CONFIG_BASE, CONFIG_KEY, AB_KEY, file_link)
 # import step2 logic inline
 import importlib.util as _iu; _iu_p = Path(__file__).parent / "tomato_screen_step2.py"
 _spec = _iu.spec_from_file_location("tomato_screen_step2", _iu_p); _m = _iu.module_from_spec(_spec); _spec.loader.exec_module(_m)
@@ -89,10 +89,10 @@ def normalize(data_columns: list[dict], data_list: list[list], excluded: set[str
 def step2_results(day: datetime) -> tuple[list[str], dict[str, Any]]:
     """内联运行 Step2 获取账户集和 meta。"""
     # 不可能直接调用 main()（参数系统），此地复制 Step2 逻辑
-    kconf_ids, kconf_meta = kconf_antou_ids()
+    config_ids, config_meta = config_whitelist_ids()
     step1_pairs, step1_summary = normalize_step1(fetch(make_body(day, None)), None)
     step1_ids = {a for _, a, _ in step1_pairs}
-    excluded = step1_ids | kconf_ids
+    excluded = step1_ids | config_ids
     body = _m.load_template()
     _m.inject_exclusion(body, excluded)
     _m.rewrite_time(body, day)
@@ -100,9 +100,9 @@ def step2_results(day: datetime) -> tuple[list[str], dict[str, Any]]:
     rows, details = _m.normalize(data["dataList"], data["columns"], excluded)
     cols = [c["name"] for c in data["columns"]]
     accounts = sorted({str(as_raw(r[cols.index("账户ID")])) for r in rows}, key=int)
-    return accounts, {"excluded_step1": len(step1_ids), "excluded_kconf": len(kconf_ids),
+    return accounts, {"excluded_step1": len(step1_ids), "excluded_config": len(config_ids),
                       "excluded_union": len(excluded), "step1_rows": step1_summary["row_count"],
-                      "step2_rows": details["row_count"], **kconf_meta}
+                      "step2_rows": details["row_count"], **config_meta}
 
 def main() -> int:
     started = time.monotonic()

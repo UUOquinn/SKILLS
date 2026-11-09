@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """Industry code → name dictionary (built-in static + refresh from seed platform).
@@ -17,7 +17,7 @@ Usage:
 
 Data sources:
   - Built-in: references/industry-code-name.json (353 industries, extracted from the
-    orient-union-shield seed dictionary, 44 first-level / 364 second-level taxonomy)
+    targeting-union-shield seed dictionary, 44 first-level / 364 second-level taxonomy)
   - Refresh: http://10.0.0.1:3000/data/industry-map.json (may be unreachable
     from some networks; built-in dictionary is the fallback)
 
@@ -31,7 +31,7 @@ import sys
 import time
 from pathlib import Path
 
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
 REFS = Path(__file__).resolve().parent.parent / "references"
 DICT_PATH = REFS / "industry-code-name.json"
@@ -92,7 +92,7 @@ def main() -> None:
                           "total": len(codes), "resolved": len(codes) - len(missing)})
 
         elif args.command == "refresh":
-            session = SmartSSOSession()
+            session = SmartAuthSession()
             resp = session.request("GET", INDUSTRY_MAP_URL, timeout=TIMEOUT)
             resp.raise_for_status()
             raw = resp.json()
@@ -115,8 +115,8 @@ def main() -> None:
         if "timed out" in msg.lower() or "timeout" in msg.lower():
             emit_error(1, "API_TIMEOUT", "行业字典源连接超时（10.0.0.1:3000 可能不可达），"
                                           "仍可用内置静态字典", "RETRY_ONCE_THEN_STOP", True)
-        elif "SSO" in msg.upper() or "login" in msg.lower():
-            emit_error(1, "SSO_EXPIRED", "SSO 登录已过期，请重新认证", "ASK_USER", True)
+        elif "Auth" in msg.upper() or "login" in msg.lower():
+            emit_error(1, "AUTH_EXPIRED", "Auth 登录已过期，请重新认证", "ASK_USER", True)
         else:
             emit_error(1, "NETWORK_ERROR", f"行业字典源不可达：{msg}，仍可用内置静态字典",
                        "RETRY_ONCE_THEN_STOP", True)

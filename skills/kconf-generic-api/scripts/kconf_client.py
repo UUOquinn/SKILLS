@@ -11,10 +11,10 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
-"""kconf_client.py — KConf 配置中心通用单 key 操作（读/写/历史/监控/灰度/回滚）。
+"""kconf_client.py — ConfigService 配置中心通用单 key 操作（读/写/历史/监控/灰度/回滚）。
 
 stdout 最后一行输出标准 JSON: {"ok", "code", "data"|"error"/"msg", "next_action"}
 退出码: 0=成功, 1=失败, 2=权限/询问, 130=SIGINT
@@ -23,9 +23,9 @@ import argparse
 import json
 import sys
 import time
-from ks_aimate.sso_login_client import SmartSSOSession, SSOAuthRequiredError
+from auth_helper.sso_login_client import SmartAuthSession, SSOAuthRequiredError
 
-BASE = "https://kconf.example.corp"
+BASE = "https://config.example.corp"
 START_MS = int(time.time() * 1000)
 
 
@@ -35,15 +35,15 @@ def emit(payload, code):
     sys.exit(code)
 
 
-class KConfClient:
+class ConfigClient:
     def __init__(self):
-        self.session = SmartSSOSession()
+        self.session = SmartAuthSession()
 
     def _call(self, method, path, params=None, json_body=None):
         try:
             resp = self.session.request(method, f"{BASE}{path}", params=params, json=json_body, timeout=30)
         except SSOAuthRequiredError:
-            emit({"ok": False, "code": 2, "error": "SSO_EXPIRED", "msg": "SSO 登录态已失效，请重新登录内网后重试", "next_action": {"type": "ASK_USER"}}, 2)
+            emit({"ok": False, "code": 2, "error": "AUTH_EXPIRED", "msg": "Auth 登录态已失效，请重新登录内网后重试", "next_action": {"type": "ASK_USER"}}, 2)
         except Exception as exc:  # network / timeout
             msg = str(exc)
             if "timed out" in msg.lower() or "timeout" in msg.lower():
@@ -51,16 +51,16 @@ class KConfClient:
             emit({"ok": False, "code": 1, "error": "NETWORK_ERROR", "msg": msg, "next_action": {"type": "STOP"}}, 1)
 
         if resp.status_code >= 500:
-            emit({"ok": False, "code": 1, "error": "API_5XX", "msg": f"KConf 服务端错误 {resp.status_code}: {resp.text[:500]}", "next_action": {"type": "STOP"}}, 1)
+            emit({"ok": False, "code": 1, "error": "API_5XX", "msg": f"ConfigService 服务端错误 {resp.status_code}: {resp.text[:500]}", "next_action": {"type": "STOP"}}, 1)
         if resp.status_code >= 400:
-            emit({"ok": False, "code": 1, "error": "API_4XX", "msg": f"KConf 请求错误 {resp.status_code}: {resp.text[:500]}", "next_action": {"type": "STOP"}}, 1)
+            emit({"ok": False, "code": 1, "error": "API_4XX", "msg": f"ConfigService 请求错误 {resp.status_code}: {resp.text[:500]}", "next_action": {"type": "STOP"}}, 1)
 
         body = resp.json()
         result = body.get("result")
         if result == 101:
-            emit({"ok": False, "code": 2, "error": "SSO_EXPIRED", "msg": "KConf 返回「需要登录」，请完成内网登录后重试", "next_action": {"type": "ASK_USER"}}, 2)
+            emit({"ok": False, "code": 2, "error": "AUTH_EXPIRED", "msg": "ConfigService 返回「需要登录」，请完成内网登录后重试", "next_action": {"type": "ASK_USER"}}, 2)
         if result == 104:
-            emit({"ok": False, "code": 1, "error": "RATE_LIMITED", "msg": "KConf 请求过于频繁，已触发频控，请稍后重试", "next_action": {"type": "RETRY_ONCE_THEN_STOP", "retryable": True}}, 1)
+            emit({"ok": False, "code": 1, "error": "RATE_LIMITED", "msg": "ConfigService 请求过于频繁，已触发频控，请稍后重试", "next_action": {"type": "RETRY_ONCE_THEN_STOP", "retryable": True}}, 1)
         if result not in (1, None):
             emit({"ok": False, "code": 1, "error": "KCONF_RESULT_NOT_1", "msg": f"[{result}] {body.get('message', str(body))}", "next_action": {"type": "STOP"}}, 1)
         return body.get("data", body)
@@ -363,7 +363,7 @@ def main():
     p = sub.add_parser("search-config-legacy"); p.add_argument("--keyword", required=True)
 
     args = parser.parse_args()
-    client = KConfClient()
+    client = ConfigClient()
 
     if args.cmd == "get":
         data = client.get(args.key)

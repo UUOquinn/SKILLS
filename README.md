@@ -2,22 +2,24 @@
 
 运营 Agent 能力库。一仓多包，按场景装；凭证不上库。
 
+> **公开仓脱敏约定**：上游真实域名、内网 IP、Cookie / Token、SSO 账号、跑批数据均不上库。文档与脚本中的 Host、API 前缀、数据集 ID、配置 Key 均为 **占位符**（如 `ops.example.corp`、`targetingControl`、`DS_REALTIME`），不能直接对生产环境调用。
+
 <small>
 
 | Skill | 定位 | 入口 |
 |-------|------|------|
 | [alliance-workbench-api](./skills/alliance-workbench-api/) | **联盟工作台控制面** — 本机 `:3000` 全量 HTTP 契约：策略查询 / 审核编排 / 延期托管 / 定投 / 屏蔽 / 结构化查数 | [SKILL.md](./skills/alliance-workbench-api/SKILL.md) |
 | [ams-default-contact](./skills/ams-default-contact/) | **AMS 联系人** — 腾讯 DSP 服务商后台，API 批量选中子客「账户联系人」，禁止开户页逐条点选 | [SKILL.md](./skills/ams-default-contact/SKILL.md) |
-| [query-mapping](./skills/query-mapping/) | **取数口径引擎** — 时间 / 流量主 / 广告主 / 场景 / 转化目标 → 字段映射；离线 `85587` vs 实时 `129496` | [SKILL.md](./skills/query-mapping/SKILL.md) |
+| [query-mapping](./skills/query-mapping/) | **取数口径引擎** — 时间 / 流量主 / 广告主 / 场景 / 转化目标 → 字段映射；离线 `DS_OFFLINE` vs 实时 `DS_REALTIME` | [SKILL.md](./skills/query-mapping/SKILL.md) |
 | [query-cpm](./skills/query-cpm/) | **CPM 归因诊断** — 媒体 CPM 下滑拆预算结构、场景占比与同场景 CTR / CVR（先 mapping 再查数） | [SKILL.md](./skills/query-cpm/SKILL.md) |
 | [strategy-postpone](./skills/strategy-postpone/) | **策略延期** — 批量顺延结束时间并提审 | [SKILL.md](./skills/strategy-postpone/SKILL.md) |
-| [flow-strategy-ops](./skills/flow-strategy-ops/) | **流量策略运营** — SSO → REST 创建 / 查询 / 改态 | [SKILL.md](./skills/flow-strategy-ops/SKILL.md) |
+| [flow-strategy-ops](./skills/flow-strategy-ops/) | **流量策略运营** — Auth → REST 创建 / 查询 / 改态 | [SKILL.md](./skills/flow-strategy-ops/SKILL.md) |
 | [union-strategy-audit](./skills/union-strategy-audit/) | **联盟策略审核** — 审核编排与审计轨迹 | [SKILL.md](./skills/union-strategy-audit/SKILL.md) |
-| [union-strategy-insights](./skills/union-strategy-insights/) | **联盟策略洞察** — Operation / KwaiBI / OLAP 快路径 | [SKILL.md](./skills/union-strategy-insights/SKILL.md) |
+| [union-strategy-insights](./skills/union-strategy-insights/) | **联盟策略洞察** — Operation / BI / OLAP 快路径 | [SKILL.md](./skills/union-strategy-insights/SKILL.md) |
 | [union-operation-bot](./skills/union-operation-bot/) | **联盟运营 Bot** — 运营编排入口 | [SKILL.md](./skills/union-operation-bot/SKILL.md) |
-| [kconf-generic-api](./skills/kconf-generic-api/) | **KConf 通用 API** — 读写 / 批量 / 分级发布 | [SKILL.md](./skills/kconf-generic-api/SKILL.md) |
-| [kconf-universe-add-chain-gray](./skills/kconf-universe-add-chain-gray/) | **联盟新链路灰度** — `universeAddChainGrayConfig` | [SKILL.md](./skills/kconf-universe-add-chain-gray/SKILL.md) |
-| [kwaibi-sql-access-exec](./skills/kwaibi-sql-access-exec/) | **KwaiBI SQL** — SQL 取数执行 | [SKILL.md](./skills/kwaibi-sql-access-exec/SKILL.md) |
+| [kconf-generic-api](./skills/kconf-generic-api/) | **ConfigService 通用 API** — 读写 / 批量 / 分级发布 | [SKILL.md](./skills/kconf-generic-api/SKILL.md) |
+| [kconf-universe-add-chain-gray](./skills/kconf-universe-add-chain-gray/) | **联盟新链路灰度** — `chainGrayConfig` | [SKILL.md](./skills/kconf-universe-add-chain-gray/SKILL.md) |
+| [kwaibi-sql-access-exec](./skills/kwaibi-sql-access-exec/) | **BI SQL** — SQL 取数执行 | [SKILL.md](./skills/kwaibi-sql-access-exec/SKILL.md) |
 | [olap-pipeline-runner](./skills/olap-pipeline-runner/) | **OLAP 流水线** — fetch → enrich → evaluate → write | [SKILL.md](./skills/olap-pipeline-runner/SKILL.md) |
 | [ssp-operation-query](./skills/ssp-operation-query/) | **SSP 运营查询** — 结构化运营侧取数 | [SKILL.md](./skills/ssp-operation-query/SKILL.md) |
 | [holiday-coef-daily](./skills/holiday-coef-daily/) | **节假日系数** — 日更叠加 | [SKILL.md](./skills/holiday-coef-daily/SKILL.md) |
@@ -28,7 +30,7 @@
 
 </small>
 
-机器可读索引：[catalog.json](./catalog.json)。上游真实域名 / Cookie / SSO 用户名 / 跑批产物不上库，仓库内均为占位。
+机器可读索引：[catalog.json](./catalog.json)。上游真实域名 / Cookie / Auth 用户名 / 跑批产物不上库，仓库内均为占位。
 
 
 
@@ -37,7 +39,7 @@
 
 # HTTP API
 
-> 本机 Base：`http://127.0.0.1:3000` · Orient 由服务端 Playwright / Cookie 代理 · **无用户 Bearer**  
+> 本机 Base：`http://127.0.0.1:3000` · Targeting 由服务端 Playwright / Cookie 代理 · **无用户 Bearer**  
 > 上游真实域名不入库 · 效果监控为占位壳（`shell: true`）  
 > 同源实现：[funnel-web/docs/API.md](https://github.com/UUOquinn/alliance-advertiser-funnel-web/blob/main/docs/API.md) · Skill 包：[alliance-workbench-api](./skills/alliance-workbench-api/)
 
@@ -55,8 +57,8 @@
 | [8. 延期托管](#8-策略延期托管) | **自动延期** — 托管表、编辑人、守护状态与触发扫描 | [§8](#8-策略延期托管) |
 | [9. 游戏定投](#9-游戏优质媒体定投) | **优质媒体定投** — 按账户 / 名称拉媒体并创建 | [§9](#9-游戏优质媒体定投) |
 | [10. 定向屏蔽](#10-定向屏蔽) | **type=7 屏蔽** — `shield-platform/create` | [§10](#10-定向屏蔽) |
-| [11. 数据集](#11-数据集kwaibi) | **KwaiBI 查数** — list / query / metadata（85587 · 129496） | [§11](#11-数据集kwaibi) |
-| [12. DataAgent](#12-dataagent旁路) | **NL 旁路** — chat、Cookie、定时任务（非 Orient 主路径） | [§12](#12-dataagent旁路) |
+| [11. 数据集](#11-数据集bi) | **BI 查数** — list / query / metadata（DS_OFFLINE · DS_REALTIME） | [§11](#11-数据集bi) |
+| [12. DataAgent](#12-dataagent旁路) | **NL 旁路** — chat、Cookie、定时任务（非 Targeting 主路径） | [§12](#12-dataagent旁路) |
 | [13. 效果监控壳](#13-策略效果监控占位壳) | **占位壳** — `shell: true`，业务未开放 | [§13](#13-策略效果监控占位壳) |
 | [14. 调用示例](#14-调用示例) | **curl 速查** — health / query / auto-approve / postpone | [§14](#14-调用示例) |
 
@@ -70,7 +72,7 @@
 |----|------|
 | Base URL | `http://127.0.0.1:3000`（浏览器 / Agent 只访问本机；内网可用部署机 `IP:3000`） |
 | 内容类型 | `Content-Type: application/json`（POST） |
-| 鉴权 | Orient 类由服务端 **Playwright / Cookie 代理**，**无用户 Bearer Token** |
+| 鉴权 | Targeting 类由服务端 **Playwright / Cookie 代理**，**无用户 Bearer Token** |
 | CORS | 支持 `OPTIONS`；常用头见下表 |
 
 ### 常用请求头
@@ -79,7 +81,7 @@
 |----|------|
 | `Content-Type` | JSON POST |
 | `X-Postpone-Operator` | 延期托管写操作 / 日志操作人 |
-| `X-Kwabi-Cookie` | 覆盖 KwaiBI Cookie |
+| `X-BI-Cookie` | 覆盖 BI Cookie |
 | `X-DataAgent-Cookie` | 覆盖 DataAgent Cookie |
 
 ### 响应包络
@@ -96,18 +98,18 @@
 { "success": false, "error": "ERROR_CODE", "message": "可读说明" }
 ```
 
-部分上游业务失败仍返回 **HTTP 200**，以 `success` / `error` 为准（如 `ORIENT_FAILED`、`STRATEGY_NOT_FOUND`）。
+部分上游业务失败仍返回 **HTTP 200**，以 `success` / `error` 为准（如 `OPS_FAILED`、`STRATEGY_NOT_FOUND`）。
 
 ### 常见错误码
 
 | HTTP | error | 含义 |
 |------|-------|------|
 | 400 | （文案） | 参数缺失 / 非法 |
-| 401 | `COOKIE_EXPIRED` | Orient / 数据平台 Cookie 失效，需服务端重新登录 |
+| 401 | `SESSION_EXPIRED` | Targeting / 数据平台 Cookie 失效，需服务端重新登录 |
 | 403 | `FORBIDDEN` | 延期托管无编辑权限 |
 | 404 | `Not found` / `NOT_FOUND` | 路径或资源不存在 |
 | 502 | （文案） | 上游代理失败 |
-| 503 | `SSO_RECOVERING` | SSO 自愈中，稍后重试 |
+| 503 | `AUTH_RECOVERING` | Auth 自愈中，稍后重试 |
 
 ### POST Body
 
@@ -133,7 +135,7 @@
 | POST | `/api/strategy/audit/query` | 同 renew/get |
 | POST | `/api/strategy/audit/withdraw` | 撤回审核 |
 | POST | `/api/strategy/audit/changeStatus` | 改审核状态 |
-| POST | `/api/strategy/audit/batchPass` | 批量改状态 |
+| POST | `/api/strategy/audit/batchApprove` | 批量改状态 |
 | POST | `/api/strategy/audit/flow` | 审核编排 |
 | POST | `/api/strategy/audit/pushFull` | 强制推全 |
 | GET | `/api/strategy/audit/users` | 审核人列表 |
@@ -154,9 +156,9 @@
 | POST | `/api/strategy/game-premium/media-by-name` | 游戏定投·按名称 |
 | POST | `/api/strategy/game-premium/create` | 游戏定投·创建 |
 | POST | `/api/strategy/shield-platform/create` | 定向屏蔽·创建 |
-| GET | `/api/dataset/list` | KwaiBI 数据集列表 |
-| POST | `/api/dataset/query` | KwaiBI 查数 |
-| POST | `/api/dataset/metadata` | KwaiBI 元数据 |
+| GET | `/api/dataset/list` | BI 数据集列表 |
+| POST | `/api/dataset/query` | BI 查数 |
+| POST | `/api/dataset/metadata` | BI 元数据 |
 | GET | `/api/dataagent/status` | DataAgent（旁路） |
 | POST | `/api/dataagent/chat` | DataAgent 对话（旁路） |
 | POST | `/api/dataagent/cookie` | 保存 DataAgent Cookie |
@@ -173,7 +175,7 @@
 
 ### `GET /api/health`
 
-轻量健康检查（不打 Orient）。
+轻量健康检查（不打 Targeting）。
 
 **响应 `data`：**
 
@@ -183,7 +185,7 @@
 | `playwrightReady` | 已登录 |
 | `threadAlive` | 代理线程存活 |
 | `queueDepth` | Playwright 队列深度 |
-| `ssoWaiting` | 是否在等 SSO |
+| `ssoWaiting` | 是否在等 Auth |
 | `cookieUpdatedAt` / `cookieSource` | cookie 元信息 |
 
 ```bash
@@ -269,7 +271,7 @@ Cookie / 代理模式诊断。
 
 ## 6. 策略详情 / 延期提交 / 撤回
 
-详情探测顺序：`orientControl` → `flowControl` → `darkControl` → `mediaControl` → `innerControl` → `shareRatioControl`。
+详情探测顺序：`targetingControl` → `boostControl` → `shadowControl` → `placementControl` → `internalControl` → `shareControl`。
 
 ### `POST /api/strategy/renew/get`
 
@@ -286,17 +288,17 @@ Cookie / 代理模式诊断。
 
 ### `POST /api/strategy/renew/submit`
 
-延期 / 改策略提交（`mergeEditV2` 或按类型 `mergeEdit`）。
+延期 / 改策略提交（`submitEdit` 或按类型 `submitEdit`）。
 
 ```json
 {
   "id": 10001,
   "body": { },
-  "apiPrefix": "orientControl"
+  "apiPrefix": "targetingControl"
 }
 ```
 
-`apiPrefix` / `api_prefix` 可选，默认 `orientControl`。
+`apiPrefix` / `api_prefix` 可选，默认 `targetingControl`。
 
 ### `POST /api/strategy/audit/withdraw`
 
@@ -310,7 +312,7 @@ Cookie / 代理模式诊断。
 
 ### `GET /api/strategy/audit/users`
 
-提交审核人列表（约 90s 缓存）。SSO 恢复中可能 `503 SSO_RECOVERING`。
+提交审核人列表（约 90s 缓存）。Auth 恢复中可能 `503 AUTH_RECOVERING`。
 
 ### `GET /api/strategy/audit/realtime-whitelist`
 
@@ -336,7 +338,7 @@ Cookie / 代理模式诊断。
 }
 ```
 
-### `POST /api/strategy/audit/batchPass`
+### `POST /api/strategy/audit/batchApprove`
 
 ```json
 { "ids": [10001, 10002], "status": 6, "reason": "可选" }
@@ -396,7 +398,7 @@ HTTP `success` 表示请求层成功；业务看 `data.ok` / `stuckAt`。
 | 13 | 封禁期审核通过 | → 封禁期推全 |
 | 14 | 封禁期审核驳回 | 终态 |
 
-完整真值表以工作台 Orient 契约为准；调用时以接口返回的 `statusDesc` 为准。
+完整真值表以工作台 Targeting 契约为准；调用时以接口返回的 `statusDesc` 为准。
 
 ---
 
@@ -422,7 +424,7 @@ HTTP `success` 表示请求层成功；业务看 `data.ok` / `stuckAt`。
 ```json
 {
   "strategy_id": 10001,
-  "api_prefix": "orientControl",
+  "api_prefix": "targetingControl",
   "enabled": true,
   "owner": "optional",
   "renew_months": 1,
@@ -487,7 +489,7 @@ HTTP `success` 表示请求层成功；业务看 `data.ok` / `stuckAt`。
 
 ### `POST /api/strategy/shield-platform/create`
 
-新建 type=7 屏蔽策略（`batchAddV2`）。
+新建 type=7 屏蔽策略（`batchCreate`）。
 
 | 字段 | 说明 |
 |------|------|
@@ -503,20 +505,20 @@ HTTP `success` 表示请求层成功；业务看 `data.ok` / `stuckAt`。
 
 ---
 
-## 11. 数据集（KwaiBI）
+## 11. 数据集（BI）
 
-Cookie 解析顺序：`X-Kwabi-Cookie` → `Cookie` 头 → 服务端本地 cookie 文件。  
+Cookie 解析顺序：`X-BI-Cookie` → `Cookie` 头 → 服务端本地 cookie 文件。  
 上游真实基址由本机环境变量注入，本契约不写死。
 
 ### `GET /api/dataset/list`
 
-内置数据集目录（如离线 `85587`、实时 `129496`）。
+内置数据集目录（如离线 `DS_OFFLINE`、实时 `DS_REALTIME`）。
 
 ### `POST /api/dataset/query`
 
 ```json
 {
-  "datasetId": "129496",
+  "datasetId": "DS_REALTIME",
   "metrics": ["..."],
   "dimensions": ["..."],
   "filters": { "__time": { "start": "...", "end": "..." } },
@@ -527,14 +529,14 @@ Cookie 解析顺序：`X-Kwabi-Cookie` → `Cookie` 头 → 服务端本地 cook
 ### `POST /api/dataset/metadata`
 
 ```json
-{ "datasetId": "129496" }
+{ "datasetId": "DS_REALTIME" }
 ```
 
 ---
 
 ## 12. DataAgent（旁路）
 
-不经 Orient Playwright。Cookie：`X-DataAgent-Cookie` → `X-Kwabi-Cookie` → 服务端文件。  
+不经 Targeting Playwright。Cookie：`X-DataAgent-Cookie` → `X-BI-Cookie` → 服务端文件。  
 前端默认主路径不依赖本模块。
 
 | Method | Path | 说明 |

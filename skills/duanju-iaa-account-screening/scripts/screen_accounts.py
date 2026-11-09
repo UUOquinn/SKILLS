@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """直连 OLAP 筛选上一完整自然日的短剧 IAA 账户。"""
@@ -26,11 +26,11 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 import requests
 
-URL = "https://internal.example.corp/api/v1/data/query"
-REFERER = ("https://bi-platform.example.corp/pc/dashboard/preview?"
+URL = "https://app.example.corp/api/v1/data/query"
+REFERER = ("https://bi.example.corp/pc/dashboard/preview?"
            "dashboardId=2060503&insight-chart=7288287&insightConfigId=66613605"
            "&sheetId=140171&tabIds=864253")
 TEMPLATE = Path(__file__).resolve().parent.parent / "references" / "olap_query_template.json"
@@ -107,16 +107,16 @@ def make_body(date: datetime, item: str | None) -> dict[str, Any]:
 
 def fetch(body: dict[str, Any]) -> dict[str, Any]:
     try:
-        resp = SmartSSOSession().request("POST", URL, json=body, headers={
+        resp = SmartAuthSession().request("POST", URL, json=body, headers={
             "Accept": "application/json", "Kwaibi-View-Query-Type": "8",
-            "kwaibi-request-module": "olap", "Referer": REFERER,
+            "bi-request-module": "olap", "Referer": REFERER,
         }, timeout=180)
     except requests.exceptions.Timeout as exc:
         raise ScreenError("API_TIMEOUT", "OLAP 请求超时，确认网络后仅重试一次") from exc
     except requests.exceptions.RequestException as exc:
         raise ScreenError("NETWORK_ERROR", f"OLAP 网络错误：{exc}") from exc
     if resp.status_code in (401, 302) or "text/html" in resp.headers.get("Content-Type", "").lower():
-        raise ScreenError("SSO_EXPIRED", "OLAP 域名登录态失效，需先恢复该域名认证", 2)
+        raise ScreenError("AUTH_EXPIRED", "OLAP 域名登录态失效，需先恢复该域名认证", 2)
     if resp.status_code == 403:
         raise ScreenError("AUTH_FAILED", "当前账号无数据集 205802 的 OLAP 查询权限", 2)
     if 400 <= resp.status_code < 500:

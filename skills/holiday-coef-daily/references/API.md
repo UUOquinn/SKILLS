@@ -2,13 +2,13 @@
 
 基址：
 ```
-https://ops-platform.example.corp/ops/rest
+https://ops.example.corp/ops/rest
 ```
 
-鉴权：优先云端 Agent **内置 SSO/OBO HTTP**；其次已登录浏览器同源 `fetch`；最后才是手工完整 `Cookie:<REDACTED> 行（须含 `accessproxy_session`）。
-**禁止**把 `sso-state.json` 当 Cookie；**禁止** SSO 302 后当成功；**禁止**用 Data Agent / 番薯 NL 代替本文件接口。
+鉴权：优先云端 Agent **内置 Auth/OBO HTTP**；其次已登录浏览器同源 `fetch`；最后才是手工完整 `Cookie:<REDACTED> 行（须含 `accessproxy_session`）。
+**禁止**把 `sso-state.json` 当 Cookie；**禁止** Auth 302 后当成功；**禁止**用 Data Agent / 番薯 NL 代替本文件接口。
 成功壳常见 `status: 200`；**不能**只看 HTTP / 外层 status，见「空壳校验」。
-本文件只覆盖假期系数日更用到的接口；通用 Orient 契约可对照 `operation-kwaibi` 技能（同类 Orient 契约）。
+本文件只覆盖假期系数日更用到的接口；通用 Targeting 契约可对照 `operation-bi` 技能（同类 Targeting 契约）。
 
 ---
 
@@ -16,19 +16,19 @@ https://ops-platform.example.corp/ops/rest
 
 | apiPrefix | 类型 | 改策略 | 新建 |
 |-----------|------|--------|------|
-| `orientControl` | 定向 | `mergeEditV2` | `batchAddV2` |
-| `flowControl` | 扶持 | `mergeEdit` | （按模块，非本技能默认） |
-| `darkControl` | 暗投 | `mergeEdit` | — |
-| `mediaControl` | 媒体 | `mergeEdit` | — |
-| `innerControl` | 内循环 | `mergeEdit` | — |
-| `shareRatioControl` | 流量分成 | `mergeEdit` | — |
+| `targetingControl` | 定向 | `submitEdit` | `batchCreate` |
+| `boostControl` | 扶持 | `submitEdit` | （按模块，非本技能默认） |
+| `shadowControl` | 暗投 | `submitEdit` | — |
+| `placementControl` | 媒体 | `submitEdit` | — |
+| `internalControl` | 内循环 | `submitEdit` | — |
+| `shareControl` | 流量分成 | `submitEdit` | — |
 
-用户指定的假期系数策略优先探测 `orientControl`。仍须 `get` + 空壳校验确认，不可写死跳过探测。
+用户指定的假期系数策略优先探测 `targetingControl`。仍须 `get` + 空壳校验确认，不可写死跳过探测。
 探测顺序：上表自上而下；第一个通过空壳校验的即命中。
 
 ### 空壳校验（`get` 必做）
 
-`orientControl/get` 对**不属于定向**的 ID 也常返回 `status=200` 但 `data` 空。未命中若：
+`targetingControl/get` 对**不属于定向**的 ID 也常返回 `status=200` 但 `data` 空。未命中若：
 
 - HTTP 非 2xx，或
 - `data` 为 `null` / `{}` / `[]`，或
@@ -85,7 +85,7 @@ uv run <skill_directory>/scripts/overlay_time.py --day 2026-09-26
 ### 定向
 
 ```
-POST /orientControl/mergeEditV2
+POST /targetingControl/submitEdit
 Content-Type: application/json
 ```
 
@@ -106,18 +106,18 @@ Sanitize 要点：
 ### 非定向
 
 ```
-POST /{apiPrefix}/mergeEdit
+POST /{apiPrefix}/submitEdit
 ```
 
 透传业务字段，剔除上表只读探测字段；仍补 `adCluster.industryVersion`。
-**不要**对非定向误调 `mergeEditV2`。
+**不要**对非定向误调 `submitEdit`。
 
 ---
 
 ## 4. 模式 B：每天新建（定向）
 
 ```
-POST /orientControl/batchAddV2
+POST /targetingControl/batchCreate
 Content-Type: application/json
 ```
 
@@ -126,7 +126,7 @@ Content-Type: application/json
 - `type` 以 get 为准（本仓库其它场景见过 `7` 屏蔽、`9` 预算定向等；假期系数以实际 get 为准，勿写死）
 - 成功响应取出新策略 id，供审核 / 汇报
 
-非定向批量新建不在本技能默认路径；若 get 非 `orientControl`，先停下来确认模块再建。
+非定向批量新建不在本技能默认路径；若 get 非 `targetingControl`，先停下来确认模块再建。
 
 ---
 

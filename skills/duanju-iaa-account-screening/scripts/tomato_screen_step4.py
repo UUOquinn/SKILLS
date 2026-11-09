@@ -8,7 +8,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """番茄短剧筛选 Step 4：Step3 账户放入 123403 实时数据，筛选消耗>500"""
@@ -20,7 +20,7 @@ from typing import Any
 
 from tomato_common import (ScreenError, TZ, as_raw, response_json, file_link)
 import requests
-from ks_aimate.sso_login_client import SmartSSOSession, SSOAuthRequiredError
+from auth_helper.sso_login_client import SmartAuthSession, SSOAuthRequiredError
 
 TEMPLATE4 = Path(__file__).resolve().parent.parent / "references" / "tomato_step4_template.json"
 EXPECTED_COLS = ["__time", "账户ID", "总消耗", "联盟总消耗",
@@ -34,14 +34,14 @@ class Parser(argparse.ArgumentParser):
         raise ScreenError("INVALID_ARGUMENT", message)
 
 def fetch_step4(body: dict[str, Any]) -> dict[str, Any]:
-    url = "https://internal.example.corp/api/v1/data/query"
+    url = "https://app.example.corp/api/v1/data/query"
     try:
-        resp = SmartSSOSession().request("POST", url, json=body,
+        resp = SmartAuthSession().request("POST", url, json=body,
                                           headers={"Content-Type": "application/json",
-                                                   "Referer": "https://internal.example.corp/"},
+                                                   "Referer": "https://app.example.corp/"},
                                           timeout=120)
     except SSOAuthRequiredError as exc:
-        raise ScreenError("SSO_EXPIRED", "OLAP SSO 失效", 2) from exc
+        raise ScreenError("AUTH_EXPIRED", "OLAP Auth 失效", 2) from exc
     except requests.Timeout:
         raise ScreenError("API_TIMEOUT", "OLAP 查询超时")
     if resp.status_code != 200:

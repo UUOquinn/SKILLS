@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """短剧 IAA 第二步：排除第一步账户与暗投白名单后，筛选客户维度数据账户。"""
@@ -26,13 +26,13 @@ from pathlib import Path
 from typing import Any
 
 import requests
-from ks_aimate.sso_login_client import SmartSSOSession, SSOAuthRequiredError
+from auth_helper.sso_login_client import SmartAuthSession, SSOAuthRequiredError
 
 from screen_accounts import ScreenError, as_raw, fetch, normalize, make_body, TZ, file_link
 
 TEMPLATE2 = Path(__file__).resolve().parent.parent / "references" / "step2_query_template.json"
-KCONF_BASE = "https://kconf.example.corp"
-KCONF_KEY = "ad.adtarget3.universeAddChainGrayConfig"
+CONFIG_BASE = "https://config.example.corp"
+CONFIG_KEY = "ad.demo.chainGrayConfig"
 AB_KEY = "enable_chain_antou_30_990_0"
 ROI_COLUMN = "extend_column_78e5bb23-be44-4dcf-a56a-8b270d080729"
 EXPECTED_COLUMNS = ["集团", "运营定义客户名", "产品名称", "账户ID", "总消耗", "超成本率",
@@ -56,35 +56,35 @@ def response(ok: bool, code: int, started: float, **parts: Any) -> int:
     return code
 
 
-def kconf_antou_ids() -> tuple[set[str], dict[str, Any]]:
+def config_whitelist_ids() -> tuple[set[str], dict[str, Any]]:
     """读取暗投配置中 enable_chain_antou_30_990_0 的账户白名单。"""
     try:
-        resp = SmartSSOSession().request(
-            "GET", f"{KCONF_BASE}/api/w/config/get", params={"key": KCONF_KEY}, timeout=30)
+        resp = SmartAuthSession().request(
+            "GET", f"{CONFIG_BASE}/api/w/config/get", params={"key": CONFIG_KEY}, timeout=30)
     except SSOAuthRequiredError as exc:
-        raise ScreenError("KCONF_SSO_EXPIRED", "KConf 登录态失效，请先恢复该域认证", 2) from exc
+        raise ScreenError("KCONF_AUTH_EXPIRED", "ConfigService 登录态失效，请先恢复该域认证", 2) from exc
     except requests.Timeout as exc:
-        raise ScreenError("API_TIMEOUT", "KConf 请求超时") from exc
+        raise ScreenError("API_TIMEOUT", "ConfigService 请求超时") from exc
     except requests.RequestException as exc:
-        raise ScreenError("NETWORK_ERROR", f"无法连接 KConf：{exc}") from exc
+        raise ScreenError("NETWORK_ERROR", f"无法连接 ConfigService：{exc}") from exc
     if resp.status_code in (401, 403):
-        raise ScreenError("KCONF_SSO_EXPIRED", "KConf 登录态失效或无权限，请先恢复该域认证", 2)
+        raise ScreenError("KCONF_AUTH_EXPIRED", "ConfigService 登录态失效或无权限，请先恢复该域认证", 2)
     payload = resp.json()
     if payload.get("result") == 101:
-        raise ScreenError("KCONF_SSO_EXPIRED", "KConf 登录态失效，请先恢复该域认证", 2)
+        raise ScreenError("KCONF_AUTH_EXPIRED", "ConfigService 登录态失效，请先恢复该域认证", 2)
     if payload.get("result") != 1:
-        raise ScreenError("KCONF_QUERY_FAILED", f"KConf 读取失败：{str(payload.get('message'))[:200]}")
+        raise ScreenError("KCONF_QUERY_FAILED", f"ConfigService 读取失败：{str(payload.get('message'))[:200]}")
     data = payload.get("data") or {}
     sub = next((item for item in data.get("subConfigs") or [] if item.get("stage") == "production"), None)
     if sub is None:
-        raise ScreenError("KCONF_QUERY_FAILED", "KConf 无 production 子配置")
+        raise ScreenError("KCONF_QUERY_FAILED", "ConfigService 无 production 子配置")
     raw = (sub.get("curConfig") or {}).get("data", "")
     if not isinstance(raw, str) or not raw.strip():
-        raise ScreenError("KCONF_QUERY_FAILED", "KConf 生产配置内容为空")
+        raise ScreenError("KCONF_QUERY_FAILED", "ConfigService 生产配置内容为空")
     content = parse_commented_json(raw)
     configs = content.get("configs")
     if not isinstance(configs, list):
-        raise ScreenError("KCONF_PARSE_ERROR", "KConf 配置缺少 configs 数组")
+        raise ScreenError("KCONF_PARSE_ERROR", "ConfigService 配置缺少 configs 数组")
     hit = next((item for item in configs if item.get("ab_key") == AB_KEY), None)
     if hit is None:
         raise ScreenError("KCONF_AB_KEY_MISSING", f"配置中未找到 ab_key={AB_KEY}")
@@ -116,7 +116,7 @@ def parse_commented_json(raw: str) -> dict[str, Any]:
     try:
         return json.loads("\n".join(lines))
     except json.JSONDecodeError as exc:
-        raise ScreenError("KCONF_PARSE_ERROR", f"KConf 配置 JSON 解析失败：{exc}") from exc
+        raise ScreenError("KCONF_PARSE_ERROR", f"ConfigService 配置 JSON 解析失败：{exc}") from exc
 
 
 def make_step2_body(day: datetime, excluded: set[str]) -> dict[str, Any]:
@@ -267,12 +267,12 @@ def main() -> int:
             raise ScreenError("INVALID_DATE", "只能查询已完成的北京自然日，格式 YYYY-MM-DD")
         day = datetime(date.year, date.month, date.day, tzinfo=TZ)
 
-        kconf_ids, kconf_meta = kconf_antou_ids()
+        config_ids, config_meta = config_whitelist_ids()
         step1_pairs, step1_summary = normalize(fetch(make_body(day, None)), None)
         step1_ids = {account for _label, account, _cost in step1_pairs}
-        excluded = step1_ids | kconf_ids
+        excluded = step1_ids | config_ids
         if not excluded:
-            raise ScreenError("EXCLUSION_EMPTY", "第一步与 KConf 排除集合均为空，中止以保护口径")
+            raise ScreenError("EXCLUSION_EMPTY", "第一步与 ConfigService 排除集合均为空，中止以保护口径")
 
         data = fetch(make_step2_body(day, excluded))
         rows, details, columns = normalize_step2(data, excluded)
@@ -280,13 +280,13 @@ def main() -> int:
         return response(True, 0, started, data={
             "date": date.isoformat(), "window": [day.isoformat(), (day + timedelta(days=1)).isoformat()],
             **details, "excluded_step1_accounts": len(step1_ids),
-            "excluded_kconf_accounts": len(kconf_ids),
+            "excluded_kconf_accounts": len(config_ids),
             "excluded_union_accounts": len(excluded),
             "step1_row_count": step1_summary["row_count"],
-            **kconf_meta,
+            **config_meta,
             "accounts_file": str(accounts_path), "details_file": str(details_path),
             "delivery": {"账户清单": file_link(accounts_path), "明细": file_link(details_path)},
-            "endpoint": "https://internal.example.corp/api/v1/data/query",
+            "endpoint": "https://app.example.corp/api/v1/data/query",
         }, msg=f"第二步筛出 {details['account_count']} 个去重账户，{details['row_count']} 行客户维度记录")
     except KeyboardInterrupt:
         return response(False, 130, started, error="INTERRUPTED", msg="用户中断")

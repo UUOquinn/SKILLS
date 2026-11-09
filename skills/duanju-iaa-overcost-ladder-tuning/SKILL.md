@@ -1,7 +1,7 @@
 ---
 name: duanju-iaa-overcost-ladder-tuning
 description: >-
-  按「浅度超成本率」对短剧 IAA 账户做离散阶梯压价：直连 OLAP 数据集 129496 取近 1 小时数据，
+  按「浅度超成本率」对短剧 IAA 账户做离散阶梯压价：直连 OLAP 数据集 DS_REALTIME 取近 1 小时数据，
   筛选联盟总消耗≥500 且 浅度超成本率≥0.20 的账户，以二十分钟一轮把账户在 0.8/0.6/0.4/0.2
   四档公用策略间逐档下压（基数 1.0，每步 -0.2，0.2 封底），不再超成本则从策略名单撤出。
   账户档位由 4 条「AI_短剧_系数X」公用策略的账户名单承载，平台即状态、重跑幂等。
@@ -26,7 +26,7 @@ description: >-
 
 ## 前置依赖
 
-本 Skill 依赖 `flow-strategy-ops`（扶持策略 flowControl API）。运行前请确认已安装：
+本 Skill 依赖 `flow-strategy-ops`（扶持策略 boostControl API）。运行前请确认已安装：
 
 ```bash
 uv run <skill_directory>/scripts/check_install_dep.py ensure flow-strategy-ops
@@ -97,7 +97,7 @@ uv run <flow-strategy-ops>/scripts/flow_api.py add-ids <策略ID> --dim accountI
 uv run <flow-strategy-ops>/scripts/flow_api.py remove-ids <策略ID> --dim accountId --ids 账户1,账户2
 ```
 
-写操作串行执行、不并发、不自动重试。add-ids / remove-ids 走 mergeEdit 自动提审，
+写操作串行执行、不并发、不自动重试。add-ids / remove-ids 走 submitEdit 自动提审，
 幂等（已存在/不存在会自动跳过）。若 `decide.py` 报 `档位缺失`，先补齐对应策略再写。
 
 ## 首次准备（建 4 条策略）
@@ -112,7 +112,7 @@ uv run <flow-strategy-ops>/scripts/flow_api.py create \
 ```
 
 其余三档同理，只改 `name`、`background`、`bonusRate`（0.6 / 0.4 / 0.2）。
-新建后走平台审核（纯新建 batchAddV2 若停在草稿，用 `flow_api.py change-status <ID> <状态>`
+新建后走平台审核（纯新建 batchCreate 若停在草稿，用 `flow_api.py change-status <ID> <状态>`
 提交审核），等生效（status=4）后再开始循环。
 
 ## 循环节奏

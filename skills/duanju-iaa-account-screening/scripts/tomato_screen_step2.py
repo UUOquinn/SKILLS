@@ -8,10 +8,10 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
-"""番茄短剧筛选 Step 2：排除第一步+KConf，按固定条件筛候选账户（总消耗>0.1）"""
+"""番茄短剧筛选 Step 2：排除第一步+ConfigService，按固定条件筛候选账户（总消耗>0.1）"""
 from __future__ import annotations
 import argparse, csv, json, math, re, sys, time, uuid
 from datetime import datetime, timedelta
@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from tomato_common import (ScreenError, TZ, as_raw, fetch, make_body, normalize_step1,
-                    response_json, kconf_antou_ids, KCONF_BASE, KCONF_KEY, AB_KEY, file_link)
+                    response_json, config_whitelist_ids, CONFIG_BASE, CONFIG_KEY, AB_KEY, file_link)
 
 TEMPLATE2 = Path(__file__).resolve().parent.parent / "references" / "tomato_step2_template.json"
 EXPECTED_COLUMNS = ["账户ID", "总消耗"]
@@ -90,7 +90,7 @@ def normalize(items: list[list[Any]], columns: list[dict], excluded: set[str]) -
 def main() -> int:
     started = time.monotonic()
     try:
-        parser = Parser(description="番茄 Step 2：排除 Step1+KConf 候选筛查")
+        parser = Parser(description="番茄 Step 2：排除 Step1+ConfigService 候选筛查")
         parser.add_argument("--date", help="YYYY-MM-DD，默认昨日")
         args = parser.parse_args()
         today = datetime.now(TZ).date()
@@ -102,10 +102,10 @@ def main() -> int:
             raise ScreenError("INVALID_DATE", "只能查询已完成自然日")
         day = datetime(date.year, date.month, date.day, tzinfo=TZ)
 
-        kconf_ids, kconf_meta = kconf_antou_ids()
+        config_ids, config_meta = config_whitelist_ids()
         step1_pairs, step1_summary = normalize_step1(fetch(make_body(day, None)), None)
         step1_ids = {a for _, a, _ in step1_pairs}
-        excluded = step1_ids | kconf_ids
+        excluded = step1_ids | config_ids
         if not excluded:
             raise ScreenError("EXCLUSION_EMPTY", "排除集为空，中止")
 
@@ -131,9 +131,9 @@ def main() -> int:
 
         return response_json(True, 0, started, data={
             "date": date.isoformat(),
-            "excluded_step1": len(step1_ids), "excluded_kconf": len(kconf_ids),
+            "excluded_step1": len(step1_ids), "excluded_config": len(config_ids),
             "excluded_union": len(excluded), "step1_row_count": step1_summary["row_count"],
-            **details, **kconf_meta,
+            **details, **config_meta,
             "accounts_file": str(acc_path), "details_file": str(det_path),
             "delivery": {"账户清单": file_link(acc_path), "明细": file_link(det_path)},
         }, msg=f"Step 2: {details['row_count']} 行 / {details['account_count']} 账户，总消耗 {details['total_cost']:,.2f} 元")

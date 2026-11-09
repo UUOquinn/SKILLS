@@ -11,7 +11,7 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 
@@ -29,22 +29,22 @@ import time
 from datetime import datetime, timezone
 from typing import Optional, Tuple
 
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
 # ── 策略平台基址 ───────────────────────────────────────────────────────────────
-OPERATION_BASE = "https://ops-platform.example.corp/ops/rest"
+OPERATION_BASE = "https://ops.example.corp/ops/rest"
 
 API_PREFIXES = [
-    "orientControl",
-    "flowControl",
-    "darkControl",
-    "mediaControl",
-    "innerControl",
-    "shareRatioControl",
+    "targetingControl",
+    "boostControl",
+    "shadowControl",
+    "placementControl",
+    "internalControl",
+    "shareControl",
 ]
 
-# 定向策略用 mergeEditV2，其余用 mergeEdit
-MERGE_EDIT_V2_PREFIXES = {"orientControl"}
+# 定向策略用 submitEdit，其余用 submitEdit
+MERGE_EDIT_V2_PREFIXES = {"targetingControl"}
 
 # 定向提交白名单字段
 ORIENT_SUBMIT_FIELDS = {
@@ -63,10 +63,10 @@ def unwrap_versioned(value):
 
     GET 接口会将服务端 Kconf<T> 抽象类型序列化为：
         {"versioned": {"version": 0, "data": <真实值>}, "inited": true}
-    实测确认：无论回传裸值还是原结构，mergeEdit/mergeEditV2 提交接口都无法反序
-    列列化 `com.kuaishou.kconf.client.Kconf` 这个抽象类型（报 InvalidDefinitionException /
+    实测确认：无论回传裸值还是原结构，submitEdit/submitEdit 提交接口都无法反序
+    列列化 `com.kuaishou.configservice.client.Kconf` 这个抽象类型（报 InvalidDefinitionException /
     500）。因此策略层面无法修复，唯一安全做法是提交时将该字段整个删除，依靠服务端
-    mergeEdit 对未传字段保留原值的行为（未传 = 不改，非提交为空）。
+    submitEdit 对未传字段保留原值的行为（未传 = 不改，非提交为空）。
     识别特征：字典并且同时含有 "versioned" 与 "inited" 两个 key 时，返回 特定占位
     ``_DROP_FIELD_`` 表示需要删除字段（由上层 dict/list 遍历处理实际删除）。
     """
@@ -160,7 +160,7 @@ def sanitize_body(detail: dict, api_prefix: str, new_end: int) -> dict:
 
 class OperationClient:
     def __init__(self):
-        self.session = SmartSSOSession()
+        self.session = SmartAuthSession()
 
     def _get(self, url: str, params: dict) -> dict:
         resp = self.session.request("GET", url, params=params)
@@ -185,7 +185,7 @@ class OperationClient:
         return None
 
     def submit_strategy(self, api_prefix: str, body: dict) -> dict:
-        action = "mergeEditV2" if api_prefix in MERGE_EDIT_V2_PREFIXES else "mergeEdit"
+        action = "submitEdit" if api_prefix in MERGE_EDIT_V2_PREFIXES else "submitEdit"
         return self._post(f"{OPERATION_BASE}/{api_prefix}/{action}", body)
 
     def check_action(self, strategy_id: int) -> dict:

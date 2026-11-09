@@ -2,7 +2,7 @@
   "name": "kwaibi-sql-access-exec",
   "version": "1.0.0",
   "ks-meta": {
-    "displayName": "KwaiBI SQL 取数执行与 CSV 下载",
+    "displayName": "BI SQL 取数执行与 CSV 下载",
     "platform": ["MyFlicker-Work模式", "MyFlicker-Code模式"]
   }
 }

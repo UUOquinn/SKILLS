@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """短剧 IAA 第三步：把第二步账户放入实时效果数据集与客户看板，产出客户可看清单。"""
@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Any
 
 from screen_accounts import ScreenError, as_raw, fetch, make_body, normalize, TZ, file_link
-from screen_step2 import kconf_antou_ids, make_step2_body, normalize_step2
+from screen_step2 import config_whitelist_ids, make_step2_body, normalize_step2
 
 TPL_123403 = Path(__file__).resolve().parent.parent / "references" / "step3_123403_template.json"
 TPL_68012103 = Path(__file__).resolve().parent.parent / "references" / "step3_68012103_template.json"
@@ -87,22 +87,22 @@ def read_accounts_file(path: str) -> list[str]:
 
 
 def step2_accounts(day: datetime) -> tuple[list[str], dict[str, Any]]:
-    kconf_ids, kconf_meta = kconf_antou_ids()
+    config_ids, config_meta = config_whitelist_ids()
     step1_pairs, step1_summary = normalize(fetch(make_body(day, None)), None)
     step1_ids = {account for _label, account, _cost in step1_pairs}
-    excluded = step1_ids | kconf_ids
+    excluded = step1_ids | config_ids
     if not excluded:
-        raise ScreenError("EXCLUSION_EMPTY", "第一步与 KConf 排除集合均为空，中止以保护口径")
+        raise ScreenError("EXCLUSION_EMPTY", "第一步与 ConfigService 排除集合均为空，中止以保护口径")
     rows, details, columns = normalize_step2(fetch(make_step2_body(day, excluded)), excluded)
     account_index = columns.index("账户ID")
     accounts = sorted({str(as_raw(row[account_index])) for row in rows}, key=int)
     return accounts, {"excluded_step1_accounts": len(step1_ids),
-                      "excluded_kconf_accounts": len(kconf_ids),
+                      "excluded_kconf_accounts": len(config_ids),
                       "excluded_union_accounts": len(excluded),
                       "step1_row_count": step1_summary["row_count"],
                       "step2_row_count": details["row_count"],
                       "step2_total_cost": details["total_cost"],
-                      **kconf_meta}
+                      **config_meta}
 
 
 def rewrite_common(body: dict[str, Any], day: datetime, accounts: list[str], target_id: int) -> None:
@@ -273,7 +273,7 @@ def delivery_summary(date: str, started: float, accounts: list[str], step2_meta:
         snapshot = step2_meta.get("kconf_snapshot_id") or "?"
         lines.append(
             f"第一步 {step2_meta['step1_row_count']:,} 行 → 排除账户"
-            f"（第一步 {step2_meta['excluded_step1_accounts']:,} + KConf 暗投白名单 v{kconf_ver} / snapshot {snapshot}，"
+            f"（第一步 {step2_meta['excluded_step1_accounts']:,} + ConfigService 暗投白名单 v{kconf_ver} / snapshot {snapshot}，"
             f"共 {step2_meta['excluded_union_accounts']:,} 个）")
         lines.append(f"第二步 {step2_meta['step2_row_count']:,} 行 / {len(accounts):,} 个去重账户，"
                      f"总消耗 {step2_meta['step2_total_cost']:,.2f} 元")

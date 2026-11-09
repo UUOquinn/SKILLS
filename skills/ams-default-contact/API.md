@@ -1,43 +1,43 @@
 # AMS 账户联系人绑定 · API 契约
 
-> Host：`https://e.qq.com`  
-> 来源：服务商前端 `ams_agency_fe_js`（`gR("advertiser", …)` → `SITE.smbUrl` = `/agp/`）  
-> 凭证：浏览器登录 Cookie + 查询参数 `g_tk`（由 `gdt_protect` 或 `skey` 计算）。**真实 Cookie 不上库。**
+> Host：`https://ads-platform.example.com`  
+> 来源：服务商前端 `ams_agency_fe_js`（`gR("advertiser", …)` → `SITE.smbUrl` = `/vendor/`）  
+> 凭证：浏览器登录 Cookie + 查询参数 `csrf`（由 `csrf_token` 或 `session_key` 计算）。**真实 Cookie 不上库。**
 
 ## 鉴权
 
-`g_tk` 算法（与前端 `getACSRFToken` 一致）：
+`csrf` 算法（与前端 `getCsrfToken` 一致）：
 
 ```
 t = 5381
-for ch in skey_or_gdt_protect:
+for ch in skey_or_csrf_token:
     t += (t << 5) + ord(ch)
-g_tk = t & 2147483647
+csrf = t & 2147483647
 ```
 
-请求会自动带 `agency_uid`、`bm_id`（没有则 `0`）。
+请求会自动带 `agency_id`、`bm_id`（没有则 `0`）。
 
-从已登录页任意 `/agp/advertiser/` 请求复制 `Cookie` 整行到本机 `scripts/api.json`。常见字段：`uin` / `skey` / `gdt_protect` / `gdt_token`。
+从已登录页任意 `/vendor/advertiser/` 请求复制 `Cookie` 整行到本机 `scripts/api.json`。常见字段：`uin` / `session_key` / `csrf_token` / `session_token`。
 
 ---
 
 ## 1. 拉可选账户联系人
 
-`GET /agp/advertiser/get_binding_link_person_list?g_tk={g_tk}`
+`GET /vendor/advertiser/list_contacts?csrf={csrf}`
 
 | 参数 | 说明 |
 |------|------|
-| `agency_uid` | 服务商 uid（占位例：`10000001`） |
-| `reg_certification_no` | 营业执照号 / 个人证件号（下拉打开时用当前账户证件号去拉） |
-| `customer_business_id` | 可选；已有绑定时带上 |
+| `agency_id` | 服务商 uid（占位例：`10000001`） |
+| `business_license_no` | 营业执照号 / 个人证件号（下拉打开时用当前账户证件号去拉） |
+| `customer_id` | 可选；已有绑定时带上 |
 | `bm_id` | 商务经理 id，没有填 `0` |
 
 成功：`code === 0`
 
 | 字段 | 说明 |
 |------|------|
-| `data.customer_business_id` | 客户业务 id，写入 `api.json` |
-| `data.link_person_list[]` | `link_person_id` / `link_person_name` / `mobile` / `approval_status` |
+| `data.customer_id` | 客户业务 id，写入 `api.json` |
+| `data.contact_list[]` | `contact_id` / `contact_name` / `mobile` / `approval_status` |
 
 下拉展示形态：`{name}({mobile})`。
 
@@ -45,11 +45,11 @@ g_tk = t & 2147483647
 
 ## 2. 选中账户联系人（默认路径）
 
-`POST /agp/advertiser/update?g_tk={g_tk}`
+`POST /vendor/advertiser/update?csrf={csrf}`
 
-对应开户页点选「账户联系人」后提交。脚本会先 `GET /agp/advertiser/get`，再只提交选中联系人所需字段（不改资质 / 法人 / 行业）。
+对应开户页点选「账户联系人」后提交。脚本会先 `GET /vendor/advertiser/get`，再只提交选中联系人所需字段（不改资质 / 法人 / 行业）。
 
-要点字段：`uid`、`link_person_id`、`customer_business_id`，以及账户详情带回的注册 / 执照等原值。
+要点字段：`uid`、`contact_id`、`customer_id`，以及账户详情带回的注册 / 执照等原值。
 
 `Content-Type`：`application/json`。
 
@@ -57,15 +57,15 @@ g_tk = t & 2147483647
 
 ## 3. 绑定默认 / 账户联系人（`--bind-only`）
 
-`POST /agp/advertiser/bind_link_person?g_tk={g_tk}`
+`POST /vendor/advertiser/bind_contact?csrf={csrf}`
 
 前端调用（编辑联系人弹窗点确定，且当前是「选择已有」）：
 
 ```js
 {
-  agency_uid,
-  customer_business_id,
-  link_person_id,
+  agency_id,
+  customer_id,
+  contact_id,
   uid_list: [uid1, uid2, /* … */]   // 可一次多个账户
 }
 ```
@@ -80,8 +80,8 @@ g_tk = t & 2147483647
 
 | URL | 原因 |
 |-----|------|
-| `POST /data-report-hub/api` | 行为上报，响应约 25 字节 |
-| `GET /agp/advertiser/get_verify_qr_code` | 开户验证码 |
+| `POST /telemetry-hub/api` | 行为上报，响应约 25 字节 |
+| `GET /vendor/advertiser/get_verify_qr_code` | 开户验证码 |
 | 「新增联系人」提交 | 另一条开户链路，会下发短信 |
 
 ---
@@ -92,4 +92,4 @@ g_tk = t & 2147483647
 cp api.example.json api.json   # 勿提交 api.json
 ```
 
-见 [`scripts/api.example.json`](scripts/api.example.json)。字段：`cookie`、`agencyUid`、`linkPersonId`、`customerBusinessId`、`regCertificationNo`、`uids`、`chunkSize`。
+见 [`scripts/api.example.json`](scripts/api.example.json)。字段：`cookie`、`agencyId`、`contactId`、`customerId`、`businessLicenseNo`、`uids`、`chunkSize`。

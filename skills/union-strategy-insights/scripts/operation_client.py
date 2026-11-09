@@ -11,14 +11,14 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """
 Operation (ops-platform) REST API client.
 
-Uses SmartSSOSession for transparent SSO auth — no manual cookie juggling.
-Supports: get (with prefix detection), query, mergeEdit/V2, quickPushAll, withdraw,
+Uses SmartAuthSession for transparent Auth auth — no manual cookie juggling.
+Supports: get (with prefix detection), query, submitEdit/V2, quickPushAll, withdraw,
 approve query/changeStatus, listUser.
 
 Lightweight batch: --ids for multiple get queries.
@@ -27,8 +27,8 @@ Usage:
   uv run scripts/operation_client.py get --id 12345
   uv run scripts/operation_client.py get --ids 12345,67890
   uv run scripts/operation_client.py query --app-id 570400002
-  uv run scripts/operation_client.py merge-edit --prefix orientControl --file body.json
-  uv run scripts/operation_client.py quick-push --prefix orientControl --id 12345 --type 0
+  uv run scripts/operation_client.py merge-edit --prefix targetingControl --file body.json
+  uv run scripts/operation_client.py quick-push --prefix targetingControl --id 12345 --type 0
   uv run scripts/operation_client.py list-user
 """
 
@@ -38,18 +38,18 @@ import sys
 import time
 from typing import Optional
 
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
-BASE = "https://ops-platform.example.corp/ops/rest"
+BASE = "https://ops.example.corp/ops/rest"
 
 # Detection order: try each prefix via get, first non-empty-shell wins
 PREFIX_ORDER = [
-    "orientControl",
-    "flowControl",
-    "darkControl",
-    "mediaControl",
-    "innerControl",
-    "shareRatioControl",
+    "targetingControl",
+    "boostControl",
+    "shadowControl",
+    "placementControl",
+    "internalControl",
+    "shareControl",
 ]
 
 # Shield filter dimensions: normalized input -> query/mediaCluster field
@@ -72,9 +72,9 @@ SHIELD_TYPE_LABELS = {2: "媒体屏蔽（老版）", 5: "标签屏蔽", 7: "并�
 
 class OperationClient:
     def __init__(self):
-        # SmartSSOSession handles SSO login / token refresh transparently.
+        # SmartAuthSession handles Auth login / token refresh transparently.
         # Do NOT pass cookies manually; the SDK manages them internally.
-        self.session = SmartSSOSession()
+        self.session = SmartAuthSession()
 
     # ── low-level helpers ──────────────────────────────────────────
 
@@ -131,8 +131,8 @@ class OperationClient:
         return results
 
     def query(self, body: dict) -> dict:
-        """POST /orientControl/query — list strategies."""
-        return self._post(f"{BASE}/orientControl/query", body)
+        """POST /targetingControl/query — list strategies."""
+        return self._post(f"{BASE}/targetingControl/query", body)
 
     # ── shield search: find strategies covering a media/app id ──────
 
@@ -194,8 +194,8 @@ class OperationClient:
     def search_shield(self, dim: str, ids: list) -> dict:
         """Find shield strategies covering the given ids on dimension `dim`.
 
-        Strategy: server-side filter on orientControl (supported keys: appId/uid/posId),
-        then full-scan mediaControl (query ignores filters; only ~356 items) and
+        Strategy: server-side filter on targetingControl (supported keys: appId/uid/posId),
+        then full-scan placementControl (query ignores filters; only ~356 items) and
         local-match on mediaCluster. Results are deduped per strategy.
         """
         dim = dim.lower()
@@ -205,10 +205,10 @@ class OperationClient:
         idset = {str(i).strip() for i in ids if str(i).strip()}
         matched = {}
 
-        # orientControl: server-side filter per id
+        # targetingControl: server-side filter per id
         for one_id in idset:
             body = {"industryVersion": "6.6", DIM_MAP[dim]: one_id}
-            items = self._fetch_all("orientControl", extra=body)
+            items = self._fetch_all("targetingControl", extra=body)
             for it in items:
                 sid = it.get("id")
                 if sid is None or sid in matched:
@@ -221,8 +221,8 @@ class OperationClient:
                     continue
                 matched[sid] = {"item": it, "hitIds": {one_id}}
 
-        # mediaControl: full scan + local match
-        for it in self._fetch_all("mediaControl"):
+        # placementControl: full scan + local match
+        for it in self._fetch_all("placementControl"):
             sid = it.get("id")
             if sid is None or sid in matched:
                 continue
@@ -260,11 +260,11 @@ class OperationClient:
         return {"dimension": dim, "total": len(results), "results": results}
 
     def merge_edit(self, prefix: str, body: dict) -> dict:
-        """POST /{prefix}/mergeEdit or mergeEditV2."""
-        if prefix == "orientControl":
-            url = f"{BASE}/{prefix}/mergeEditV2"
+        """POST /{prefix}/submitEdit or submitEdit."""
+        if prefix == "targetingControl":
+            url = f"{BASE}/{prefix}/submitEdit"
         else:
-            url = f"{BASE}/{prefix}/mergeEdit"
+            url = f"{BASE}/{prefix}/submitEdit"
         return self._post(url, body)
 
     def quick_push(self, prefix: str, strategy_id: str, push_type: int = 0,
@@ -278,7 +278,7 @@ class OperationClient:
         resp.raise_for_status()
         return resp.json()
 
-    def withdraw(self, strategy_id: str, prefix: str = "orientControl") -> dict:
+    def withdraw(self, strategy_id: str, prefix: str = "targetingControl") -> dict:
         """POST /{prefix}/withdraw."""
         return self._post(f"{BASE}/{prefix}/withdraw", {"id": strategy_id})
 
@@ -308,7 +308,7 @@ def main():
     p_get.add_argument("--prefix", help="Force prefix (skip auto-detect)")
 
     # query
-    p_query = sub.add_parser("query", help="List strategies (POST orientControl/query)")
+    p_query = sub.add_parser("query", help="List strategies (POST targetingControl/query)")
     p_query.add_argument("--app-id")
     p_query.add_argument("--uid")
     p_query.add_argument("--pos-id")
@@ -349,7 +349,7 @@ def main():
     # withdraw
     p_w = sub.add_parser("withdraw", help="Withdraw strategy")
     p_w.add_argument("--id", required=True, dest="strategy_id")
-    p_w.add_argument("--prefix", default="orientControl")
+    p_w.add_argument("--prefix", default="targetingControl")
 
     # approve
     p_aq = sub.add_parser("approve-query", help="Query approval records")
@@ -444,8 +444,8 @@ def main():
             for cluster in ("adCluster", "mediaCluster"):
                 if cluster in body:
                     body[cluster].pop("maxNum", None)
-            # add shield fields for orientControl
-            if prefix == "orientControl":
+            # add shield fields for targetingControl
+            if prefix == "targetingControl":
                 for key in ("shieldType", "shieldMediaType", "shieldUserType"):
                     if key in data:
                         body[key] = data[key]
@@ -489,8 +489,8 @@ def main():
         if "不支持的维度" in msg:
             error_code = "DIMENSION_INVALID"
             next_action = {"type": "STOP", "retryable": False}
-        elif "SSO" in msg.upper() or "login" in msg.lower():
-            error_code = "SSO_EXPIRED"
+        elif "Auth" in msg.upper() or "login" in msg.lower():
+            error_code = "AUTH_EXPIRED"
             next_action = {"type": "ASK_USER", "retryable": True}
         elif "timed out" in msg.lower() or "timeout" in msg.lower():
             error_code = "API_TIMEOUT"

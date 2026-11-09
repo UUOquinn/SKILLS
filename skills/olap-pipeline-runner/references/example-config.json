@@ -3,7 +3,7 @@
   "_comment": "示例配置：短剧 IAA 首日 ROI 顶价压价。照此结构改成你自己的业务。",
   "fetch": {
     "template": "olap_query_template.json",
-    "referer": "https://internal.example.corp/",
+    "referer": "https://app.example.corp/",
     "window_minutes": 15,
     "lag_minutes": 5,
     "aggregation": "weighted_mean",

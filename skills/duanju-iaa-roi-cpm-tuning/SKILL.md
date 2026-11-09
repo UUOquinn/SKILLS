@@ -1,6 +1,6 @@
 ---
 name: duanju-iaa-roi-cpm-tuning
-description: 按「浅度超成本率」分账户ID做顶价/压价，直连 OLAP 读取实时数据集 129496 最近20分钟数据（本地消耗加权聚合），算出 cpm 系数增量，并在策略平台新建或原地修改加系数策略（无基数按 1.0 新建）。每 20 分钟一轮持续运行，直到用户说结束或暂停。支持用户自定义监控账户ID（不指定则全量）。当用户提到短剧IAA浅度超成本率、超成本率调价、顶价压价、调cpm系数、跑超成本率策略、开始持续跑超成本、adsdata 数据集 129496 或 ops-platform flow 策略平台时使用；用户在循环运行中说结束/暂停/停止时，按结束汇总收尾。不支持批量写策略（一轮内逐账户串行写入）；不触发非短剧IAA的调价、不推全（新建后主动提审，生效由定时工作台负责）。
+description: 按「浅度超成本率」分账户ID做顶价/压价，直连 OLAP 读取实时数据集 DS_REALTIME 最近20分钟数据（本地消耗加权聚合），算出 cpm 系数增量，并在策略平台新建或原地修改加系数策略（无基数按 1.0 新建）。每 20 分钟一轮持续运行，直到用户说结束或暂停。支持用户自定义监控账户ID（不指定则全量）。当用户提到短剧IAA浅度超成本率、超成本率调价、顶价压价、调cpm系数、跑超成本率策略、开始持续跑超成本、adsdata 数据集 DS_REALTIME 或 ops-platform flow 策略平台时使用；用户在循环运行中说结束/暂停/停止时，按结束汇总收尾。不支持批量写策略（一轮内逐账户串行写入）；不触发非短剧IAA的调价、不推全（新建后主动提审，生效由定时工作台负责）。
 ---
 
 # 短剧 IAA 首日 ROI 顶价/压价
@@ -25,7 +25,7 @@ description: 按「浅度超成本率」分账户ID做顶价/压价，直连 OLA
 
 只有下面这些情况才展开明细：本轮有账户写入失败、本轮有账户超成本率异常持续监控、取数异常（行数骤降/ROI 全空）、或本轮是第一轮。
 
-**遇到这些情况立即暂停循环并报告，不要静默跳过**：页面跳登录或 403（SSO 失效）、数据集连续两轮取不到数、平台连续写入失败。这类问题不解决，后面每轮都是空转。
+**遇到这些情况立即暂停循环并报告，不要静默跳过**：页面跳登录或 403（Auth 失效）、数据集连续两轮取不到数、平台连续写入失败。这类问题不解决，后面每轮都是空转。
 
 ### 窗口与触发间隔等长，所以不需要冷却期
 
@@ -105,7 +105,7 @@ uv run <skill_directory>/scripts/fetch_roi.py \
 把这份清单复制到回复里，逐项打勾推进：
 
 ```
-- [ ] 1 取数：实时数据集 129496，账户ID维度，最近30分钟
+- [ ] 1 取数：实时数据集 DS_REALTIME，账户ID维度，最近30分钟
 - [ ] 2 落盘：存成 data/roi_<时间戳>.csv
 - [ ] 3 初判：decide.py --bands-only --ledger，筛出真正要动的账户
 - [ ] 4 查基数+回填：fetch_bases.py --merge-csv，一条命令查基数并回填 CSV
@@ -137,7 +137,7 @@ uv run <skill_directory>/scripts/fetch_roi.py --output data/roi_<YYYYMMDDHHmm>.c
 
 为什么不在服务端过滤时间：实测把模板的 `__time` 过滤改成“最近 N 分钟”会触发 OLAP 指标兼容校验（`指标维度组合不支持查询`）。所以 `references/olap_query_template.json` 必须**整份原样提交**，不要裁字段——裁掉隐藏配置就会被服务端拒。
 
-人工复核可以开[分享看板](https://internal.example.corp/main?enter_from=tianji&shareId=64385633&dataSetId=129496)对数：维度 `账户ID`，筛选 `转化目标（原优化目标）` IN `["首日变现ROI（短剧IAA专用）"]`，指标 `联盟总消耗` + `IAA广告变现ROI` + `浅度超成本率`。
+人工复核可以开[分享看板](https://app.example.corp/main?enter_from=tianji&shareId=64385633&dataSetId=DS_REALTIME)对数：维度 `账户ID`，筛选 `转化目标（原优化目标）` IN `["首日变现ROI（短剧IAA专用）"]`，指标 `联盟总消耗` + `IAA广告变现ROI` + `浅度超成本率`。
 
 导出/复制为 CSV 或 TSV，存到 `data/roi_<YYYYMMDDHHmm>.csv`，表头至少包含：
 
@@ -202,7 +202,7 @@ uv run <skill_directory>/scripts/fetch_bases.py \
 
 脚本已用逗号分隔后的精确匹配判定覆盖，不会让 `114368154` 误匹配 `1143681546`。
 
-需要人工核对时再开 [策略平台 flow](https://ops-platform.example.corp/flow)。
+需要人工核对时再开 [策略平台 flow](https://ops.example.corp/flow)。
 
 ### 4 决策
 
@@ -282,7 +282,7 @@ uv run <flow-strategy-ops目录>/scripts/flow_api.py create \
 
 - `adCluster.industryVersion` 不用写，脚本会自动补 `"6.6"`。
 - `name` 用 `短剧-自动-{账户ID}`；`background` 固定 `IAA首日ROI自动调价`，两者都别超 32 字符。
-- 新建的 `create` 返回里**不带策略 ID**（batchAddV2 只回 `{"status":200,"message":"成功",...}`）。提交成功后**按名字回查 ID**再提审——名字 `短剧-自动-{账户ID}` 是唯一的，直接命中：
+- 新建的 `create` 返回里**不带策略 ID**（batchCreate 只回 `{"status":200,"message":"成功",...}`）。提交成功后**按名字回查 ID**再提审——名字 `短剧-自动-{账户ID}` 是唯一的，直接命中：
 
 ```bash
 # 回查刚建的策略 ID
@@ -295,7 +295,7 @@ uv run <flow-strategy-ops目录>/scripts/flow_api.py change-status <回查到的
 
 #### `UPDATE` 怎么改
 
-原地改系数走 `flow-strategy-ops` 的 `edit`，它会先 GET 全量、合并 patch、清理只读字段再提审，不要自己拼 `mergeEdit` 请求：
+原地改系数走 `flow-strategy-ops` 的 `edit`，它会先 GET 全量、合并 patch、清理只读字段再提审，不要自己拼 `submitEdit` 请求：
 
 ```bash
 uv run <flow-strategy-ops目录>/scripts/flow_api.py edit <target_strategy_id> --set \

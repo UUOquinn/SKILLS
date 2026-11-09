@@ -2,7 +2,7 @@
   "version": 1,
   "default": {"action": "STOP", "max_retries": 0},
   "errors": {
-    "SSO_EXPIRED": {"action": "ASK_USER", "max_retries": 0},
+    "AUTH_EXPIRED": {"action": "ASK_USER", "max_retries": 0},
     "AUTH_FAILED": {"action": "ASK_USER", "max_retries": 0},
     "INDUSTRY_VERSION_MISMATCH": {"action": "STOP", "max_retries": 0},
     "VALIDATION_FAILED": {"action": "STOP", "max_retries": 0},

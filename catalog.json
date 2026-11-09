@@ -27,8 +27,8 @@
         "AMS",
         "默认联系人",
         "账户联系人",
-        "bind_link_person",
-        "e.qq.com"
+        "bind_contact",
+        "ads-platform.example.com"
       ]
     },
     {
@@ -39,8 +39,8 @@
       "keywords": [
         "query-mapping",
         "维度",
-        "85587",
-        "129496"
+        "DS_OFFLINE",
+        "DS_REALTIME"
       ]
     },
     {
@@ -104,9 +104,9 @@
       "name": "kconf-generic-api",
       "path": "skills/kconf-generic-api",
       "entry": "SKILL.md",
-      "description": "KConf 通用读写/批量/分级发布 API",
+      "description": "ConfigService 通用读写/批量/分级发布 API",
       "keywords": [
-        "kconf-generic-api"
+        "configservice-generic-api"
       ]
     },
     {
@@ -115,16 +115,16 @@
       "entry": "SKILL.md",
       "description": "联盟新链路通用灰度配置",
       "keywords": [
-        "kconf-universe-add-chain-gray"
+        "configservice-universe-add-chain-gray"
       ]
     },
     {
       "name": "kwaibi-sql-access-exec",
       "path": "skills/kwaibi-sql-access-exec",
       "entry": "SKILL.md",
-      "description": "KwaiBI SQL 取数执行",
+      "description": "BI SQL 取数执行",
       "keywords": [
-        "kwaibi-sql-access-exec"
+        "bi-sql-access-exec"
       ]
     },
     {
@@ -185,7 +185,7 @@
       "name": "union-strategy-insights",
       "path": "skills/union-strategy-insights",
       "entry": "SKILL.md",
-      "description": "联盟策略洞察（KwaiBI/OLAP/运营）",
+      "description": "联盟策略洞察（BI/OLAP/运营）",
       "keywords": [
         "union-strategy-insights"
       ]

@@ -18,9 +18,9 @@
     "腾讯广告",
     "默认联系人",
     "账户联系人",
-    "bind_link_person",
-    "advertiser-add-account-am",
-    "agencyUid",
-    "e.qq.com"
+    "bind_contact",
+    "advertiser-edit-account",
+    "agencyId",
+    "ads-platform.example.com"
   ]
 }

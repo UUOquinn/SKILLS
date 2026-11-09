@@ -1,19 +1,19 @@
 ---
 name: flow-strategy-ops
 description: >-
-  操作快手内网策略运营平台 ops-platform.example.corp/flow 的扶持策略管理
-  （flowControl）API，支持单条查询、新建、修改并提审、撤回、删除、立即推全、导出、
+  操作快手内网策略运营平台 ops.example.corp/flow 的扶持策略管理
+  （boostControl）API，支持单条查询、新建、修改并提审、撤回、删除、立即推全、导出、
   状态时间线和版本 diff；在用户指定策略 ID 后，可在广告主信息/媒体信息模板上新增或
-  删除名单 ID（账户/媒体应用/媒体用户/广告位等维度）。用户提到扶持策略、flowControl、
+  删除名单 ID（账户/媒体应用/媒体用户/广告位等维度）。用户提到扶持策略、boostControl、
   扶持策略管理、新增或修改扶持策略、给策略加 ID/删 ID、提交审核、撤回、删除、推全时触发。
-  仅通过当前用户 SSO 身份直连 REST API。
+  仅通过当前用户 Auth 身份直连 REST API。
   不支持网页 UI 操作、浏览器自动化、Cookie 配置及批量写入；非扶持策略场景不触发。
 ---
 
-# 扶持策略管理（flowControl）
+# 扶持策略管理（boostControl）
 
-通过 `SmartSSOSession` 复用并自动刷新当前用户 SSO，直接调用 Operation 的 REST API。
-执行路径只有一条：**SSO → API**。禁止打开 Operation 页面、模拟点击、复制 Cookie，或在 API 失败后降级到 UI。基址：`https://ops-platform.example.corp/ops/rest`
+通过 `SmartAuthSession` 复用并自动刷新当前用户 Auth，直接调用 Operation 的 REST API。
+执行路径只有一条：**Auth → API**。禁止打开 Operation 页面、模拟点击、复制 Cookie，或在 API 失败后降级到 UI。基址：`https://ops.example.corp/ops/rest`
 
 <!-- skill-creator: askuser-with-text-fallback-v1 -->
 
@@ -70,7 +70,7 @@ uv run <skill_directory>/scripts/flow_api.py query \
 uv run <skill_directory>/scripts/flow_api.py create \
   '{"name":"示例策略","type":3,"scope":1,"beginTime":1780000000000,"endTime":1788300000000,"bonusRate":1.0,"strategyDetails":"1.0","adCluster":{"industryVersion":"6.6","accountId":"1001","placements":1,"placementsArr":[1]},"mediaCluster":{},"background":"示例"}'
 
-# 单条修改并提审：先 GET 全量，再合并 patch、清理只读字段后 mergeEdit
+# 单条修改并提审：先 GET 全量，再合并 patch、清理只读字段后 submitEdit
 uv run <skill_directory>/scripts/flow_api.py edit 12345 --set \
   '{"endTime":1788300000000,"background":"调整结束时间"}'
 
@@ -149,7 +149,7 @@ uv run <skill_directory>/scripts/flow_api.py remove-ids <策略ID> --dim posId -
 增删语义是幂等集合操作：新增时已存在的 ID 会跳过（返回 `ALREADY_PRESENT`），
 删除时不存在的 ID 也会跳过（`ALREADY_ABSENT`），两种情况都不提交线上。
 数字维度（accountId/appId/uid/posId）会校验 ID 必须是数字，防止把账户名等写进 ID 字段；
-只有确实发生变化才走 mergeEdit 提审，执行一次、不自动重试。
+只有确实发生变化才走 submitEdit 提审，执行一次、不自动重试。
 已删除或已失效的策略不能作为写操作对象，会返回 `NOT_WRITABLE` 拦截。
 
 ## 写操作确认
@@ -171,22 +171,22 @@ uv run <skill_directory>/scripts/flow_api.py remove-ids <策略ID> --dim posId -
 
 | Method | Path | CLI |
 |---|---|---|
-| GET | `/flowControl/get` | `get` |
-| POST | `/flowControl/query` | `query` |
-| POST | `/flowControl/export` | `export` |
-| POST | `/flowControl/mergeEdit` | `edit`、`add-ids`、`remove-ids` |
-| POST | `/flowControl/batchAddV2` | `create`，仅单元素 list |
-| POST | `/flowControl/changeStatus` | `change-status` |
-| DELETE | `/flowControl/delete` | `delete`，仅单 ID |
-| GET | `/flowControl/log` | `log` |
-| POST | `/flowControl/showDiffInfo` | `diff` |
-| POST | `/flowControl/quickPushAll` | `quick-push` |
+| GET | `/boostControl/get` | `get` |
+| POST | `/boostControl/query` | `query` |
+| POST | `/boostControl/export` | `export` |
+| POST | `/boostControl/submitEdit` | `edit`、`add-ids`、`remove-ids` |
+| POST | `/boostControl/batchCreate` | `create`，仅单元素 list |
+| POST | `/boostControl/changeStatus` | `change-status` |
+| DELETE | `/boostControl/delete` | `delete`，仅单 ID |
+| GET | `/boostControl/log` | `log` |
+| POST | `/boostControl/showDiffInfo` | `diff` |
+| POST | `/boostControl/quickPushAll` | `quick-push` |
 
 字段、scope 和请求体契约见 [API.md](API.md)。
 
 ## API-only 失败原则
 
-- `SSO_EXPIRED`：停止并要求用户重新完成内网认证；不打开浏览器代操作。
+- `AUTH_EXPIRED`：停止并要求用户重新完成内网认证；不打开浏览器代操作。
 - `AUTH_FAILED`：停止并告知当前账号无接口权限；不借用他人 Cookie。
 - `VALIDATION_FAILED`：服务端业务校验失败（如缺必填字段、名单冲突），
   错误信息里就是真实原因；对照 API.md 补字段后重试。**不要**去排查行业版本。

@@ -1,8 +1,8 @@
-# flowControl 顶价策略 API 契约
+# boostControl 顶价策略 API 契约
 
-基址：`https://ops-platform.example.corp/ops/rest/flowControl`
+基址：`https://ops.example.corp/ops/rest/boostControl`
 
-鉴权：`SmartSSOSession` 代表当前用户直连内网 REST API，自动复用/刷新 SSO。不保存 Cookie/Token，不走网页 UI。
+鉴权：`SmartAuthSession` 代表当前用户直连内网 REST API，自动复用/刷新 Auth。不保存 Cookie/Token，不走网页 UI。
 
 ## 顶价类型与维度（实测映射，勿猜）
 
@@ -20,7 +20,7 @@
 ## 读策略
 
 ```
-GET /flowControl/get?id={strategyId}
+GET /boostControl/get?id={strategyId}
 ```
 
 返回详情含 `id` / `name` / `type` / `typeDesc` / `scope` / `bonusRate` /
@@ -30,16 +30,16 @@ GET /flowControl/get?id={strategyId}
 ## 撤回
 
 ```
-POST /flowControl/withdraw
+POST /boostControl/withdraw
 {"id": strategyId}
 ```
 
-（与 operation-kwaibi 的 `/{prefix}/withdraw` 同源，body 带策略 id。）
+（与 operation-bi 的 `/{prefix}/withdraw` 同源，body 带策略 id。）
 
 ## 降系数
 
 ```
-POST /flowControl/mergeEdit
+POST /boostControl/submitEdit
 ```
 
 先 GET 全量详情 → 合并 patch → 剔除只读字段再提交：
@@ -54,7 +54,7 @@ POST /flowControl/mergeEdit
 
 ## 策略维度 → OLAP 维度映射
 
-| 策略字段 | 维度名 | 129496 fieldId | 85587 fieldId |
+| 策略字段 | 维度名 | DS_REALTIME fieldId | DS_OFFLINE fieldId |
 |---|---|---|---|
 | `adCluster.accountId` | 账户ID | 2212690 | 1329545 |
 | `adCluster.campaignType` | 营销目标 | 2215345 | 1329622 |
@@ -67,7 +67,7 @@ POST /flowControl/mergeEdit
 
 ## 指标 fieldId
 
-| 指标 | 129496 | 85587 |
+| 指标 | DS_REALTIME | DS_OFFLINE |
 |---|---|---|
 | 联盟总消耗 | 2215299 | 1329556 |
 | 浅度超成本率 | 2215353 | 1330672 |

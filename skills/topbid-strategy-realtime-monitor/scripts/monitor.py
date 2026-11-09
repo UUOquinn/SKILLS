@@ -11,7 +11,7 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """顶价扶持策略实时监控：读策略 → OLAP/离线取数 → 规则判定 → 撤回/降系数。
@@ -24,8 +24,8 @@
 
 config 结构：
   {
-    "dataset": 129496,            // 129496 实时（默认）；85587 离线 T-1
-    "referer": "<olap看板地址>",  // 仅 129496 OLAP 路径需要
+    "dataset": DS_REALTIME,            // DS_REALTIME 实时（默认）；DS_OFFLINE 离线 T-1
+    "referer": "<olap看板地址>",  // 仅 DS_REALTIME OLAP 路径需要
     "strategies": [
       {"id": 27123, "metric": "浅度超成本率", "op": ">=", "threshold": 0.20,
        "withdraw": false, "reduce_coefficient": 0.10, "window": "today"}
@@ -47,11 +47,11 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
-FLOW_URL = "https://ops-platform.example.corp/ops/rest/flowControl"
-OLAP_URL = "https://internal.example.corp/api/v1/data/query"
-KWAIBI_URL = "https://bi-platform.example.corp/api/v1/data/query"
+FLOW_URL = "https://ops.example.corp/ops/rest/boostControl"
+OLAP_URL = "https://app.example.corp/api/v1/data/query"
+KWAIBI_URL = "https://bi.example.corp/api/v1/data/query"
 TZ = timezone(timedelta(hours=8))
 
 TOP_PRICE_TYPES = {3: "顶价", 5: "CPA顶价"}
@@ -59,7 +59,7 @@ TOP_PRICE_TYPES = {3: "顶价", 5: "CPA顶价"}
 TYPE_NAMES = {1: "绿通", 3: "顶价", 4: "打折", 5: "CPA顶价", 10: "索引加白"}
 SCOPE_NAMES = {1: "广告主顶价", 2: "媒体顶价", 3: "广告主*媒体顶价", 0: "未指定"}
 
-# 策略字段 -> (维度名, 129496 fieldId, 85587 fieldId)
+# 策略字段 -> (维度名, DS_REALTIME fieldId, DS_OFFLINE fieldId)
 DIMENSION_MAP = {
     "accountId": ("账户ID", 2212690, 1329545),
     "campaignType": ("营销目标", 2215345, 1329622),
@@ -71,7 +71,7 @@ DIMENSION_MAP = {
     "posId": ("广告位", 2212707, 1329667),
 }
 
-# 指标名 -> (129496 fieldId, 85587 fieldId)。85587 无 IAA 变现 ROI。
+# 指标名 -> (DS_REALTIME fieldId, DS_OFFLINE fieldId)。DS_OFFLINE 无 IAA 变现 ROI。
 METRIC_MAP = {
     "联盟总消耗": (2215299, 1329556),
     "浅度超成本率": (2215353, 1330672),
@@ -136,16 +136,16 @@ def load_config(args: argparse.Namespace) -> dict[str, Any]:
 
 
 class FlowClient:
-    """flowControl 只读 + 撤回/降系数写操作，统一走 SmartSSOSession。"""
+    """boostControl 只读 + 撤回/降系数写操作，统一走 SmartAuthSession。"""
 
     def __init__(self, timeout: int = 30):
         self.timeout = timeout
-        self.session = SmartSSOSession()
+        self.session = SmartAuthSession()
         self.headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "Origin": "https://ops-platform.example.corp",
-            "Referer": "https://ops-platform.example.corp/flow",
+            "Origin": "https://ops.example.corp",
+            "Referer": "https://ops.example.corp/flow",
         }
 
     def _req(self, method: str, path: str, *, params=None, body=None):
@@ -157,7 +157,7 @@ class FlowClient:
         except Exception as exc:
             raise RuntimeError(f"NETWORK_ERROR: {exc}")
         if resp.status_code in (301, 302, 307, 308, 401):
-            raise PermissionError("SSO_EXPIRED")
+            raise PermissionError("AUTH_EXPIRED")
         if resp.status_code == 403:
             raise PermissionError("AUTH_FAILED")
         if resp.status_code >= 500:
@@ -185,18 +185,18 @@ class FlowClient:
         old = float(detail.get("bonusRate") or 0)
         body["bonusRate"] = round(max(old - delta, floor), 4)
         body["id"] = detail.get("id")
-        return self._req("POST", "mergeEdit", body=body)
+        return self._req("POST", "submitEdit", body=body)
 
     def raise_coefficient(self, detail: dict[str, Any], delta: float) -> dict[str, Any]:
         body = self._merge_body(detail)
         old = float(detail.get("bonusRate") or 0)
         body["bonusRate"] = round(old + delta, 4)
         body["id"] = detail.get("id")
-        return self._req("POST", "mergeEdit", body=body)
+        return self._req("POST", "submitEdit", body=body)
 
     @staticmethod
     def _merge_body(detail: dict[str, Any]) -> dict[str, Any]:
-        """mergeEdit 请求体：去掉只读/展示字段，只留可写字段。"""
+        """submitEdit 请求体：去掉只读/展示字段，只留可写字段。"""
         body = copy.deepcopy(detail)
         for key in list(body):
             if key in DROP_FIELDS or key.startswith("_"):
@@ -232,19 +232,19 @@ def parse_dimensions(detail: dict[str, Any]) -> dict[str, Any]:
 
 def resolve_metric(name: str, dataset: int) -> tuple[int, str]:
     if name in METRIC_MAP:
-        fid = METRIC_MAP[name][0 if dataset == 129496 else 1]
+        fid = METRIC_MAP[name][0 if dataset == DS_REALTIME else 1]
         if fid is None:
             raise ValueError(f"指标「{name}」在数据集 {dataset} 不存在")
         return fid, name
     if str(name).isdigit():
         return int(name), str(name)
-    raise ValueError(f"不支持的指标「{name}」，请用三个默认指标名或 129496 fieldId")
+    raise ValueError(f"不支持的指标「{name}」，请用三个默认指标名或 DS_REALTIME fieldId")
 
 
 def window_ms(window: str) -> tuple[int, int]:
     now = datetime.now(TZ)
     if window == "today":
-        # 实时集 129496：end 必须对齐整点。非整点 end 会触发服务端「新增列不支持查询」报错
+        # 实时集 DS_REALTIME：end 必须对齐整点。非整点 end 会触发服务端「新增列不支持查询」报错
         start = now.replace(hour=0, minute=0, second=0, microsecond=0)
         end = now.replace(minute=0, second=0, microsecond=0)
         if end <= start:
@@ -256,7 +256,7 @@ def window_ms(window: str) -> tuple[int, int]:
         end = y.replace(hour=23, minute=59, second=59, microsecond=999000)
         return int(start.timestamp() * 1000), int(end.timestamp() * 1000)
     if window == "last_hour":
-        # 上一个完整小时（小时对齐）：实时集 129496 按小时粒度取数，分小时监控用这个
+        # 上一个完整小时（小时对齐）：实时集 DS_REALTIME 按小时粒度取数，分小时监控用这个
         end = now.replace(minute=0, second=0, microsecond=0)
         start = end - timedelta(hours=1)
         return int(start.timestamp() * 1000), int(end.timestamp() * 1000)
@@ -300,17 +300,17 @@ def olap_query(template_path: Path, dataset: int, dims: dict[str, str],
         })
     body["filters"] = keep_filters
 
-    session = SmartSSOSession()
+    session = SmartAuthSession()
     resp = session.request(
         "POST", OLAP_URL, json=body,
         headers={"Accept": "application/json", "Kwaibi-View-Query-Type": "8",
-                 "kwaibi-request-module": "olap", "Referer": referer},
+                 "bi-request-module": "olap", "Referer": referer},
         timeout=180,
     )
     final_url = str(getattr(resp, "url", ""))
     ct = (resp.headers.get("Content-Type") or "").lower()
     if resp.status_code in (401, 302) or "login" in final_url.lower() or "sso" in final_url.lower() or "text/html" in ct:
-        raise PermissionError("SSO_EXPIRED")
+        raise PermissionError("AUTH_EXPIRED")
     if resp.status_code == 403:
         raise PermissionError("AUTH_FAILED")
     resp.raise_for_status()
@@ -329,22 +329,22 @@ def kwaibi_query(dataset: int, metric_fid: int, metric_name: str, dims: dict[str
     媒体顶价策略没有 accountId，按 appId 分组拿媒体级汇总；否则返回全量账户行会
     被 rowLimit 截断（1000 行），聚合口径会错。"""
     glabel, g129, g855 = DIMENSION_MAP[group_key]
-    gid = g129 if dataset == 129496 else g855
+    gid = g129 if dataset == DS_REALTIME else g855
     fields = [
         {"id": gid, "name": glabel, "type": "dimension", "dataSetId": dataset},
         {"id": metric_fid, "name": metric_name, "type": "metric", "dataSetId": dataset},
     ]
     # 比值指标必须同步取联盟总消耗做加权（否则退化为算术平均，口径不对）
     if metric_name in RATIO_METRICS:
-        cost_fid = METRIC_MAP["联盟总消耗"][0 if dataset == 129496 else 1]
+        cost_fid = METRIC_MAP["联盟总消耗"][0 if dataset == DS_REALTIME else 1]
         fields.append({"id": cost_fid, "name": "联盟总消耗", "type": "metric",
                        "dataSetId": dataset})
-    # 注意：KwaiBI 的 {field,operator,value} 过滤格式会被服务端静默忽略，
+    # 注意：BI 的 {field,operator,value} 过滤格式会被服务端静默忽略，
     # 必须用 OLAP 风格 filter（filterType/targetId/filterValue），否则监控范围会扩大到全量账户。
     filters = []
     for field, val in dims.items():
         label, fid129, fid855 = DIMENSION_MAP[field]
-        fid = fid129 if dataset == 129496 else fid855
+        fid = fid129 if dataset == DS_REALTIME else fid855
         vals = [v for v in val.split(",") if v]
         filters.append({
             "filterType": "string", "targetId": fid, "urn": "", "name": label,
@@ -358,12 +358,12 @@ def kwaibi_query(dataset: int, metric_fid: int, metric_name: str, dims: dict[str
         "timeFilter": {"fieldName": "__time", "startTime": start_ms, "endTime": end_ms},
         "limit": 1000, "rowLimit": 1000,
     }
-    session = SmartSSOSession()
+    session = SmartAuthSession()
     resp = session.request("POST", KWAIBI_URL, json=body,
                            headers={"Accept": "application/json"}, timeout=120)
     ct = (resp.headers.get("Content-Type") or "").lower()
     if resp.status_code in (401, 302) or "text/html" in ct:
-        raise PermissionError("SSO_EXPIRED")
+        raise PermissionError("AUTH_EXPIRED")
     if resp.status_code == 403:
         raise PermissionError("AUTH_FAILED")
     resp.raise_for_status()
@@ -375,8 +375,8 @@ def kwaibi_query(dataset: int, metric_fid: int, metric_name: str, dims: dict[str
         err = str(payload.get("error_msg") or "")
         # error_msg="canDiff" 是正常返回字段（同期对比提示），真正的空结果就是没数据
         if err in ("", "canDiff"):
-            raise RuntimeError("KwaiBI 返回空结果（策略账户在窗口内可能无数据）")
-        raise RuntimeError(f"KwaiBI 查询失败: {err}")
+            raise RuntimeError("BI 返回空结果（策略账户在窗口内可能无数据）")
+        raise RuntimeError(f"BI 查询失败: {err}")
     return {"columns": columns, "rows": rows}
 
 
@@ -585,7 +585,7 @@ def build_action_id(detail: dict[str, Any], op: str, *, old: float | None = None
 
 
 def check_action(client: FlowClient, action_id: str) -> dict[str, Any]:
-    """回查动作是否已执行。向权威数据源（flowControl get）核对。"""
+    """回查动作是否已执行。向权威数据源（boostControl get）核对。"""
     parts = action_id.split(":")
     if len(parts) < 2:
         return {"action_id": action_id, "known": False, "reason": "非法 action_id"}
@@ -633,7 +633,7 @@ def process_one(strategy: dict[str, Any], cfg: dict[str, Any], dataset: int,
     if not is_streak and op not in OPS:
         raise ValueError(f"不支持的比较符 {op}")
     threshold = float(strategy["threshold"]) if not is_streak else 0.0
-    window = str(strategy.get("window", "today" if dataset == 129496 else "yesterday"))
+    window = str(strategy.get("window", "today" if dataset == DS_REALTIME else "yesterday"))
     start_ms, end_ms = window_ms(window)
     dims = parse_dimensions(detail)
     # 监控维度：有 accountId 按账户分组；否则按媒体（appId）分组拿媒体级汇总。
@@ -700,8 +700,8 @@ def main() -> int:
     parser.add_argument("--concurrency", type=int, default=1, help="并发度（默认 1，串行）")
     parser.add_argument("--batch-size", type=int, default=0, help="每批处理数量（0=全部）")
     parser.add_argument("--max-runtime", type=int, default=0, help="最大运行秒数（0=不限）")
-    parser.add_argument("--authoritative-source", default="flowControl",
-                        help="幂等回查的权威数据源（固定 flowControl）")
+    parser.add_argument("--authoritative-source", default="boostControl",
+                        help="幂等回查的权威数据源（固定 boostControl）")
     parser.add_argument("--check-action", default=None, help="回查指定 action_id 是否已执行")
     parser.add_argument("--state", default=".topbid-monitor-streak-state.json",
                         help="连续段计数状态文件（默认 cwd 下）")
@@ -721,7 +721,7 @@ def main() -> int:
             return 0
         except PermissionError as exc:
             emit({"ok": False, "code": 2, "error": str(exc),
-                  "msg": "SSO 登录态失效或无接口权限",
+                  "msg": "Auth 登录态失效或无接口权限",
                   "next_action": {"type": "ASK_USER", "retryable": True},
                   "duration_ms": int((time.monotonic() - started) * 1000)})
             return 2
@@ -735,11 +735,11 @@ def main() -> int:
         _fail("INVALID_CONFIG", str(exc), code=1, started=started)
         return 1
 
-    dataset = int(cfg.get("dataset", 129496))
+    dataset = int(cfg.get("dataset", DS_REALTIME))
     referer = cfg.get("referer") or (
-        "https://internal.example.corp/main?enter_from=tianji&shareId=64385633&dataSetId=129496"
+        "https://app.example.corp/main?enter_from=tianji&shareId=64385633&dataSetId=DS_REALTIME"
     )
-    template_path = Path(__file__).resolve().parent.parent / "references" / "olap_query_template_129496.json"
+    template_path = Path(__file__).resolve().parent.parent / "references" / "olap_query_template_realtime.json"
 
     client = FlowClient(args.timeout)
 
@@ -789,7 +789,7 @@ def main() -> int:
                 return 1
         try:
             resolve_metric(str(s.get("metric", "浅度超成本率")), dataset)
-            window_ms(str(s.get("window", "today" if dataset == 129496 else "yesterday")))
+            window_ms(str(s.get("window", "today" if dataset == DS_REALTIME else "yesterday")))
         except Exception as exc:
             _fail("INVALID_CONFIG", f"{tag}（策略 {s['id']}）: {exc}",
                   code=1, started=started)
@@ -826,7 +826,7 @@ def main() -> int:
                                        client, args.dry_run, state["strategies"]))
         except PermissionError as exc:
             emit({"ok": False, "code": 2, "error": str(exc),
-                  "msg": "SSO 登录态失效或无接口权限",
+                  "msg": "Auth 登录态失效或无接口权限",
                   "next_action": {"type": "ASK_USER", "retryable": True},
                   "duration_ms": int((time.monotonic() - started) * 1000)})
             return 2

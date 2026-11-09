@@ -3,20 +3,20 @@
 ## 端点
 
 ```
-POST https://internal.example.corp/api/v1/data/query
+POST https://app.example.corp/api/v1/data/query
 ```
 
 请求头必须带：
 
 ```
 Kwaibi-View-Query-Type: 8
-kwaibi-request-module: olap
+bi-request-module: olap
 Referer: <看板页面地址>
 ```
 
-鉴权走 `SmartSSOSession`，不要自己读 cookie 文件或硬编码 token。
+鉴权走 `SmartAuthSession`，不要自己读 cookie 文件或硬编码 token。
 
-**注意端点容易搞错**：`bi-platform.example.corp/api/v1/data/query` 是另一个接口，字段协议不同、filter 会被静默忽略。抓包时确认域名是 `olap`。
+**注意端点容易搞错**：`bi.example.corp/api/v1/data/query` 是另一个接口，字段协议不同、filter 会被静默忽略。抓包时确认域名是 `olap`。
 
 ## 怎么拿到模板
 
@@ -109,7 +109,7 @@ Referer: <看板页面地址>
 | 报错 | 原因 |
 |---|---|
 | `指标维度组合不支持查询` | `limit` 太大或维度指标组合非法。回到抓包时的值 |
-| 401 / 302 | SSO 失效，重新认证 |
+| 401 / 302 | Auth 失效，重新认证 |
 | 403 | 账号没有该看板权限 |
 | 返回空 `dataList` | 窗口内确实没数据，或日期 filter 指向了错误日期 |
 | 列名对不上 | 看板字段被改过，重新抓模板并更新配置的 `columns` |

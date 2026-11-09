@@ -3,10 +3,10 @@
   "sheetId": -1,
   "tabId": -1,
   "dashboardId": 0,
-  "dataSetId": 129496,
+  "dataSetId": DS_REALTIME,
   "fields": [
     {
-      "dataSetId": 129496,
+      "dataSetId": DS_REALTIME,
       "name": "账户ID",
       "nickName": "账户ID",
       "ordinalAggregatorType": "",
@@ -37,7 +37,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/account_id",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/account_id",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -49,7 +49,7 @@
       "axisId": "rowDimension"
     },
     {
-      "dataSetId": 129496,
+      "dataSetId": DS_REALTIME,
       "name": "__time",
       "nickName": "时间",
       "ordinalAggregatorType": "",
@@ -118,7 +118,7 @@
       "axisId": "rowDimension"
     },
     {
-      "dataSetId": 129496,
+      "dataSetId": DS_REALTIME,
       "name": "联盟总消耗",
       "nickName": "联盟总消耗",
       "ordinalAggregatorType": "",
@@ -170,7 +170,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_total_cost_amt",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_total_cost_amt",
         "primaryColIds": "[2212690,2215310,2215361,2212707]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -187,14 +187,14 @@
         "unitName": "YUAN",
         "convertUnitName": "",
         "formatEnable": false,
-        "dataSetId": 129496
+        "dataSetId": DS_REALTIME
       },
       "groupPercentType": "",
       "fieldCellStyle": null,
       "axisId": "metric"
     },
     {
-      "dataSetId": 129496,
+      "dataSetId": DS_REALTIME,
       "name": "浅度超成本率",
       "nickName": "浅度超成本率",
       "ordinalAggregatorType": "",
@@ -237,7 +237,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_over_cost_rate",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_over_cost_rate",
         "primaryColIds": "[2212690,2215310,2215361,2212707]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -347,7 +347,7 @@
   "ignoreResultFilter": true,
   "dataSetFieldList": [
     {
-      "dataSetId": 129496,
+      "dataSetId": DS_REALTIME,
       "fieldId": 2215299,
       "unitVO": {
         "fieldId": 2215299,
@@ -358,19 +358,19 @@
         "unitName": "YUAN",
         "convertUnitName": "",
         "formatEnable": false,
-        "dataSetId": 129496
+        "dataSetId": DS_REALTIME
       }
     },
     {
-      "dataSetId": 129496,
+      "dataSetId": DS_REALTIME,
       "fieldId": 2212690
     },
     {
-      "dataSetId": 129496,
+      "dataSetId": DS_REALTIME,
       "fieldId": 2215353
     },
     {
-      "dataSetId": 129496,
+      "dataSetId": DS_REALTIME,
       "fieldId": 2211389
     }
   ],
@@ -415,8 +415,8 @@
   "invoker": {
     "params": {
       "isIframe": true,
-      "referPage": "https://internal.example.corp/",
-      "ancestorOrigins": "https://internal.example.corp",
+      "referPage": "https://app.example.corp/",
+      "ancestorOrigins": "https://app.example.corp",
       "moduleVersion": "3.1",
       "queryTmplSetType": "TEMP_SHARED",
       "queryTmplSetId": "64385633",

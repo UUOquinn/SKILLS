@@ -4,7 +4,7 @@
     "INVALID_DAY": { "action": "STOP", "retryable": false, "msg": "修正日期格式为 YYYY-MM-DD 后重试" },
     "INVALID_ID": { "action": "STOP", "retryable": false, "msg": "模板 ID 须为 26558/26559 之一" },
     "UV_NOT_FOUND": { "action": "STOP", "retryable": false, "msg": "引导用户安装 uv，禁止降级 python3/pip" },
-    "SSO_EXPIRED": { "action": "ASK_USER", "retryable": false, "msg": "引导用户重新登录内网" },
+    "AUTH_EXPIRED": { "action": "ASK_USER", "retryable": false, "msg": "引导用户重新登录内网" },
     "AUTH_FAILED": { "action": "ASK_USER", "retryable": false, "msg": "账号无权限，联系管理员开通" },
     "API_TIMEOUT": { "action": "RETRY_ONCE_THEN_STOP", "retryable": true, "max_retries": 1, "msg": "重试 1 次，仍失败则中止" },
     "API_4XX": { "action": "RETRY_ONCE_THEN_STOP", "retryable": true, "max_retries": 1, "msg": "收紧白名单字段后重试 1 次" },

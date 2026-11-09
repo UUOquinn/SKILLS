@@ -11,7 +11,7 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 
@@ -22,9 +22,9 @@ import time
 from typing import Any
 
 import requests
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
-BASE_URL = "https://internal.example.corp/rest/ssp-admin/"
+BASE_URL = "https://app.example.corp/rest/ssp-admin/"
 MAX_TASKS = 50
 ENDPOINTS = {
     "account.allContract": ("GET", "account/allContract"),
@@ -137,7 +137,7 @@ def parse_tasks(raw: str) -> list[dict[str, Any]]:
     return tasks
 
 
-def request_one(session: SmartSSOSession, task: dict[str, Any]) -> dict[str, Any]:
+def request_one(session: SmartAuthSession, task: dict[str, Any]) -> dict[str, Any]:
     method, path = ENDPOINTS[task["endpoint"]]
     payload_key = "params" if method == "GET" else "json"
     payload = task.get("params", {}) if method == "GET" else task.get("body", {})
@@ -146,7 +146,7 @@ def request_one(session: SmartSSOSession, task: dict[str, Any]) -> dict[str, Any
             response = session.request(method, BASE_URL + path, timeout=30, **{payload_key: payload})
             if response.status_code in (301, 302, 303, 307, 308):
                 return {"label": task.get("label"), "endpoint": task["endpoint"], "ok": False,
-                        "error": "SSO_EXPIRED", "msg": "SSO 登录态已失效，请完成重新认证后重试。",
+                        "error": "AUTH_EXPIRED", "msg": "Auth 登录态已失效，请完成重新认证后重试。",
                         "http_status": response.status_code, "attempts": attempt + 1}
             try:
                 body = response.json()
@@ -182,7 +182,7 @@ def main() -> None:
         fail("INVALID_INPUT", str(exc), 2, started, "ASK_USER")
 
     try:
-        session = SmartSSOSession()
+        session = SmartAuthSession()
         results = [request_one(session, task) for task in tasks]
     except requests.HTTPError as exc:
         status = exc.response.status_code if exc.response is not None else 0
@@ -196,7 +196,7 @@ def main() -> None:
         fail("NETWORK_ERROR", "请求初始化失败，请检查内网登录和网络连接。", 1, started, "STOP")
 
     succeeded = sum(1 for result in results if result["ok"])
-    sso_expired = any(result.get("error") == "SSO_EXPIRED" for result in results)
+    sso_expired = any(result.get("error") == "AUTH_EXPIRED" for result in results)
     output({"ok": True, "code": 0, "data": {"total": len(results), "succeeded": succeeded,
             "failed": len(results) - succeeded, "results": results},
             "next_action": {"type": "ASK_USER" if sso_expired else "CONTINUE"},

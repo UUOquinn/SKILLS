@@ -15,10 +15,10 @@ const CONFIG_PATH = path.join(__dirname, 'api.json');
 
 function gtkFromCookie(cookie) {
   const m =
-    cookie.match(/(?:^|;\s*)gdt_protect=([^;]*)/) ||
-    cookie.match(/(?:^|;\s*)skey=([^;]*)/);
+    cookie.match(/(?:^|;\s*)csrf_token=([^;]*)/) ||
+    cookie.match(/(?:^|;\s*)session_key=([^;]*)/);
   const s = m ? decodeURIComponent(m[1]) : '';
-  if (!s) throw new Error('Cookie 里没有 gdt_protect 或 skey，无法算 g_tk');
+  if (!s) throw new Error('Cookie 里没有 csrf_token 或 session_key，无法算 csrf');
   let t = 5381;
   for (let i = 0; i < s.length; i++) t += (t << 5) + s.charCodeAt(i);
   return t & 2147483647;
@@ -26,18 +26,18 @@ function gtkFromCookie(cookie) {
 
 function loadConfig() {
   if (!fs.existsSync(CONFIG_PATH)) {
-    throw new Error('未找到 api.json。先: cp api.example.json api.json 并填 Cookie / agencyUid / linkPersonId');
+    throw new Error('未找到 api.json。先: cp api.example.json api.json 并填 Cookie / agencyId / contactId');
   }
   const cfg = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
   if (!cfg.cookie || /请填写|复制整行/.test(cfg.cookie)) {
     throw new Error('请在 api.json 填入浏览器 Cookie');
   }
-  cfg.agencyUid = Number(cfg.agencyUid);
+  cfg.agencyId = Number(cfg.agencyId);
   cfg.bmId = cfg.bmId == null ? 0 : Number(cfg.bmId);
-  cfg.customerBusinessId = Number(cfg.customerBusinessId || 0);
-  cfg.linkPersonId = Number(cfg.linkPersonId || 0);
+  cfg.customerId = Number(cfg.customerId || 0);
+  cfg.contactId = Number(cfg.contactId || 0);
   cfg.chunkSize = Number(cfg.chunkSize || 20);
-  cfg.baseUrl = (cfg.baseUrl || 'https://e.qq.com').replace(/\/$/, '');
+  cfg.baseUrl = (cfg.baseUrl || 'https://ads-platform.example.com').replace(/\/$/, '');
   return cfg;
 }
 
@@ -65,12 +65,12 @@ function chunk(arr, size) {
 }
 
 async function request(cfg, { method, pathname, data, asJson }) {
-  const g_tk = gtkFromCookie(cfg.cookie);
+  const csrf = gtkFromCookie(cfg.cookie);
   const url = new URL(pathname, cfg.baseUrl);
-  url.searchParams.set('g_tk', String(g_tk));
+  url.searchParams.set('csrf', String(csrf));
 
   const payload = {
-    agency_uid: cfg.agencyUid,
+    agency_id: cfg.agencyId,
     bm_id: cfg.bmId,
     ...data,
   };
@@ -79,7 +79,7 @@ async function request(cfg, { method, pathname, data, asJson }) {
     Cookie: cfg.cookie,
     Accept: 'application/json, text/plain, */*',
     Origin: cfg.baseUrl,
-    Referer: `${cfg.baseUrl}/ams/agency/advertiser-add-account-am?agencyUid=${cfg.agencyUid}`,
+    Referer: `${cfg.baseUrl}/agency/advertiser-edit-account?agencyId=${cfg.agencyId}`,
   };
 
   let body;
@@ -113,14 +113,14 @@ async function request(cfg, { method, pathname, data, asJson }) {
 }
 
 async function listContacts(cfg) {
-  if (!cfg.regCertificationNo) {
-    throw new Error('拉列表需要 api.json.regCertificationNo（账户营业执照号）');
+  if (!cfg.businessLicenseNo) {
+    throw new Error('拉列表需要 api.json.businessLicenseNo（账户营业执照号）');
   }
-  const data = { reg_certification_no: cfg.regCertificationNo };
-  if (cfg.customerBusinessId) data.customer_business_id = cfg.customerBusinessId;
+  const data = { business_license_no: cfg.businessLicenseNo };
+  if (cfg.customerId) data.customer_id = cfg.customerId;
   return request(cfg, {
     method: 'GET',
-    pathname: '/agp/advertiser/get_binding_link_person_list',
+    pathname: '/vendor/advertiser/list_contacts',
     data,
   });
 }
@@ -128,21 +128,21 @@ async function listContacts(cfg) {
 async function bindChunk(cfg, uids, asJson) {
   return request(cfg, {
     method: 'POST',
-    pathname: '/agp/advertiser/bind_link_person',
+    pathname: '/vendor/advertiser/bind_contact',
     asJson,
     data: {
-      customer_business_id: cfg.customerBusinessId,
-      link_person_id: cfg.linkPersonId,
+      customer_id: cfg.customerId,
+      contact_id: cfg.contactId,
       uid_list: uids,
     },
   });
 }
 
-/** 开户页点选「账户联系人」后提交：POST /agp/advertiser/update */
+/** 开户页点选「账户联系人」后提交：POST /vendor/advertiser/update */
 async function getAdvertiser(cfg, uid) {
   return request(cfg, {
     method: 'GET',
-    pathname: '/agp/advertiser/get',
+    pathname: '/vendor/advertiser/get',
     data: { uid },
   });
 }
@@ -155,13 +155,13 @@ async function selectContactOnAccount(cfg, uid) {
   const got = await getAdvertiser(cfg, uid);
   if (got.code !== 0) return got;
   const d = got.data || {};
-  const existing = (d.link_person_list || []).find((p) => p && p.link_person_id);
+  const existing = (d.contact_list || []).find((p) => p && p.contact_id);
   if (existing) {
     return {
       code: 0,
       skipped: true,
-      data: { link_person_id: existing.link_person_id },
-      msg: `已有联系人 ${existing.link_person_id}`,
+      data: { contact_id: existing.contact_id },
+      msg: `已有联系人 ${existing.contact_id}`,
     };
   }
   const buyingType =
@@ -189,15 +189,15 @@ async function selectContactOnAccount(cfg, uid) {
     related_company: d.related_company,
     forbid_app_ads: d.forbid_app_ads,
     industry_id: d.industry_id,
-    customer_business_id: d.customer_business_id || cfg.customerBusinessId,
-    link_person_id: cfg.linkPersonId,
+    customer_id: d.customer_id || cfg.customerId,
+    contact_id: cfg.contactId,
   };
   Object.keys(payload).forEach((k) => {
     if (payload[k] === undefined) delete payload[k];
   });
   return request(cfg, {
     method: 'POST',
-    pathname: '/agp/advertiser/update',
+    pathname: '/vendor/advertiser/update',
     asJson: true,
     data: payload,
   });
@@ -209,15 +209,15 @@ function printList(json) {
     return;
   }
   const d = json.data || {};
-  console.log(`customer_business_id: ${d.customer_business_id}`);
-  const list = d.link_person_list || [];
+  console.log(`customer_id: ${d.customer_id}`);
+  const list = d.contact_list || [];
   if (!list.length) {
     console.log('(无联系人)');
     return;
   }
   list.forEach((p) => {
     console.log(
-      `  link_person_id=${p.link_person_id}  ${p.link_person_name}  ${p.mobile}  status=${p.approval_status}`
+      `  contact_id=${p.contact_id}  ${p.contact_name}  ${p.mobile}  status=${p.approval_status}`
     );
   });
 }
@@ -228,29 +228,29 @@ async function main() {
   const asJson = !argv.includes('--form');
 
   if (argv.includes('--list') || argv.includes('--dry-run')) {
-    if (cfg.regCertificationNo) {
-      console.log('GET get_binding_link_person_list');
+    if (cfg.businessLicenseNo) {
+      console.log('GET list_contacts');
       const json = await listContacts(cfg);
       printList(json);
     } else {
-      console.log('未填 regCertificationNo，跳过拉列表');
+      console.log('未填 businessLicenseNo，跳过拉列表');
     }
     if (argv.includes('--list')) return;
     console.log(
-      `\n[--dry-run] 将 POST bind_link_person  agency=${cfg.agencyUid}  link_person_id=${cfg.linkPersonId}  customer_business_id=${cfg.customerBusinessId}`
+      `\n[--dry-run] 将 POST bind_contact  agency=${cfg.agencyId}  contact_id=${cfg.contactId}  customer_id=${cfg.customerId}`
     );
     const uids = parseUids(cfg, argv);
     console.log(`uids (${uids.length}): ${uids.join(', ')}`);
     return;
   }
 
-  if (!cfg.linkPersonId) throw new Error('api.json.linkPersonId 必填（用 --list 查出）');
-  if (!cfg.customerBusinessId) throw new Error('api.json.customerBusinessId 必填');
+  if (!cfg.contactId) throw new Error('api.json.contactId 必填（用 --list 查出）');
+  if (!cfg.customerId) throw new Error('api.json.customerId 必填');
 
   const uids = parseUids(cfg, argv);
   const useBindOnly = argv.includes('--bind-only');
   console.log(
-    `选中账户联系人 ${uids.length} 个账户，link_person_id=${cfg.linkPersonId} 路径=${useBindOnly ? 'bind_link_person' : 'advertiser/update'}`
+    `选中账户联系人 ${uids.length} 个账户，contact_id=${cfg.contactId} 路径=${useBindOnly ? 'bind_contact' : 'advertiser/update'}`
   );
 
   const rows = [];
@@ -285,7 +285,7 @@ async function main() {
             ? ''
             : json.msg || json.message || JSON.stringify(json).slice(0, 200);
         const status = ok ? (skipped ? 'SKIP' : 'OK') : 'FAIL';
-        rows.push({ uid, status, reason, linkPersonId: (json.data && json.data.link_person_id) || cfg.linkPersonId });
+        rows.push({ uid, status, reason, contactId: (json.data && json.data.contact_id) || cfg.contactId });
         console.log(ok ? `  ${skipped ? '○' : '✓'} ${uid}  ${reason}` : `  ✗ ${uid}  ${reason}`);
         await sleep(200);
       } catch (err) {
@@ -295,10 +295,10 @@ async function main() {
     }
   }
 
-  console.log('\n| uid | link_person_id | 状态 | 原因 |');
+  console.log('\n| uid | contact_id | 状态 | 原因 |');
   console.log('|-----|----------------|------|------|');
   rows.forEach((r) => {
-    console.log(`| ${r.uid} | ${r.linkPersonId || cfg.linkPersonId} | ${r.status} | ${r.reason} |`);
+    console.log(`| ${r.uid} | ${r.contactId || cfg.contactId} | ${r.status} | ${r.reason} |`);
   });
   const ok = rows.filter((r) => r.status === 'OK').length;
   const skip = rows.filter((r) => r.status === 'SKIP').length;

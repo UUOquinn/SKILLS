@@ -1,14 +1,14 @@
-# Error Handling — Operation + KwaiBI Scripts
+# Error Handling — Operation + BI Scripts
 
 ## AI 执行规则
 
-执行 `operation_client.py` 或 `kwaibi_client.py` 遇到报错时，优先按脚本 stdout 最后一行的 JSON 中 `error` 和 `next_action` 执行。不要跳过查表自行发挥。
+执行 `operation_client.py` 或 `kwaikwaibi_client.py` 遇到报错时，优先按脚本 stdout 最后一行的 JSON 中 `error` 和 `next_action` 执行。不要跳过查表自行发挥。
 
 ## 错误码速查
 
 | error_code | 动作 | 说明 |
 |-----------|------|------|
-| `SSO_EXPIRED` | 引导用户重新触发 SSO 登录 | Token 过期或未认证 |
+| `AUTH_EXPIRED` | 引导用户重新触发 Auth 登录 | Token 过期或未认证 |
 | `AUTH_FAILED` | 询问用户 | 401/403，权限不足 |
 | `API_TIMEOUT` | 重试 1 次，仍失败则中止 | 网络超时 |
 | `API_4XX` | 展示错误信息给用户 | 请求参数问题 |
@@ -27,10 +27,10 @@
 
 ## 场景模板
 
-### SSO_EXPIRED
+### AUTH_EXPIRED
 
 - **动作**：停止，引导用户重新登录
-- **对用户说**：SSO 登录已过期。请在浏览器中访问任意 `example.corp` 页面完成认证，然后重新执行。
+- **对用户说**：Auth 登录已过期。请在浏览器中访问任意 `example.corp` 页面完成认证，然后重新执行。
 
 ### API_TIMEOUT
 
@@ -45,7 +45,7 @@
 ### PREFIX_NOT_FOUND
 
 - **动作**：告知用户策略 ID 可能不是已知类型，建议用户确认 ID 正确性或指定 --prefix
-- **对用户说**：策略 ID 未命中 orientControl / flowControl / darkControl / mediaControl / innerControl / shareRatioControl 任一前缀。请确认 ID 是否正确，或通过 --prefix 手动指定类型。
+- **对用户说**：策略 ID 未命中 targetingControl / boostControl / shadowControl / placementControl / internalControl / shareControl 任一前缀。请确认 ID 是否正确，或通过 --prefix 手动指定类型。
 
 ### STRATEGY_NOT_FOUND
 

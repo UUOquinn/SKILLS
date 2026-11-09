@@ -1,11 +1,11 @@
 ---
-name: kconf-generic-api
-description: 封装快手 KConf 配置中心（kconf.example.corp）的通用 REST API：找配置（目录浏览/关键词搜索）、任意 key 的配置详情读取、历史记录、使用监控、写配置（直改/Review）、分级发布推进/取消、回滚、元信息与权限收藏管理。支持对多个 key 批量执行同类操作（批量查询、批量加白、批量推进灰度），写操作带幂等去重与写后回查。用户说「查 kconf 配置」「改 kconf 配置」「找 xx 配置」「kconf 灰度推进/回滚」「批量给多个 kconf key 加白」「查 kconf 历史/谁在用」时触发。不支持单个具体业务 key 的语义封装（如联盟短剧暗投配置的专用流程，见 `kconf-universe-add-chain-gray`）；不做非 KConf 的配置系统操作；不支持网页 UI 或浏览器自动化。
+name: configservice-generic-api
+description: 封装快手 ConfigService 配置中心（config.example.corp）的通用 REST API：找配置（目录浏览/关键词搜索）、任意 key 的配置详情读取、历史记录、使用监控、写配置（直改/Review）、分级发布推进/取消、回滚、元信息与权限收藏管理。支持对多个 key 批量执行同类操作（批量查询、批量加白、批量推进灰度），写操作带幂等去重与写后回查。用户说「查 configservice 配置」「改 configservice 配置」「找 xx 配置」「configservice 灰度推进/回滚」「批量给多个 configservice key 加白」「查 configservice 历史/谁在用」时触发。不支持单个具体业务 key 的语义封装（如联盟短剧暗投配置的专用流程，见 `configservice-universe-add-chain-gray`）；不做非 ConfigService 的配置系统操作；不支持网页 UI 或浏览器自动化。
 ---
 
-# KConf 通用配置中心 API
+# ConfigService 通用配置中心 API
 
-面向任意 KConf key 的通用读写封装，按**真实使用场景**组织：找配置 → 查配置 → 改配置 → 灰度/回滚 → 历史监控 → 管理。不绑定具体业务语义；业务专属流程（如联盟短剧暗投）用专用 Skill。
+面向任意 ConfigService key 的通用读写封装，按**真实使用场景**组织：找配置 → 查配置 → 改配置 → 灰度/回滚 → 历史监控 → 管理。不绑定具体业务语义；业务专属流程（如联盟短剧暗投）用专用 Skill。
 
 <!-- skill-creator: askuser-with-text-fallback-v1 -->
 
@@ -25,7 +25,7 @@ uv run <skill_directory>/scripts/check_install_dep.py ensure batch-task-orchestr
 
 ## 鉴权
 
-内网 SSO 自动处理（脚本内嵌 `SmartSSOSession`）。**禁止**在任何地方粘贴完整 Cookie。
+内网 Auth 自动处理（脚本内嵌 `SmartAuthSession`）。**禁止**在任何地方粘贴完整 Cookie。
 
 ## 场景一：找配置（目录浏览 / 搜索）
 
@@ -44,13 +44,13 @@ uv run <skill_directory>/scripts/kconf_client.py dir-search --path adtarget
 uv run <skill_directory>/scripts/kconf_client.py dir-search-first --path ad
 
 # 目录下配置列表（liteList 轻量推荐；list 带全量 subConfigs 较重；list-keys 只要 key）
-uv run <skill_directory>/scripts/kconf_client.py config-lite-list --dir ad.adtarget3 [--page 1] [--size 20]
-uv run <skill_directory>/scripts/kconf_client.py config-list --dir ad.adtarget3
-uv run <skill_directory>/scripts/kconf_client.py config-list-keys --dir ad.adtarget3
+uv run <skill_directory>/scripts/kconf_client.py config-lite-list --dir ad.demoTarget [--page 1] [--size 20]
+uv run <skill_directory>/scripts/kconf_client.py config-list --dir ad.demoTarget
+uv run <skill_directory>/scripts/kconf_client.py config-list-keys --dir ad.demoTarget
 
 # 直接搜配置 key 片段（V2 搜索，返回 key/描述/类型/创建人；旧搜索兜底无描述）
-uv run <skill_directory>/scripts/kconf_client.py search-config --keyword universeAddChainGrayConfig [--size 20]
-uv run <skill_directory>/scripts/kconf_client.py search-config-legacy --keyword universeAddChainGrayConfig
+uv run <skill_directory>/scripts/kconf_client.py search-config --keyword chainGrayConfig [--size 20]
+uv run <skill_directory>/scripts/kconf_client.py search-config-legacy --keyword chainGrayConfig
 ```
 
 注意：目录接口只走旧前缀 `/api/dir/*`（`/api/w/dir/*` 实测 404）；搜索接口频控 `result=104` 时退避重试。找到完整 key 后转入场景二。
@@ -162,7 +162,7 @@ uv run <skill_directory>/scripts/kconf_batch.py run \
   --action <get|update|gray-next|gray-cancel|rollback> \
   --keys-file <local_file_一行一个key或JSON数组> \
   --params-file <local_json_每个key对应的操作参数> \
-  --concurrency 2 --batch-size 50 --max-runtime 600 --authoritative-source kconf-get
+  --concurrency 2 --batch-size 50 --max-runtime 600 --authoritative-source configservice-get
 
 # 单项补跑 / 幂等回查
 uv run <skill_directory>/scripts/kconf_batch.py run --action update --item <kconf_key> --keys-file <f> --params-file <json>
@@ -172,7 +172,7 @@ uv run <skill_directory>/scripts/kconf_batch.py check-action --key <kconf_key> -
 批量契约（用户确认固化，不可运行时更改）：
 
 - **并发度固定 2**（`--concurrency` 被钳制）；**单批最多 50 key**（`--batch-size`）；**整批最长 10 分钟**（`--max-runtime`），超时直接失败，不做检查点续跑
-- **写后回查权威数据源**（`--authoritative-source`，默认 kconf-get）：重新 `GET /api/w/config/get` 确认生效
+- **写后回查权威数据源**（`--authoritative-source`，默认 configservice-get）：重新 `GET /api/w/config/get` 确认生效
 - **敏感操作**（`update`、`review-submit`、`gray-next`、`gray-cancel`、`rollback`）：派生稳定 `action_id`（key+操作+内容摘要 sha256），写前 `--check-action` 防重复提交，写后自动回查
 - **只读操作**（`get`、`history-list`、`history-detail`、`monitor-ksn`、`monitor-machine`）无需 action_id 保护，直接并发
 - 结果按输入 key 顺序汇总：`key`、`status`、`action_id`（敏感操作）、错误原因

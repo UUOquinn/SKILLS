@@ -80,7 +80,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/license_group",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/license_group",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -120,7 +120,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/define_client_name",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/define_client_name",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -160,7 +160,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/product_name",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/product_name",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -200,7 +200,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/account_id",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/account_id",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -256,7 +256,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
         "primaryColIds": "[3797664,3797590,3797612,3797789,3797679,3797762]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -266,7 +266,7 @@
       "isCount": true,
       "unitVO": {
         "fieldId": 3797598,
-        "creator": "wb_example_user",
+        "creator": "sandbox_user",
         "used": true,
         "customized": false,
         "typeName": "MONEY",
@@ -320,7 +320,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
         "primaryColIds": "[3797664,3797590,3797612,3797789,3797679,3797762]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -373,7 +373,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_cust_bid_ad_amt_1d_shallow_roi_system_price",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_cust_bid_ad_amt_1d_shallow_roi_system_price",
         "primaryColIds": "[3797664,3797590,3797612,3797789,3797679,3797762]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -437,7 +437,7 @@
       "isCount": true,
       "unitVO": {
         "fieldId": 5780700,
-        "creator": "wb_example_user",
+        "creator": "sandbox_user",
         "used": true,
         "customized": false,
         "typeName": "ORDER_OF_MAGNITUDE",

@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """查询 4 条公用阶梯策略（AI_短剧_系数0.8/0.6/0.4/0.2）的当前名单。
@@ -33,8 +33,8 @@ from typing import Any
 
 _STARTED_AT = time.perf_counter()
 
-BASE_URL = "https://ops-platform.example.corp/ops/rest"
-QUERY_PATH = f"{BASE_URL}/flowControl/query"
+BASE_URL = "https://ops.example.corp/ops/rest"
+QUERY_PATH = f"{BASE_URL}/boostControl/query"
 
 TYPE_CEILING_PRICE = 3
 STATUS_EFFECTIVE = 4
@@ -100,7 +100,7 @@ def fetch_effective_strategies(session: Any) -> list[dict[str, Any]]:
         }
         resp = session.request("POST", QUERY_PATH, json=body, timeout=60)
         if resp.status_code in (401, 302):
-            raise PermissionError("SSO_EXPIRED")
+            raise PermissionError("AUTH_EXPIRED")
         if resp.status_code == 403:
             raise PermissionError("AUTH_FAILED")
         resp.raise_for_status()
@@ -133,9 +133,9 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        from ks_aimate.sso_login_client import SmartSSOSession
+        from auth_helper.sso_login_client import SmartAuthSession
 
-        session = SmartSSOSession()
+        session = SmartAuthSession()
         strategies = fetch_effective_strategies(session)
 
         strategies_by_level: dict[str, dict[str, Any]] = {}
@@ -187,7 +187,7 @@ def main() -> int:
         return _ok(result, msg)
     except PermissionError as exc:
         code = str(exc)
-        hint = "内网 SSO 已失效，请重新完成认证后重试" if code == "SSO_EXPIRED" \
+        hint = "内网 Auth 已失效，请重新完成认证后重试" if code == "AUTH_EXPIRED" \
             else "当前账号无该接口权限"
         return _fail(code, hint, code=2)
     except KeyboardInterrupt:

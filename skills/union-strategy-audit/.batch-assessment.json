@@ -8,7 +8,7 @@
   "max_items": 50,
   "single_item_retry": true,
   "assessed_at": "2026-10-12T03:22:00+08:00",
-  "assessor_user": "wb_example_user",
+  "assessor_user": "sandbox_user",
   "evidence": {
     "enumerable_objects": true,
     "decomposable_actions": true,

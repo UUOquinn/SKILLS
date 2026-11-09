@@ -1,6 +1,6 @@
 ---
 name: union-operation-bot
-description: 统一收口联盟策略运营需求并路由到 14 个涉及策略平台接口的专业技能。触发场景：扶持策略查询、新建、修改提审、撤回、删除、推全、导出、名单增删；屏蔽策略（并集、标签、媒体、交集）查询、新建、追加名单、提审；策略审核与强制审核；策略到期延期；顶价策略监控、撤回、降系数；短剧超成本率调价与阶梯压价；假期系数时间窗更新；短剧暗投灰度与顶价策略查询；反作弊二价查询与屏蔽写入；OLAP 取数回写策略流水线搭建；策略效果数据与反查屏蔽；KConf 配置查询、修改、灰度推进与回滚。以下场景不唤醒：与策略平台接口无关的纯数据查询（漏斗诊断、账户画像、看板取数）、SSP 运营平台只读查询、生图、文档、天气等平台通用能力。
+description: 统一收口联盟策略运营需求并路由到 14 个涉及策略平台接口的专业技能。触发场景：扶持策略查询、新建、修改提审、撤回、删除、推全、导出、名单增删；屏蔽策略（并集、标签、媒体、交集）查询、新建、追加名单、提审；策略审核与强制审核；策略到期延期；顶价策略监控、撤回、降系数；短剧超成本率调价与阶梯压价；假期系数时间窗更新；短剧暗投灰度与顶价策略查询；反作弊二价查询与屏蔽写入；OLAP 取数回写策略流水线搭建；策略效果数据与反查屏蔽；ConfigService 配置查询、修改、灰度推进与回滚。以下场景不唤醒：与策略平台接口无关的纯数据查询（漏斗诊断、账户画像、看板取数）、SSP 运营平台只读查询、生图、文档、天气等平台通用能力。
 ---
 
 <!-- skill-creator: askuser-with-text-fallback-v1 -->
@@ -27,18 +27,18 @@ description: 统一收口联盟策略运营需求并路由到 14 个涉及策略
 | 需求场景 | 典型触发语 | 路由到 |
 |---------|-----------|--------|
 | 扶持策略全生命周期：查询列表/单条、新建、修改提审、撤回、删除、推全、导出、状态时间线、版本对比、名单增删 | “查扶持策略”“新建一个扶持策略”“给策略 12345 加账户ID并提审” | flow-strategy-ops |
-| 屏蔽策略：并集屏蔽、标签屏蔽、媒体屏蔽、交集屏蔽；查询、新建、追加名单、提审 | “给 appid 790300127 加屏蔽”“追加媒体屏蔽名单”“反查这个广告位被哪些屏蔽覆盖” | orient-union-shield |
+| 屏蔽策略：并集屏蔽、标签屏蔽、媒体屏蔽、交集屏蔽；查询、新建、追加名单、提审 | “给 appid 790300127 加屏蔽”“追加媒体屏蔽名单”“反查这个广告位被哪些屏蔽覆盖” | targeting-union-shield |
 | 策略审核状态机：单个或多个策略 ID、按提交人筛选（优先级高于普通策略查询） | “联盟审核 12345”“强制审核 xxx”“联盟审核 tangqingqing” | union-strategy-audit |
 | 到期策略自动延期并提审 | “策略 12345 还有3天到期”“这个策略延期” | strategy-postpone |
 | 顶价策略实时监控：超阈值撤回或降系数 | “监控顶价策略”“顶价超成本率就撤回”“降顶价系数” | topbid-strategy-realtime-monitor |
 | 短剧超成本率调价：按浅度超成本率分账户顶价/压价 | “按超成本率调 cpm 系数”“跑超成本率策略” | duanju-iaa-roi-cpm-tuning |
 | 短剧阶梯压价：0.8/0.6/0.4/0.2 四档公用策略账户名单升降档 | “跑超成本阶梯压价”“账户档位升降” | duanju-iaa-overcost-ladder-tuning |
 | 短剧假期系数策略时间窗更新并提审 | “改假期系数策略时间”“策略加日期时间” | holiday-coef-daily |
-| 短剧暗投配置：新链路灰度、批量加白、CPM 顶价策略查询 | “短剧暗投配置”“新链路灰度加白” | kconf-universe-add-chain-gray |
+| 短剧暗投配置：新链路灰度、批量加白、CPM 顶价策略查询 | “短剧暗投配置”“新链路灰度加白” | configservice-universe-add-chain-gray |
 | 反作弊曝光二价查询，以及按广告位写屏蔽策略 | “查反作弊二价”“京东反作弊广告位屏蔽” | anti-fraud-second-price-gap |
 | OLAP 取数→聚合→规则决策→策略平台写入的流水线搭建 | “搭一条取数判断回写策略的流水线” | olap-pipeline-runner |
-| 策略效果数据、反查屏蔽覆盖、数据集结构化查数、改策略提审延期推全（Operation + KwaiBI 通用封装） | “查策略效果数据”“反查 appid 被哪些策略覆盖” | union-strategy-insights（等价变体 operation-kwaibi-1-1） |
-| KConf 配置中心：查找、读取、写入、历史、灰度推进、回滚 | “查 kconf 配置”“改 kconf 配置”“kconf 灰度推进” | kconf-generic-api |
+| 策略效果数据、反查屏蔽覆盖、数据集结构化查数、改策略提审延期推全（Operation + BI 通用封装） | “查策略效果数据”“反查 appid 被哪些策略覆盖” | union-strategy-insights（等价变体 operation-bi-1-1） |
+| ConfigService 配置中心：查找、读取、写入、历史、灰度推进、回滚 | “查 configservice 配置”“改 configservice 配置”“configservice 灰度推进” | configservice-generic-api |
 
 ## 路由规则
 
@@ -56,6 +56,6 @@ description: 统一收口联盟策略运营需求并路由到 14 个涉及策略
 
 本技能依赖以下 14 个技能，已声明在 `manifest.json` 的 `ks-meta.dependency` 中，平台安装时会自动提示补齐：
 
-`flow-strategy-ops`、`orient-union-shield`、`union-strategy-audit`、`strategy-postpone`、`topbid-strategy-realtime-monitor`、`duanju-iaa-roi-cpm-tuning`、`duanju-iaa-overcost-ladder-tuning`、`holiday-coef-daily`、`kconf-universe-add-chain-gray`、`anti-fraud-second-price-gap`、`olap-pipeline-runner`、`union-strategy-insights`、`operation-kwaibi-1-1`、`kconf-generic-api`
+`flow-strategy-ops`、`targeting-union-shield`、`union-strategy-audit`、`strategy-postpone`、`topbid-strategy-realtime-monitor`、`duanju-iaa-roi-cpm-tuning`、`duanju-iaa-overcost-ladder-tuning`、`holiday-coef-daily`、`configservice-universe-add-chain-gray`、`anti-fraud-second-price-gap`、`olap-pipeline-runner`、`union-strategy-insights`、`operation-bi-1-1`、`configservice-generic-api`
 
 运行时验证方式：对每个路由目标 read 其 SKILL.md，读不到即未安装，提示用户通过技能市场安装该技能。

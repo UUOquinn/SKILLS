@@ -11,19 +11,19 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """
-KwaiBI REST API client.
+BI REST API client.
 
-Uses SmartSSOSession for transparent SSO auth.
+Uses SmartAuthSession for transparent Auth auth.
 Supports: dataset detail, data/query (structured SQL-free queries).
 
 Usage:
-  uv run scripts/kwaibi_client.py dataset-detail --id 85587
-  uv run scripts/kwaibi_client.py query --data-set 85587 --fields '[{"id":123,"name":"xx","type":"dimension"}]' --filters '[{"field":{},"operator":"IN","value":["v1"]}]' --start 1719936000000 --end 1720022399999
-  uv run scripts/kwaibi_client.py query --data-set 85587 --body-file body.json
+  uv run scripts/kwaikwaibi_client.py dataset-detail --id DS_OFFLINE
+  uv run scripts/kwaikwaibi_client.py query --data-set DS_OFFLINE --fields '[{"id":123,"name":"xx","type":"dimension"}]' --filters '[{"field":{},"operator":"IN","value":["v1"]}]' --start 1719936000000 --end 1720022399999
+  uv run scripts/kwaikwaibi_client.py query --data-set DS_OFFLINE --body-file body.json
 """
 
 from __future__ import annotations
@@ -37,15 +37,15 @@ import uuid
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-from ks_aimate.sso_login_client import SmartSSOSession
+from auth_helper.sso_login_client import SmartAuthSession
 
-BASE = "https://bi-platform.example.corp"
+BASE = "https://bi.example.corp"
 
 # ── dataset field id tables ────────────────────────────────────────
 # Key: datasetId. Value: {logicalName: (fieldId, fieldName, type)}
-# IDs verified against /api/v1/dataset/detail for each dataset. See tools-kwaibi.md.
+# IDs verified against /api/v1/dataset/detail for each dataset. See tools-bi.md.
 DATASET_FIELDS = {
-    85587: {
+    DS_OFFLINE: {
         "industry": (1329593, "新媒体行业名称", "dimension"),
         "sub_industry": (1329627, "新媒体子行业名称", "dimension"),
         "product": (1329640, "产品名称", "dimension"),
@@ -54,7 +54,7 @@ DATASET_FIELDS = {
         "app_id": (2313961, "联盟媒体ID", "dimension"),
         "pos_id": (1329667, "广告位", "dimension"),
     },
-    129496: {
+    DS_REALTIME: {
         "industry": (2212701, "新媒体行业名称", "dimension"),
         "sub_industry": (2212693, "新媒体子行业名称", "dimension"),
         "product": (2215361, "产品名称", "dimension"),
@@ -83,9 +83,9 @@ OLAP_URNS = {
     "cost": "ks:metric:ad_v2/union_total_cost_amt",
 }
 OLAP_TEMPLATE = Path(__file__).resolve().parent.parent / "references" / "olap_traffic_template.json"
-OLAP_REFERER = "https://internal.example.corp/main?shareId=66611514&dataSetId=129496"
+OLAP_REFERER = "https://app.example.corp/main?shareId=66611514&dataSetId=DS_REALTIME"
 OLAP_FIELD_PROTO = {
-    "dataSetId": 129496, "id": 2212690, "fieldId": "", "name": "账户ID",
+    "dataSetId": DS_REALTIME, "id": 2212690, "fieldId": "", "name": "账户ID",
     "nickName": "账户ID", "showName": "账户ID", "type": "dimension",
     "valueType": "string", "ordinalColumnType": "dimension", "ordinalAggregatorType": "",
     "urn": "ks:dimension:ad_v2/account_id", "functionType": "", "returnType": "",
@@ -100,7 +100,7 @@ OLAP_FIELD_PROTO = {
                    "metricInsight": "false", "twiceCalc": "false"},
 }
 
-# logical dimension names -> KwaiBI filter field names (see tools-kwaibi.md §4.2)
+# logical dimension names -> BI filter field names (see tools-bi.md §4.2)
 FILTER_KEYS = {
     "uid": "uid",
     "app_id": "app_id",
@@ -128,7 +128,7 @@ def days_ago_ms(n: int, end_of_day: bool = False) -> int:
 
 
 def olap_field(key: str) -> dict:
-    field_id, name, field_type = DATASET_FIELDS[129496][key]
+    field_id, name, field_type = DATASET_FIELDS[DS_REALTIME][key]
     urn = OLAP_URNS[key]
     field = copy.deepcopy(OLAP_FIELD_PROTO)
     field.update(id=field_id, fieldId=str(uuid.uuid4()), name=name,
@@ -138,7 +138,7 @@ def olap_field(key: str) -> dict:
     field["sorter"]["fieldId"] = field_id
     category = "METRIC" if field_type == "metric" else "DIMENSION"
     field["attributes"]["fieldDetailUrl"] = (
-        f"https://internal.example.corp/v2/#/assets/detail?category={category}&urn={urn}")
+        f"https://app.example.corp/v2/#/assets/detail?category={category}&urn={urn}")
     return field
 
 
@@ -150,9 +150,9 @@ def _is_null_group(value) -> bool:
     return text == "" or text.lower().startswith("null")
 
 
-class KwaiBIClient:
+class BIClient:
     def __init__(self):
-        self.session = SmartSSOSession()
+        self.session = SmartAuthSession()
 
     def _get(self, path: str, params: dict = None) -> dict:
         url = f"{BASE}{path}"
@@ -191,7 +191,7 @@ class KwaiBIClient:
             raise ValueError(f"数据集 {data_set_id} 无内置字段表，请先用 dataset-detail 查字段 id 后用 query")
         if dim not in FILTER_KEYS:
             raise ValueError(f"不支持的 ID 维度 {dim}，仅支持 uid/app_id/pos_id")
-        if group_by in TRAFFIC_GROUPS and data_set_id == 129496:
+        if group_by in TRAFFIC_GROUPS and data_set_id == DS_REALTIME:
             return self.query_traffic_olap(dim, ids, group_by, start, end, days, limit)
         if group_by not in ("industry", "sub_industry", "product"):
             raise ValueError(f"数据集 {data_set_id} 不支持聚合维度 {group_by}")
@@ -242,7 +242,7 @@ class KwaiBIClient:
     def query_traffic_olap(self, dim: str, ids: list, group_by: str,
                            start: int | None, end: int | None, days: int,
                            limit: int) -> dict:
-        """129496 流量侧维度消耗：复用抓包模板，通过 KwaiBI OLAP 模式查询。"""
+        """DS_REALTIME 流量侧维度消耗：复用抓包模板，通过 BI OLAP 模式查询。"""
         if dim not in FILTER_KEYS:
             raise ValueError(f"不支持的 ID 维度 {dim}，仅支持 uid/app_id/pos_id")
         start_time = start if start is not None else days_ago_ms(days)
@@ -258,7 +258,7 @@ class KwaiBIClient:
         time_filter["filterValue"]["startTime"] = start_time
         time_filter["filterValue"]["endTime"] = end_time
         time_filter["originalFilterValue"]["isDynamic"] = False
-        fid, fname, _ = DATASET_FIELDS[129496][dim]
+        fid, fname, _ = DATASET_FIELDS[DS_REALTIME][dim]
         body["filters"].append({
             "filterType": "string", "targetId": fid, "urn": OLAP_URNS[dim],
             "name": fname, "nickName": fname, "type": "dimension",
@@ -271,11 +271,11 @@ class KwaiBIClient:
         response = self.session.request(
             "POST", f"{BASE}/api/v1/data/query", json=body,
             headers={"Accept": "application/json", "Kwaibi-View-Query-Type": "8",
-                     "kwaibi-request-module": "olap", "Referer": OLAP_REFERER},
+                     "bi-request-module": "olap", "Referer": OLAP_REFERER},
             timeout=180,
         )
         if response.status_code in (401, 302) or "text/html" in (response.headers.get("Content-Type") or "").lower():
-            raise PermissionError("SSO_EXPIRED")
+            raise PermissionError("AUTH_EXPIRED")
         if response.status_code == 403:
             raise PermissionError("AUTH_FAILED")
         response.raise_for_status()
@@ -284,7 +284,7 @@ class KwaiBIClient:
             raise RuntimeError(f"OLAP 查询失败: {payload['error_msg']}")
         data = payload.get("data") or {}
         columns = [c.get("name") for c in (data.get("columns") or [])]
-        _, group_name, _ = DATASET_FIELDS[129496][group_by]
+        _, group_name, _ = DATASET_FIELDS[DS_REALTIME][group_by]
         if columns[:2] != [group_name, "联盟总消耗"]:
             raise RuntimeError(f"OLAP 查询失败或列不匹配: {payload.get('error_msg') or columns}")
         totals = {}
@@ -300,7 +300,7 @@ class KwaiBIClient:
             totals[key] = totals.get(key, 0.0) + cost
         rows = [{group_by: key, "cost": cost} for key, cost in
                 sorted(totals.items(), key=lambda item: -item[1])]
-        return {"dataSetId": 129496, "source": "kwaibi_olap_mode",
+        return {"dataSetId": DS_REALTIME, "source": "kwaibi_olap_mode",
                 "dimension": dim, "ids": ids, "groupBy": group_by,
                 "columns": columns, "startTime": start_time, "endTime": end_time,
                 "rowCount": len(rows), "rows": rows}
@@ -310,7 +310,7 @@ class KwaiBIClient:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="KwaiBI API client")
+    parser = argparse.ArgumentParser(description="BI API client")
     sub = parser.add_subparsers(dest="command", required=True)
 
     # dataset-detail
@@ -334,8 +334,8 @@ def main():
     # query-alias: cost by industry/product for a dimension of ids
     p_qa = sub.add_parser("query-alias",
                           help="Cost grouped by industry/product for given IDs")
-    p_qa.add_argument("--data-set", type=int, default=85587, dest="data_set_id",
-                      help="Dataset id (default 85587 offline; 129496 realtime)")
+    p_qa.add_argument("--data-set", type=int, default=DS_OFFLINE, dest="data_set_id",
+                      help="Dataset id (default DS_OFFLINE offline; DS_REALTIME realtime)")
     p_qa.add_argument("--dim", required=True, dest="qa_dim",
                       help="ID dimension: uid | app_id | pos_id (one per call)")
     p_qa.add_argument("--ids", dest="qa_ids",
@@ -344,13 +344,13 @@ def main():
                       help="Retry a single ID only (equivalent to --ids <id>)")
     p_qa.add_argument("--group-by", dest="qa_group", default="industry",
                       choices=["industry", "sub_industry", "product", *TRAFFIC_GROUPS],
-                      help="Aggregation dimension; traffic groups require --data-set 129496")
+                      help="Aggregation dimension; traffic groups require --data-set DS_REALTIME")
     p_qa.add_argument("--start", type=int, help="Start time (epoch ms)")
     p_qa.add_argument("--end", type=int, dest="qa_end", help="End time (epoch ms)")
     p_qa.add_argument("--days", type=int, default=7, help="Days back if --start omitted")
 
     args = parser.parse_args()
-    client = KwaiBIClient()
+    client = BIClient()
     started = time.monotonic()
 
     try:
@@ -435,8 +435,8 @@ def main():
     except Exception as e:
         msg = str(e)
         code = 1
-        if "SSO_EXPIRED" in msg or "login" in msg.lower():
-            error_code = "SSO_EXPIRED"
+        if "AUTH_EXPIRED" in msg or "login" in msg.lower():
+            error_code = "AUTH_EXPIRED"
             next_action = {"type": "ASK_USER", "retryable": True}
             code = 2
         elif "AUTH_FAILED" in msg or "401" in msg or "403" in msg:

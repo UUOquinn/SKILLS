@@ -1,12 +1,12 @@
 # 平台操作细节与排查
 
-## 取数：实时数据集 129496
+## 取数：实时数据集 DS_REALTIME
 
-地址：`https://internal.example.corp/inner_iframe?innerType=olap&shareId=64385633&dataSetId=129496`
+地址：`https://app.example.corp/inner_iframe?innerType=olap&shareId=64385633&dataSetId=DS_REALTIME`
 
 | 配置项 | 取值 |
 |---|---|
-| 数据集 | 129496（实时） |
+| 数据集 | DS_REALTIME（实时） |
 | 维度 | `账户ID` |
 | 筛选 | `转化目标（原优化目标）` 包含(IN) `["首日变现ROI（短剧IAA专用）"]` |
 | 指标 | `联盟总消耗` + `IAA广告变现ROI` + `浅度超成本率` |
@@ -44,7 +44,7 @@ macOS 用 `date -v-35M '+%Y-%m-%d %H:%M'`。注意平台展示时区，确认是
 
 ## 写入：策略平台 flow
 
-地址：`https://ops-platform.example.corp/flow`
+地址：`https://ops.example.corp/flow`
 
 ### 硬规则
 
@@ -104,7 +104,7 @@ macOS 用 `date -v-35M '+%Y-%m-%d %H:%M'`。注意平台展示时区，确认是
 
 | 现象 | 处理 |
 |---|---|
-| 页面跳登录或 403 | 内网 SSO 未登录。不要重试绕过，直接告诉用户需要登录，并停止本轮 |
+| 页面跳登录或 403 | 内网 Auth 未登录。不要重试绕过，直接告诉用户需要登录，并停止本轮 |
 | 数据集加载空白 | 先确认筛选条件是否过窄；再确认是否选到了非实时数据集 |
 | 超成本率全为空 | 大概率窗口右端太靠近当前时间，数据未回补。按 `now-5min` 重取 |
 | 某账户查不到基数 | 按无基数处理，`current_coefficient` 留空，脚本会用 1.0 |

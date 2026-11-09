@@ -2,10 +2,10 @@
 name: strategy-postpone
 description: >
   从「@快手联盟」到期提醒消息中自动识别策略 ID，将 endTime 顺延 1 个月并提审。
-  Use when 策略延期、还有N天到期、请及时关注处理、id=、mergeEdit、mergeEditV2、
-  托管延期、快手联盟到期提醒、短剧/小说、开屏屏蔽、orientControl、flowControl、
-  darkControl、mediaControl。
-  不唤醒：只查询策略详情（用 operation-kwaibi-1-1）、手动指定新结束时间、
+  Use when 策略延期、还有N天到期、请及时关注处理、id=、submitEdit、
+  托管延期、快手联盟到期提醒、短剧/小说、开屏屏蔽、targetingControl、boostControl、
+  shadowControl、placementControl。
+  不唤醒：只查询策略详情（用 operation-bi-1-1）、手动指定新结束时间、
   非到期提醒场景、加入托管自动续期（另行告知）。
 ---
 
@@ -58,7 +58,7 @@ uv run <skill_directory>/scripts/postpone.py --item 15392 --check-action <action
 uv run <skill_directory>/scripts/postpone.py --ids "15392,382" --dry-run
 ```
 
-脚本直接调用策略平台 REST API（`https://ops-platform.example.corp`），SSO 认证自动管理。
+脚本直接调用策略平台 REST API（`https://ops.example.corp`），Auth 认证自动管理。
 
 ## 抽 ID 规则（AI 执行，不靠脚本）
 
@@ -85,7 +85,7 @@ uv run <skill_directory>/scripts/postpone.py --ids "15392,382" --dry-run
 ## 失败处理
 
 详见 `references/error-handling.md`。关键规则：
-- 401/SSO 过期 → 停止，引导重新登录
+- 401/Auth 过期 → 停止，引导重新登录
 - STRATEGY_NOT_FOUND → 记失败，继续下一条
 - 单条连续失败 2 次 → 跳过，记入失败表
 - API 412（行业版本校验）→ 已通过 `adCluster.industryVersion` 解决；若平台升级导致重现，需同步调整脚本中 `INDUSTRY_VERSION` 常量

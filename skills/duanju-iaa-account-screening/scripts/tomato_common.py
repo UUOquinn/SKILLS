@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """番茄短剧账户筛选 — 公共模块。"""
@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any
 
 import requests
-from ks_aimate.sso_login_client import SmartSSOSession, SSOAuthRequiredError
+from auth_helper.sso_login_client import SmartAuthSession, SSOAuthRequiredError
 
 TZ = timezone(timedelta(hours=8))
 
@@ -58,20 +58,20 @@ def as_raw(cell: Any) -> Any:
 
 
 def fetch(body: dict[str, Any]) -> dict[str, Any]:
-    url = "https://internal.example.corp/api/v1/data/query"
+    url = "https://app.example.corp/api/v1/data/query"
     ds_id = body.get("dataSetId", "?")
     try:
-        resp = SmartSSOSession().request("POST", url,
+        resp = SmartAuthSession().request("POST", url,
                                           json=body,
                                           headers={"Content-Type": "application/json",
-                                                   "Referer": "https://bi-platform.example.corp/"},
+                                                   "Referer": "https://bi.example.corp/"},
                                           timeout=120)
     except SSOAuthRequiredError as exc:
-        raise ScreenError("SSO_EXPIRED", "OLAP 登录态失效，请先恢复该域认证", 2) from exc
+        raise ScreenError("AUTH_EXPIRED", "OLAP 登录态失效，请先恢复该域认证", 2) from exc
     except requests.Timeout as exc:
         raise ScreenError("API_TIMEOUT", f"数据集 {ds_id} 查询超时") from exc
     if resp.status_code in (401, 403):
-        raise ScreenError("SSO_EXPIRED", "OLAP 登录态失效或无权限", 2)
+        raise ScreenError("AUTH_EXPIRED", "OLAP 登录态失效或无权限", 2)
     if resp.status_code != 200:
         raise ScreenError("API_FAILED", f"数据集 {ds_id} HTTP {resp.status_code}: {resp.text[:200]}")
     data = resp.json()
@@ -146,10 +146,10 @@ def response_json(ok: bool, code: int, started: float, **parts: Any) -> int:
     return code
 
 
-# ——— KConf 暗投白名单 ———
+# ——— ConfigService 暗投白名单 ———
 
-KCONF_BASE = "https://kconf.example.corp"
-KCONF_KEY = "ad.adtarget3.universeAddChainGrayConfig"
+CONFIG_BASE = "https://config.example.corp"
+CONFIG_KEY = "ad.demo.chainGrayConfig"
 AB_KEY = "enable_chain_antou_30_990_0"
 
 
@@ -174,37 +174,37 @@ def parse_commented_json(raw: str) -> dict[str, Any]:
     try:
         return json.loads("\n".join(lines))
     except json.JSONDecodeError as exc:
-        raise ScreenError("KCONF_PARSE_ERROR", f"KConf 配置 JSON 解析失败：{exc}") from exc
+        raise ScreenError("KCONF_PARSE_ERROR", f"ConfigService 配置 JSON 解析失败：{exc}") from exc
 
 
-def kconf_antou_ids() -> tuple[set[str], dict[str, Any]]:
+def config_whitelist_ids() -> tuple[set[str], dict[str, Any]]:
     try:
-        resp = SmartSSOSession().request(
-            "GET", f"{KCONF_BASE}/api/w/config/get", params={"key": KCONF_KEY}, timeout=30)
+        resp = SmartAuthSession().request(
+            "GET", f"{CONFIG_BASE}/api/w/config/get", params={"key": CONFIG_KEY}, timeout=30)
     except SSOAuthRequiredError as exc:
-        raise ScreenError("KCONF_SSO_EXPIRED", "KConf 登录态失效", 2) from exc
+        raise ScreenError("KCONF_AUTH_EXPIRED", "ConfigService 登录态失效", 2) from exc
     except requests.Timeout as exc:
-        raise ScreenError("API_TIMEOUT", "KConf 请求超时") from exc
+        raise ScreenError("API_TIMEOUT", "ConfigService 请求超时") from exc
     except requests.RequestException as exc:
-        raise ScreenError("NETWORK_ERROR", f"无法连接 KConf：{exc}") from exc
+        raise ScreenError("NETWORK_ERROR", f"无法连接 ConfigService：{exc}") from exc
     if resp.status_code in (401, 403):
-        raise ScreenError("KCONF_SSO_EXPIRED", "KConf 登录态失效或无权限", 2)
+        raise ScreenError("KCONF_AUTH_EXPIRED", "ConfigService 登录态失效或无权限", 2)
     payload = resp.json()
     if payload.get("result") == 101:
-        raise ScreenError("KCONF_SSO_EXPIRED", "KConf 登录态失效", 2)
+        raise ScreenError("KCONF_AUTH_EXPIRED", "ConfigService 登录态失效", 2)
     if payload.get("result") != 1:
-        raise ScreenError("KCONF_QUERY_FAILED", f"KConf 读取失败：{str(payload.get('message'))[:200]}")
+        raise ScreenError("KCONF_QUERY_FAILED", f"ConfigService 读取失败：{str(payload.get('message'))[:200]}")
     data = payload.get("data") or {}
     sub = next((item for item in data.get("subConfigs") or [] if item.get("stage") == "production"), None)
     if sub is None:
-        raise ScreenError("KCONF_QUERY_FAILED", "KConf 无 production 子配置")
+        raise ScreenError("KCONF_QUERY_FAILED", "ConfigService 无 production 子配置")
     raw = (sub.get("curConfig") or {}).get("data", "")
     if not isinstance(raw, str) or not raw.strip():
-        raise ScreenError("KCONF_QUERY_FAILED", "KConf 生产配置内容为空")
+        raise ScreenError("KCONF_QUERY_FAILED", "ConfigService 生产配置内容为空")
     content = parse_commented_json(raw)
     configs = content.get("configs")
     if not isinstance(configs, list):
-        raise ScreenError("KCONF_PARSE_ERROR", "KConf 配置缺少 configs 数组")
+        raise ScreenError("KCONF_PARSE_ERROR", "ConfigService 配置缺少 configs 数组")
     hit = next((item for item in configs if item.get("ab_key") == AB_KEY), None)
     if hit is None:
         raise ScreenError("KCONF_AB_KEY_MISSING", f"配置中未找到 ab_key={AB_KEY}")

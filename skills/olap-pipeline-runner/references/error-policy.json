@@ -2,7 +2,7 @@
   "version": 1,
   "default_action": "STOP",
   "policies": {
-    "SSO_EXPIRED": {
+    "AUTH_EXPIRED": {
       "exit_code": 2,
       "action": "REAUTH",
       "retryable": false,

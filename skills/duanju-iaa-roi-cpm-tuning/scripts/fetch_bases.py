@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """批量拉取策略平台生效中的顶价策略，在本地建账户 -> 基数索引。
@@ -47,8 +47,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from decide import OWNED_PREFIX, decide_write_mode  # noqa: E402
 from typing import Any
 
-BASE_URL = "https://ops-platform.example.corp/ops/rest"
-QUERY_PATH = f"{BASE_URL}/flowControl/query"
+BASE_URL = "https://ops.example.corp/ops/rest"
+QUERY_PATH = f"{BASE_URL}/boostControl/query"
 
 # type=3 是顶价（加系数）策略；status=4 是生效中
 TYPE_CEILING_PRICE = 3
@@ -177,7 +177,7 @@ def fetch_strategies(
             body["name"] = name
         resp = session.request("POST", QUERY_PATH, json=body, timeout=60)
         if resp.status_code in (401, 302):
-            raise PermissionError("SSO_EXPIRED")
+            raise PermissionError("AUTH_EXPIRED")
         if resp.status_code == 403:
             raise PermissionError("AUTH_FAILED")
         resp.raise_for_status()
@@ -363,9 +363,9 @@ def main() -> int:
         if not accounts:
             return _fail("INVALID_ARGUMENT", "没有解析到任何账户ID", code=1)
 
-        from ks_aimate.sso_login_client import SmartSSOSession
+        from auth_helper.sso_login_client import SmartAuthSession
 
-        session = SmartSSOSession()
+        session = SmartAuthSession()
         effective = fetch_strategies(session, status=STATUS_EFFECTIVE)
         # 兜底：按名字前缀拉本流程建的策略（含待提交/待审核），识别 CREATE 后未提审的。
         # 不能按 status=0 全量拉：平台有 7000+ 条待提交策略，分页超限；用 name 前缀直接命中。
@@ -408,7 +408,7 @@ def main() -> int:
         return _ok(result, msg)
     except PermissionError as exc:
         code = str(exc)
-        hint = "内网 SSO 已失效，请重新完成认证后重试" if code == "SSO_EXPIRED" \
+        hint = "内网 Auth 已失效，请重新完成认证后重试" if code == "AUTH_EXPIRED" \
             else "当前账号无该接口权限"
         return _fail(code, hint, code=2)
     except KeyboardInterrupt:

@@ -11,10 +11,10 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
-"""KConf universeAddChainGrayConfig 管理命令。"""
+"""ConfigService chainGrayConfig 管理命令。"""
 import argparse
 import hashlib
 import json
@@ -24,10 +24,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import requests
-from ks_aimate.sso_login_client import SmartSSOSession, SSOAuthRequiredError, get_username
+from auth_helper.sso_login_client import SmartAuthSession, SSOAuthRequiredError, get_username
 
-BASE_URL = "https://kconf.example.corp"
-KEY = "ad.adtarget3.universeAddChainGrayConfig"
+BASE_URL = "https://config.example.corp"
+KEY = "ad.demo.chainGrayConfig"
 MAX_RULES = 50
 
 
@@ -50,39 +50,39 @@ def fail(error: str, msg: str, code: int = 1, next_type: str = "STOP") -> None:
 def _classify_response_error(response: requests.Response) -> None:
     """对非 2xx 响应按状态码分类抛出 SkillError；2xx 无副作用。"""
     if response.status_code in (401, 403):
-        raise SkillError("AUTH_FAILED", "当前账号无 KConf 权限或登录已失效", 2, "ASK_USER")
+        raise SkillError("AUTH_FAILED", "当前账号无 ConfigService 权限或登录已失效", 2, "ASK_USER")
     if response.status_code >= 500:
-        raise SkillError("API_5XX", f"KConf 服务异常（HTTP {response.status_code}）")
+        raise SkillError("API_5XX", f"ConfigService 服务异常（HTTP {response.status_code}）")
 
 
 def _is_login_required_payload(payload: Any) -> bool:
-    """KConf 对未建立域登录态的请求返回 HTTP 200 + result=101「需要登录」，
-    与 SmartSSOSession 抛出的 SSOAuthRequiredError 同属登录态问题，需专门识别。"""
+    """ConfigService 对未建立域登录态的请求返回 HTTP 200 + result=101「需要登录」，
+    与 SmartAuthSession 抛出的 SSOAuthRequiredError 同属登录态问题，需专门识别。"""
     return isinstance(payload, dict) and payload.get("result") == 101
 
 
-class KConfClient:
+class ConfigClient:
     def __init__(self) -> None:
-        self.session = SmartSSOSession()
+        self.session = SmartAuthSession()
 
     def request(self, method: str, path: str, *, params=None, body=None) -> Dict[str, Any]:
         try:
             response = self.session.request(method, f"{BASE_URL}{path}", params=params, json=body, timeout=30)
         except SSOAuthRequiredError as exc:
-            raise SkillError("SSO_EXPIRED", "KConf SSO 登录态已失效或等待扫码确认，请完成内网登录后重试", 2, "ASK_USER") from exc
+            raise SkillError("AUTH_EXPIRED", "ConfigService Auth 登录态已失效或等待扫码确认，请完成内网登录后重试", 2, "ASK_USER") from exc
         except requests.Timeout as exc:
-            raise SkillError("API_TIMEOUT", "KConf 接口请求超时", 1, "RETRY_ONCE_THEN_STOP") from exc
+            raise SkillError("API_TIMEOUT", "ConfigService 接口请求超时", 1, "RETRY_ONCE_THEN_STOP") from exc
         except requests.RequestException as exc:
-            raise SkillError("NETWORK_ERROR", f"无法连接 KConf：{exc}") from exc
+            raise SkillError("NETWORK_ERROR", f"无法连接 ConfigService：{exc}") from exc
         _classify_response_error(response)
         try:
             payload = response.json()
         except ValueError as exc:
-            raise SkillError("INVALID_RESPONSE", f"KConf 返回非 JSON 内容（HTTP {response.status_code}）") from exc
+            raise SkillError("INVALID_RESPONSE", f"ConfigService 返回非 JSON 内容（HTTP {response.status_code}）") from exc
         if _is_login_required_payload(payload):
-            raise SkillError("SSO_EXPIRED", "KConf 返回「需要登录」，该域 SSO 登录态未建立，请完成内网登录后重试", 2, "ASK_USER")
+            raise SkillError("AUTH_EXPIRED", "ConfigService 返回「需要登录」，该域 Auth 登录态未建立，请完成内网登录后重试", 2, "ASK_USER")
         if payload.get("result") != 1:
-            raise SkillError("API_4XX", str(payload.get("message", "KConf 返回失败")))
+            raise SkillError("API_4XX", str(payload.get("message", "ConfigService 返回失败")))
         return payload
 
     def get_config(self) -> Dict[str, Any]:
@@ -168,7 +168,7 @@ def render_query(config: Dict[str, Any], stage: str) -> Dict[str, Any]:
             "step_total": sub.get("stepTotal"), "configs": content.get("configs", [])}
 
 
-def preview(client: KConfClient, stage: str, rules_path: str) -> Dict[str, Any]:
+def preview(client: ConfigClient, stage: str, rules_path: str) -> Dict[str, Any]:
     config = client.get_config()
     sub, content, meta = snapshot(config, stage)
     rules = load_rules(rules_path)
@@ -179,7 +179,7 @@ def preview(client: KConfClient, stage: str, rules_path: str) -> Dict[str, Any]:
             "changes": changes, "action_id": action_id(stage, rules), "requested_by": get_username()}
 
 
-def precheck(client: KConfClient, stage: str) -> None:
+def precheck(client: ConfigClient, stage: str) -> None:
     client.request("POST", "/api/w/config/subconfig/precheck", body={
         "key": KEY, "ksn": None, "stage": stage, "checkType": "fullCheck", "customName": "",
         "grayParams": {}, "grayStrategy": "add"})
@@ -195,7 +195,7 @@ def update_payload(config: Dict[str, Any], stage: str, rules: List[Dict[str, Any
             "customName": "", "emergency": "false", "grayTemplate": {}, "grayStrategy": "add"}
 
 
-def verify_rules(client: KConfClient, stage: str, rules: List[Dict[str, Any]]) -> Dict[str, Any]:
+def verify_rules(client: ConfigClient, stage: str, rules: List[Dict[str, Any]]) -> Dict[str, Any]:
     config = client.get_config()
     _, content, meta = snapshot(config, stage)
     current = {item.get("ab_key"): item for item in content.get("configs", [])}
@@ -219,7 +219,7 @@ def require_confirmation(args: argparse.Namespace) -> None:
         raise SkillError("CONFIRMATION_REQUIRED", "请先执行 preview 并让用户明确确认后，再携带 --confirm 执行", 2, "ASK_USER")
 
 
-def run_apply(client: KConfClient, args: argparse.Namespace) -> Dict[str, Any]:
+def run_apply(client: ConfigClient, args: argparse.Namespace) -> Dict[str, Any]:
     require_confirmation(args)
     rules = load_rules(args.rules_file)
     expected = action_id(args.stage, rules)
@@ -245,7 +245,7 @@ def run_apply(client: KConfClient, args: argparse.Namespace) -> Dict[str, Any]:
             "verification": verify_rules(client, args.stage, rules)}
 
 
-def gray_action(client: KConfClient, args: argparse.Namespace, endpoint: str) -> Dict[str, Any]:
+def gray_action(client: ConfigClient, args: argparse.Namespace, endpoint: str) -> Dict[str, Any]:
     require_confirmation(args)
     config = client.get_config()
     sub, _, _ = snapshot(config, args.stage)
@@ -255,26 +255,26 @@ def gray_action(client: KConfClient, args: argparse.Namespace, endpoint: str) ->
 
 
 def sso_check() -> Dict[str, Any]:
-    """只探测 KConf 域的 SSO 登录态，不验证业务接口权限。供本脚本单独调用，
+    """只探测 ConfigService 域的 Auth 登录态，不验证业务接口权限。供本脚本单独调用，
     享受同 1 份 result=101 识别逻辑，避免在 short_drama_workflow.py 里重复实现。"""
-    session = SmartSSOSession()
+    session = SmartAuthSession()
     try:
         response = session.request("GET", f"{BASE_URL}/api/w/config/get", params={"key": KEY}, timeout=10, allow_redirects=False)
     except SSOAuthRequiredError:
-        return {"domain": "kconf.example.corp", "status": "expired", "detail": "SSO 登录态失效或待扫码"}
+        return {"domain": "config.example.corp", "status": "expired", "detail": "Auth 登录态失效或待扫码"}
     except requests.Timeout:
-        return {"domain": "kconf.example.corp", "status": "unreachable", "detail": "请求超时"}
+        return {"domain": "config.example.corp", "status": "unreachable", "detail": "请求超时"}
     except requests.RequestException as exc:
-        return {"domain": "kconf.example.corp", "status": "unreachable", "detail": str(exc)[:200]}
+        return {"domain": "config.example.corp", "status": "unreachable", "detail": str(exc)[:200]}
     if response.status_code in (401, 403):
-        return {"domain": "kconf.example.corp", "status": "unauthorized", "detail": f"HTTP {response.status_code}，已登录但缺少权限"}
+        return {"domain": "config.example.corp", "status": "unauthorized", "detail": f"HTTP {response.status_code}，已登录但缺少权限"}
     try:
         payload = response.json()
     except ValueError:
         payload = None
     if _is_login_required_payload(payload):
-        return {"domain": "kconf.example.corp", "status": "expired", "detail": "接口返回「需要登录」（result=101），该域登录态未建立"}
-    return {"domain": "kconf.example.corp", "status": "ok", "http_status": response.status_code}
+        return {"domain": "config.example.corp", "status": "expired", "detail": "接口返回「需要登录」（result=101），该域登录态未建立"}
+    return {"domain": "config.example.corp", "status": "ok", "http_status": response.status_code}
 
 
 def parse_args() -> argparse.Namespace:
@@ -288,7 +288,7 @@ def parse_args() -> argparse.Namespace:
         item.add_argument("--concurrency", type=int, default=1)
         item.add_argument("--batch-size", type=int, default=10)
         item.add_argument("--max-runtime", type=int, default=300)
-        item.add_argument("--authoritative-source", default="kconf")
+        item.add_argument("--authoritative-source", default="configservice")
         if command != "query":
             item.add_argument("--confirm", action="store_true")
     for command in ("preview", "apply", "check-action"):
@@ -298,7 +298,7 @@ def parse_args() -> argparse.Namespace:
         item.add_argument("--concurrency", type=int, default=1)
         item.add_argument("--batch-size", type=int, default=10)
         item.add_argument("--max-runtime", type=int, default=300)
-        item.add_argument("--authoritative-source", default="kconf")
+        item.add_argument("--authoritative-source", default="configservice")
         item.add_argument("--rules-file", required=True)
         if command != "preview":
             item.add_argument("--action-id", required=True)
@@ -318,13 +318,13 @@ def main() -> None:
     if args.command == "sso-check":
         data = sso_check()
         if data["status"] != "ok":
-            error = "SSO_EXPIRED" if data["status"] == "expired" else "AUTH_FAILED" if data["status"] == "unauthorized" else "NETWORK_ERROR"
+            error = "AUTH_EXPIRED" if data["status"] == "expired" else "AUTH_FAILED" if data["status"] == "unauthorized" else "NETWORK_ERROR"
             code = 2 if data["status"] in ("expired", "unauthorized") else 1
             next_type = "ASK_USER" if data["status"] in ("expired", "unauthorized") else "STOP"
             emit({"ok": False, "code": code, "error": error, "msg": data["detail"], "data": data,
                   "next_action": {"type": next_type, "retryable": False}}, code)
         emit({"ok": True, "code": 0, "data": data, "next_action": {"type": "CONTINUE"}}, 0)
-    client = KConfClient()
+    client = ConfigClient()
     if args.command == "query":
         data = render_query(client.get_config(), args.stage)
     elif args.command == "preview":

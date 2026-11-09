@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """OLAP 直连取数 + 本地聚合。管道第 1 段。
@@ -23,7 +23,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-OLAP_URL = "https://internal.example.corp/api/v1/data/query"
+OLAP_URL = "https://app.example.corp/api/v1/data/query"
 TZ = timezone(timedelta(hours=8))
 
 
@@ -106,13 +106,13 @@ def query_olap(session: Any, body: dict[str, Any], referer: str) -> dict[str, An
         headers={
             "Accept": "application/json",
             "Kwaibi-View-Query-Type": "8",
-            "kwaibi-request-module": "olap",
+            "bi-request-module": "olap",
             "Referer": referer,
         },
         timeout=180,
     )
     if resp.status_code in (401, 302):
-        raise PermissionError("SSO_EXPIRED")
+        raise PermissionError("AUTH_EXPIRED")
     if resp.status_code == 403:
         raise PermissionError("AUTH_FAILED")
     resp.raise_for_status()
@@ -248,11 +248,11 @@ def main() -> int:
         end = now - timedelta(minutes=lag)
         start = end - timedelta(minutes=window)
 
-        from ks_aimate.sso_login_client import SmartSSOSession
+        from auth_helper.sso_login_client import SmartAuthSession
 
         template = json.loads(tpl_path.read_text(encoding="utf-8"))
-        referer = fetch_cfg.get("referer") or "https://internal.example.corp/"
-        session = SmartSSOSession()
+        referer = fetch_cfg.get("referer") or "https://app.example.corp/"
+        session = SmartAuthSession()
         fetched = query_olap(session, build_body(template, start, end), referer)
 
         if args.raw_output:
@@ -290,8 +290,8 @@ def main() -> int:
 
     except PermissionError as exc:
         code = str(exc)
-        if code == "SSO_EXPIRED":
-            return _fail("SSO_EXPIRED", "内网 SSO 已失效，请重新完成认证后重试", code=2)
+        if code == "AUTH_EXPIRED":
+            return _fail("AUTH_EXPIRED", "内网 Auth 已失效，请重新完成认证后重试", code=2)
         return _fail("AUTH_FAILED", "无权访问该数据集，确认账号有看板权限", code=2)
     except Exception as exc:  # noqa: BLE001
         print(f"[fetch] {type(exc).__name__}: {exc}", file=sys.stderr)

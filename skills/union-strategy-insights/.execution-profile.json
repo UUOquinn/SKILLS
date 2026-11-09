@@ -24,7 +24,7 @@
       "runner": "exec",
       "method": "CALLBACK"
     },
-    "scripts/kwaibi_client.py": {
+    "scripts/kwaikwaibi_client.py": {
       "long_running": false,
       "confidence": "low",
       "evidence": [],

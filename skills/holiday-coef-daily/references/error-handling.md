@@ -26,7 +26,7 @@
 | error_code | 动作 | 对用户说 |
 |-----------|------|----------|
 | `UV_NOT_FOUND` | 停止，禁止降级 python3/pip | 当前系统未安装 uv 工具，请执行 `curl -LsSf https://astral.sh/uv/install.sh | sh`（或 `brew install uv`），安装后回复「已安装」 |
-| `SSO_EXPIRED` | 停止，引导重新登录 | SSO Token 已过期，请在浏览器访问任意 example.corp 页面完成认证后回复「已登录」 |
+| `AUTH_EXPIRED` | 停止，引导重新登录 | Auth Token 已过期，请在浏览器访问任意 example.corp 页面完成认证后回复「已登录」 |
 | `API_TIMEOUT` | 重试 1 次，仍失败则中止 | 请求超时（已重试 1 次仍失败），请检查网络（是否已连 VPN） |
 | `API_5XX` | 立即中止，不重试 | 目标服务暂时不可用（5xx），请稍后重试 |
 | `AUTH_FAILED` | 停止，抛给用户 | 当前账号无权限执行该操作，请联系管理员开通权限 |

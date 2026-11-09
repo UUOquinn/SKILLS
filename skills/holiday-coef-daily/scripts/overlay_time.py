@@ -7,7 +7,7 @@
 """假期系数策略：本地时间窗口计算器。
 
 把用户输入的目标日期、开始时间和结束时间换算成 epoch-ms（Asia/Shanghai，UTC+8 无夏令时），
-供后续 mergeEditV2 / batchAddV2 的 beginTime / endTime 使用。纯本地计算，不调接口。
+供后续 submitEdit / batchCreate 的 beginTime / endTime 使用。纯本地计算，不调接口。
 """
 
 import argparse

@@ -11,9 +11,9 @@
 
 ## 2. 数据路径
 
-### orientControl（主）
+### targetingControl（主）
 
-`POST /orientControl/query` 支持**顶层**筛选 key：
+`POST /targetingControl/query` 支持**顶层**筛选 key：
 
 | 维度 | query key | mediaCluster 字段 |
 |------|-----------|-------------------|
@@ -24,11 +24,11 @@
 - 只传 key 不传其他字段时，服务端仍可能忽略筛选（实测 `mediaUid` 等拼写变体被忽略，返回全量）；正确 key 验证有效。
 - `status=4` 可与维度 key 组合过滤生效策略（但 search 默认返回全部状态，按 status=4 优先排序，避免漏掉待审/灰度版本）。
 
-### mediaControl（兜底）
+### placementControl（兜底）
 
-`POST /mediaControl/query` **忽略所有筛选参数**（实测任意 key 都返回全量 356 条）。
-因此 search 对 mediaControl 走「全量拉取 + 本地匹配 mediaCluster」：一次拉全量（约 356 条，≤2 页），
-本地对 `mediaCluster.<dim>` 做逗号分隔匹配。mediaControl 里的媒体屏蔽（type=2，老版）是重要的覆盖来源，不能跳过。
+`POST /placementControl/query` **忽略所有筛选参数**（实测任意 key 都返回全量 356 条）。
+因此 search 对 placementControl 走「全量拉取 + 本地匹配 mediaCluster」：一次拉全量（约 356 条，≤2 页），
+本地对 `mediaCluster.<dim>` 做逗号分隔匹配。placementControl 里的媒体屏蔽（type=2，老版）是重要的覆盖来源，不能跳过。
 
 ### 屏蔽类型
 
@@ -74,8 +74,8 @@ uv run <skill_directory>/scripts/operation_client.py search --dim uid --ids 333
 
 ## 6. 已知坑
 
-1. mediaControl 筛选无效 → 全量拉取本地匹配（约 356 条，开销小，可接受）
-2. orientControl 顶层筛选 key 拼错（如 `mediaUid`）会被静默忽略，返回全量 —— search 内部用的 key 已验证，不要自行改动
+1. placementControl 筛选无效 → 全量拉取本地匹配（约 356 条，开销小，可接受）
+2. targetingControl 顶层筛选 key 拼错（如 `mediaUid`）会被静默忽略，返回全量 —— search 内部用的 key 已验证，不要自行改动
 3. 行业 code 与产品名混在同一策略里可能都有（如 type=7 同时 shield product + secondIndustryV6），输出两个字段并列，不要假设互斥
 4. status 语义：4 生效中；5 已失效；0 待提交。search 返回全部状态并排序（生效在前），汇报时**必须标注 status**，用户问「被屏蔽」默认指 status=4 的生效策略，但也可能关心待审版本
 5. 幂等与只读：search 纯只读，可安全重跑；不存在副作用

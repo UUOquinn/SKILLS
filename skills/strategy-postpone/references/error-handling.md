@@ -7,7 +7,7 @@
 | error_code | 动作 | 用户提示 |
 |---|---|---|
 | `UV_NOT_FOUND` | 停止，引导安装 uv | `当前系统未安装 uv。请执行：curl -LsSf https://astral.sh/uv/install.sh \| sh，安装后回复"已安装"。` |
-| `SSO_EXPIRED` | 停止，引导重新登录 | `SSO Token 已过期，请在浏览器访问任意 example.corp 页面重新登录，完成后回复"已登录"。` |
+| `AUTH_EXPIRED` | 停止，引导重新登录 | `Auth Token 已过期，请在浏览器访问任意 example.corp 页面重新登录，完成后回复"已登录"。` |
 | `AUTH_FAILED` | 停止，告知权限不足 | `当前账号无权限执行该操作，请联系管理员开通。` |
 | `STRATEGY_NOT_FOUND` | 记失败，继续下一条 | （不中断流程，汇总表中显示"失败 — STRATEGY_NOT_FOUND"）|
 | `INVALID_IDS` | 停止，请用户确认 ID | `未解析到有效策略 ID，请检查输入格式（如：15392,382）。` |
@@ -30,8 +30,8 @@ exit code = 0 且 stdout 最后一行 ok=true ?
 
 ## 特殊场景
 
-- **401 / Cookie 过期**：归类为 `SSO_EXPIRED`
+- **401 / Cookie 过期**：归类为 `AUTH_EXPIRED`
 - **业务返回 412（行业版本系统升级）**：已通过提交体写入 `adCluster.industryVersion = "6.6"` 解决。若平台行业版本升级导致重现，修改 `scripts/postpone.py` 中 `INDUSTRY_VERSION` 常量即可（GET 详情不返回此字段，也无单独的版本查询接口，只能本地维护）
-- **`adCluster.maxNum` 等 Kconf 抽象类型字段**：GET 返回的 `{versioned:{version,data},inited}` 包装字段服务端无法反序列化回去（`com.kuaishou.kconf.client.Kconf` 抽象类型），脚本已自动在提交前删除此类字段，依赖服务端对未传字段保留原值
+- **`adCluster.maxNum` 等 Kconf 抽象类型字段**：GET 返回的 `{versioned:{version,data},inited}` 包装字段服务端无法反序列化回去（`com.kuaishou.configservice.client.Kconf` 抽象类型），脚本已自动在提交前删除此类字段，依赖服务端对未传字段保留原值
 - **单条连续失败 2 次**：记入失败表，继续下一条
 - **维度字段被清空**：通常因提交前未带全量 GET，禁止用空 body 重试

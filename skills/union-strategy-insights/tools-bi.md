@@ -1,15 +1,15 @@
-# KwaiBI API
+# BI API
 
 基址：
 
 ```
-https://bi-platform.example.corp
+https://bi.example.corp
 ```
 
-鉴权：Cookie 须含 KwaiBI 会话（常见 `kwaibi-user-token` / accessproxy）。  
-**已验证**：番薯/DataAgent 侧 Cookie 可用；纯 Orient Cookie 调本接口常 **401**。
+鉴权：Cookie 须含 BI 会话（常见 `bi-user-token` / accessproxy）。  
+**已验证**：番薯/DataAgent 侧 Cookie 可用；纯 Targeting Cookie 调本接口常 **401**。
 
-请求建议头：`Accept: application/json`，`Origin`/`Referer` 指向 KwaiBI 域名。
+请求建议头：`Accept: application/json`，`Origin`/`Referer` 指向 BI 域名。
 
 ---
 
@@ -43,21 +43,21 @@ Content-Type: application/json
 
 ```json
 {
-  "dataSetId": 85587,
+  "dataSetId": DS_OFFLINE,
   "type": 1,
   "fields": [
     {
       "id": 123,
       "name": "产品名称",
       "type": "dimension",
-      "dataSetId": 85587,
+      "dataSetId": DS_OFFLINE,
       "urn": ""
     },
     {
       "id": 456,
       "name": "联盟总消耗",
       "type": "metric",
-      "dataSetId": 85587,
+      "dataSetId": DS_OFFLINE,
       "urn": ""
     }
   ],
@@ -67,7 +67,7 @@ Content-Type: application/json
         "id": 789,
         "name": "开发者id",
         "type": "dimension",
-        "dataSetId": 85587,
+        "dataSetId": DS_OFFLINE,
         "urn": ""
       },
       "operator": "IN",
@@ -109,16 +109,16 @@ Content-Type: application/json
 
 | dataSetId | 类型 | 用途 |
 |-----------|------|------|
-| `85587` | 离线 | T-1 与历史主效果 |
-| `129496` | 实时 | 当天实时；仅明确要「实时/当天」时用 |
+| `DS_OFFLINE` | 离线 | T-1 与历史主效果 |
+| `DS_REALTIME` | 实时 | 当天实时；仅明确要「实时/当天」时用 |
 
-默认不指定时用离线 `85587`。
+默认不指定时用离线 `DS_OFFLINE`。
 
 ---
 
 ## 4. 字段别名与筛选映射（本仓库约定）
 
-### 4.1 友好名 → KwaiBI 真实字段名
+### 4.1 友好名 → BI 真实字段名
 
 | 别名 | 真实名 | 说明 |
 |------|--------|------|
@@ -126,17 +126,17 @@ Content-Type: application/json
 | CPC | 素材CPC | 同理 |
 | 成本率 | 暗投消耗占比 | 实际口径；另有 `暗投成本率`（预期口径），见下方歧义说明 |
 | 消耗 | 联盟总消耗 | |
-| 明投消耗 | 明投总消耗 | 85587 id=2344707 |
-| 暗投消耗 | 暗投总消耗 | 85587 id=2344704 |
+| 明投消耗 | 明投总消耗 | DS_OFFLINE id=2344707 |
+| 暗投消耗 | 暗投总消耗 | DS_OFFLINE id=2344704 |
 | 填充率 | 广告填充率 | |
 | 曝光率 | 广告曝光率 | |
-| CTR | CTR | 85587 id=1329816；⚠️ 与 `素材CPM` 不同，CTR 是独立字段 |
-| CVR | CVR | 85587 id=1330674 |
-| CPA | CPA | 85587 id=1330673 |
+| CTR | CTR | DS_OFFLINE id=1329816；⚠️ 与 `素材CPM` 不同，CTR 是独立字段 |
+| CVR | CVR | DS_OFFLINE id=1330674 |
+| CPA | CPA | DS_OFFLINE id=1330673 |
 
 **⚠️ "暗投成本率"歧义说明**：
 
-85587 里有两个名字相近的字段，含义完全不同：
+DS_OFFLINE 里有两个名字相近的字段，含义完全不同：
 - `暗投消耗占比`（id=2344701）：实际暗投消耗 / 联盟总消耗 → **这是日常说的"暗投成本率"**
 - `暗投成本率`（id=2414296）：预期口径，基于预期消耗计算 → 用于预算/预测场景
 
@@ -144,20 +144,20 @@ Content-Type: application/json
 
 ### 4.2 筛选 key → 字段名
 
-> ⚠️ 字段名是 KwaiBI detail 接口返回的 `name`，**必须逐字匹配**，不能臆造。
+> ⚠️ 字段名是 BI detail 接口返回的 `name`，**必须逐字匹配**，不能臆造。
 
 | filters key | 字段名 | 说明 |
 |-------------|--------|------|
 | `uid` | 开发者id | |
-| `app_id` | 联盟媒体ID | ❗ 原"应用id"已纠正，KwaiBI 无"应用id"字段 |
-| `pos_id` | 广告位 | ❗ 原"广告位id"已纠正，KwaiBI 无"广告位id"字段 |
+| `app_id` | 联盟媒体ID | ❗ 原"应用id"已纠正，BI 无"应用id"字段 |
+| `pos_id` | 广告位 | ❗ 原"广告位id"已纠正，BI 无"广告位id"字段 |
 | `ad_style` | 广告场景 | |
 | `product_name` | 产品名称 | |
 | `cooperation_mode` | 合作模式 | 策略侧高频维度 |
 | `union_ad_type` | 联盟业务线 | |
-| `flow_type` | 流量类型 | 85587 id=1427124 |
+| `flow_type` | 流量类型 | DS_OFFLINE id=1427124 |
 | `medium_inner_out_type` | 媒体类型_内外部 | |
-| `business_type` | 联盟运营分类 | 85587 id=2346000 |
+| `business_type` | 联盟运营分类 | DS_OFFLINE id=2346000 |
 | `sdk_type` | sdk类型 | |
 | `device_os` | 设备操作系统 | |
 | `is_internal_account` | 是否内部客户 | |
@@ -167,15 +167,15 @@ Content-Type: application/json
 | `campaign_id` | 计划id | |
 | `unit_id` | 单元ID | |
 
-### 4.3 策略→KwaiBI 桥接映射
+### 4.3 策略→BI 桥接映射
 
-从 Operation 策略字段到 KwaiBI 筛选字段的映射关系：
+从 Operation 策略字段到 BI 筛选字段的映射关系：
 
-| Operation 策略字段路径 | KwaiBI 筛选字段名 | 说明 |
+| Operation 策略字段路径 | BI 筛选字段名 | 说明 |
 |----------------------|-----------------|------|
 | `adCluster.uid` / `mediaCluster.mediaUid` | 开发者id | 定向/屏蔽开发者 |
 | `adCluster.posId` | 广告位 | |
-| `adCluster.appId` | 联盟媒体ID | 策略里叫 appId，KwaiBI 叫联盟媒体ID |
+| `adCluster.appId` | 联盟媒体ID | 策略里叫 appId，BI 叫联盟媒体ID |
 | `adCluster.adStyle` | 广告场景 | |
 | `mediaCluster.industryVersion` | — | 不做筛选维度，但影响 industryVersion 参数 |
 | `mediaCluster.mediaId` | 联盟媒体ID | 媒体侧 ID 与 app_id 同字段 |
@@ -183,7 +183,7 @@ Content-Type: application/json
 | `adCluster.flowType` | 流量类型 | |
 | `adCluster.sdkType` | sdk类型 | |
 
-**注意**：Operation 策略中 `adCluster.appId` 对应 KwaiBI 的 `联盟媒体ID`（不是"应用id"），`adCluster.posId` 对应 `广告位`（不是"广告位id"）。这是最常出错的映射点。
+**注意**：Operation 策略中 `adCluster.appId` 对应 BI 的 `联盟媒体ID`（不是"应用id"），`adCluster.posId` 对应 `广告位`（不是"广告位id"）。这是最常出错的映射点。
 
 ---
 
@@ -199,9 +199,9 @@ Content-Type: application/json
 
 ## 5. ⚠️ 跨数据集字段 id 不同
 
-**85587 和 129496 同名字段的 id 完全不同**，绝对不能混用。高频同名字段对照：
+**DS_OFFLINE 和 DS_REALTIME 同名字段的 id 完全不同**，绝对不能混用。高频同名字段对照：
 
-| 字段名 | 85587 id | 129496 id |
+| 字段名 | DS_OFFLINE id | DS_REALTIME id |
 |--------|----------|-----------|
 | 联盟总消耗 | 1329556 | 2215299 |
 | 素材CPM | 1329819 | 2215373 |
@@ -227,17 +227,17 @@ Content-Type: application/json
 
 ```json
 {
-  "dataSetId": 85587,
+  "dataSetId": DS_OFFLINE,
   "type": 1,
   "fields": [
-    {"id": 1329558, "name": "开发者id", "type": "dimension", "dataSetId": 85587},
-    {"id": 1329556, "name": "联盟总消耗", "type": "metric", "dataSetId": 85587},
-    {"id": 1329819, "name": "素材CPM", "type": "metric", "dataSetId": 85587},
-    {"id": 2344701, "name": "暗投消耗占比", "type": "metric", "dataSetId": 85587},
-    {"id": 1329816, "name": "CTR", "type": "metric", "dataSetId": 85587}
+    {"id": 1329558, "name": "开发者id", "type": "dimension", "dataSetId": DS_OFFLINE},
+    {"id": 1329556, "name": "联盟总消耗", "type": "metric", "dataSetId": DS_OFFLINE},
+    {"id": 1329819, "name": "素材CPM", "type": "metric", "dataSetId": DS_OFFLINE},
+    {"id": 2344701, "name": "暗投消耗占比", "type": "metric", "dataSetId": DS_OFFLINE},
+    {"id": 1329816, "name": "CTR", "type": "metric", "dataSetId": DS_OFFLINE}
   ],
   "filters": [
-    {"field": {"id": 1329558, "name": "开发者id", "type": "dimension", "dataSetId": 85587}, "operator": "IN", "value": ["@uid1", "@uid2"]}
+    {"field": {"id": 1329558, "name": "开发者id", "type": "dimension", "dataSetId": DS_OFFLINE}, "operator": "IN", "value": ["@uid1", "@uid2"]}
   ],
   "timeFilter": {"fieldName": "__time", "startTime": "@7d_ago_ms", "endTime": "@today_end_ms"},
   "limit": 100,
@@ -249,16 +249,16 @@ Content-Type: application/json
 
 ```json
 {
-  "dataSetId": 85587,
+  "dataSetId": DS_OFFLINE,
   "type": 1,
   "fields": [
-    {"id": 1329667, "name": "广告位", "type": "dimension", "dataSetId": 85587},
-    {"id": 1329556, "name": "联盟总消耗", "type": "metric", "dataSetId": 85587},
-    {"id": 1330671, "name": "广告填充率", "type": "metric", "dataSetId": 85587},
-    {"id": 1373145, "name": "广告曝光率", "type": "metric", "dataSetId": 85587}
+    {"id": 1329667, "name": "广告位", "type": "dimension", "dataSetId": DS_OFFLINE},
+    {"id": 1329556, "name": "联盟总消耗", "type": "metric", "dataSetId": DS_OFFLINE},
+    {"id": 1330671, "name": "广告填充率", "type": "metric", "dataSetId": DS_OFFLINE},
+    {"id": 1373145, "name": "广告曝光率", "type": "metric", "dataSetId": DS_OFFLINE}
   ],
   "filters": [
-    {"field": {"id": 1329667, "name": "广告位", "type": "dimension", "dataSetId": 85587}, "operator": "IN", "value": ["@pos1"]}
+    {"field": {"id": 1329667, "name": "广告位", "type": "dimension", "dataSetId": DS_OFFLINE}, "operator": "IN", "value": ["@pos1"]}
   ],
   "timeFilter": {"fieldName": "__time", "startTime": "@7d_ago_ms", "endTime": "@today_end_ms"},
   "limit": 100,
@@ -270,12 +270,12 @@ Content-Type: application/json
 
 ```json
 {
-  "dataSetId": 85587,
+  "dataSetId": DS_OFFLINE,
   "type": 1,
   "fields": [
-    {"id": 1329534, "name": "__time", "type": "dimension", "dataSetId": 85587},
-    {"id": 1329640, "name": "产品名称", "type": "dimension", "dataSetId": 85587},
-    {"id": 1329556, "name": "联盟总消耗", "type": "metric", "dataSetId": 85587}
+    {"id": 1329534, "name": "__time", "type": "dimension", "dataSetId": DS_OFFLINE},
+    {"id": 1329640, "name": "产品名称", "type": "dimension", "dataSetId": DS_OFFLINE},
+    {"id": 1329556, "name": "联盟总消耗", "type": "metric", "dataSetId": DS_OFFLINE}
   ],
   "filters": [],
   "timeFilter": {"fieldName": "__time", "startTime": "@7d_ago_ms", "endTime": "@today_end_ms"},
@@ -288,26 +288,26 @@ Content-Type: application/json
 
 ## 7. Cookie 失效恢复
 
-KwaiBI 401 时的排查路径：
+BI 401 时的排查路径：
 
-1. 确认 Cookie 域名：KwaiBI 需要 `bi-platform.example.corp` 域的 Cookie，**不是** Operation 的 `ops-platform.example.corp`
-2. 确认 Cookie 含 `kwaibi-user-token` 或 accessproxy 相关字段
-3. 仍 401 → SSO 登录已过期，需重新登录（调 `kuaishou-sso-login-client` skill）
-4. **绝对不要**用 Operation/Orient 的 Cookie 调 KwaiBI，必然 401
+1. 确认 Cookie 域名：BI 需要 `bi.example.corp` 域的 Cookie，**不是** Operation 的 `ops.example.corp`
+2. 确认 Cookie 含 `bi-user-token` 或 accessproxy 相关字段
+3. 仍 401 → Auth 登录已过期，需重新登录（调 `kuaishou-sso-login-client` skill）
+4. **绝对不要**用 Operation/Targeting 的 Cookie 调 BI，必然 401
 
 Operation 401 时的排查路径：
 
-1. Cookie 域名须为 `ops-platform.example.corp`
-2. 仍 401 → 同上，重新 SSO 登录
+1. Cookie 域名须为 `ops.example.corp`
+2. 仍 401 → 同上，重新 Auth 登录
 
 ---
 
 ## 已知坑
 
 1. 错路径 `/api/v1/dataset/data/query` → 404
-2. Orient Cookie 调 KwaiBI → 401
+2. Targeting Cookie 调 BI → 401
 3. fields 缺真实 `id` → 上游失败
-4. 实时集 `129496` 勿用于纯历史 T-1 口径
-5. **85587 与 129496 同名字段 id 不同** → 混用必报错（见 §5）
+4. 实时集 `DS_REALTIME` 勿用于纯历史 T-1 口径
+5. **DS_OFFLINE 与 DS_REALTIME 同名字段 id 不同** → 混用必报错（见 §5）
 6. **"应用id"和"广告位id"不存在** → 正确字段名是 `联盟媒体ID` 和 `广告位`（见 §4.2）
 7. **"暗投成本率"有歧义** → 日常用 `暗投消耗占比`，预期口径用 `暗投成本率`（见 §4.1）

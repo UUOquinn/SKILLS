@@ -6,7 +6,7 @@
 # "ks-aimate" = { index = "kuaishou" }
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
 """单条写入策略平台并记台账。管道第 4 段。
@@ -23,8 +23,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-BASE_URL = "https://ops-platform.example.corp/ops/rest"
-CREATE_PATH = f"{BASE_URL}/flowControl/mergeEditV2"
+BASE_URL = "https://ops.example.corp/ops/rest"
+CREATE_PATH = f"{BASE_URL}/boostControl/submitEdit"
 TZ = timezone(timedelta(hours=8))
 
 LEDGER_HEADER = [
@@ -186,12 +186,12 @@ def main() -> int:
                 "dry-run：未真实写入。确认字段无误后去掉 --dry-run",
             )
 
-        from ks_aimate.sso_login_client import SmartSSOSession
+        from auth_helper.sso_login_client import SmartAuthSession
 
-        session = SmartSSOSession()
+        session = SmartAuthSession()
         resp = session.request("POST", CREATE_PATH, json=body, timeout=120)
         if resp.status_code in (401, 302):
-            return _fail("SSO_EXPIRED", "内网 SSO 已失效，请重新认证后重试", code=2)
+            return _fail("AUTH_EXPIRED", "内网 Auth 已失效，请重新认证后重试", code=2)
         if resp.status_code == 403:
             return _fail("AUTH_FAILED", "无权在策略平台写入，确认账号权限", code=2)
         resp.raise_for_status()

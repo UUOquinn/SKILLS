@@ -2,7 +2,7 @@
 
 > 执行任何脚本遇到报错，先读本文档，优先按脚本返回的 `code` / `exit code` 和
 > `next_action` 执行。禁止跳过查表自行发挥（改写脚本、降级到 python3/pip、
-> 绕过 SSO）。
+> 绕过 Auth）。
 
 ## 核心规则
 
@@ -14,7 +14,7 @@
 
 | error | 退出码 | 动作 | 说明 |
 |---|---|---|---|
-| `SSO_EXPIRED` | 2 | 让用户重新登录 | SSO 失效（OLAP 或 Operation） |
+| `AUTH_EXPIRED` | 2 | 让用户重新登录 | Auth 失效（OLAP 或 Operation） |
 | `AUTH_FAILED` | 2 | 让用户申请权限 | 无看板/接口权限 |
 | `EMPTY_WINDOW` | 1 | 停止，下一轮重试 | 窗口内无账户数据，实时数据未回补 |
 | `TEMPLATE_MISSING` | 1 | 停止 | OLAP 查询模板丢失 |
@@ -24,17 +24,17 @@
 | `INTERRUPTED` | 130 | 停止 | 用户中断 |
 
 写操作（`create` / `add-ids` / `remove-ids`）委托给 `flow-strategy-ops` 的
-`flow_api.py`，其错误码（`SSO_EXPIRED`、`AUTH_FAILED`、`API_TIMEOUT`、
+`flow_api.py`，其错误码（`AUTH_EXPIRED`、`AUTH_FAILED`、`API_TIMEOUT`、
 `API_4XX`、`API_5XX`、`INDUSTRY_VERSION_MISMATCH`、`NOT_FOUND`、
 `INVALID_DIMENSION`、`INVALID_ARGUMENT`、`BATCH_NOT_SUPPORTED` 等）按
 `flow-strategy-ops/references/error-handling.md` 处理，不要在本 skill 里另写一套。
 
 ## 常见场景
 
-### SSO_EXPIRED
+### AUTH_EXPIRED
 
 - 动作：停止，引导用户重新登录内网
-- 对用户说：`SSO 已过期，请在浏览器访问任意 example.corp 页面完成认证，然后回复"已登录"。`
+- 对用户说：`Auth 已过期，请在浏览器访问任意 example.corp 页面完成认证，然后回复"已登录"。`
 
 ### EMPTY_WINDOW
 

@@ -1,7 +1,7 @@
 {
   "UV_NOT_FOUND": {"code": 1, "action": "STOP", "retryable": false},
   "DEPENDENCY_MISSING": {"code": 1, "action": "STOP", "retryable": false},
-  "SSO_EXPIRED": {"code": 2, "action": "ASK_USER", "retryable": true},
+  "AUTH_EXPIRED": {"code": 2, "action": "ASK_USER", "retryable": true},
   "AUTH_FAILED": {"code": 2, "action": "ASK_USER", "retryable": false},
   "API_TIMEOUT": {"code": 1, "action": "RETRY_ONCE_THEN_STOP", "retryable": true},
   "API_4XX": {"code": 1, "action": "STOP", "retryable": false},

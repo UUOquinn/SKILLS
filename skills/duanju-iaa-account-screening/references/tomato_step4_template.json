@@ -73,7 +73,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/account_id",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=DIMENSION&urn=ks:dimension:ad_v2/account_id",
         "agg": "false",
         "metricInsightRules": "[]",
         "metricInsight": "false",
@@ -126,7 +126,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
         "primaryColIds": "[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]"
       },
       "isCount": true,
@@ -196,7 +196,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_total_cost_amt",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_total_cost_amt",
         "primaryColIds": "[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -233,7 +233,7 @@
       "valueType": "number",
       "functionType": "",
       "returnType": "value",
-      "functionExpression": "{\"type\":\"formula\",\"expression\":\"`ks:metric:ad_v2/union_total_cost_amt`/`ks:metric:ad_v2/dsp_total_cost_amt`\",\"formulaArr\":[{\"type\":\"column\",\"item\":{\"id\":2363514,\"dataSetId\":123403,\"name\":\"联盟总消耗\",\"nickName\":\"联盟总消耗\",\"newName\":\"联盟总消耗\",\"type\":\"metric\",\"valueType\":\"number\",\"functionExpression\":\"\",\"isCount\":false,\"isExtend\":false,\"ordinalColumnType\":\"metric\",\"ordinalAggregatorType\":\"\",\"ordinalValueType\":\"ATOMIC\",\"length\":0,\"securityLevel\":\"C3\",\"privateLevel\":0,\"sensitiveDataId\":0,\"fieldComment\":\"账户消费对应的总收入，也叫实际消耗，单位：元。总消耗=现金消耗+前返扣费+后返扣费+激励账户实收+框返账户实收+信用账户实收+电商采买实收。\",\"isShow\":true,\"sort\":164,\"urn\":\"ks:metric:ad_v2/union_total_cost_amt\",\"supportAggregatorTypes\":[],\"unitVO\":{\"fieldId\":2363514,\"creator\":\"not-login\",\"used\":true,\"customized\":false,\"typeName\":\"MONEY\",\"unitName\":\"YUAN\",\"convertUnitName\":\"\",\"formatEnable\":false,\"dataSetId\":123403},\"queryName\":\"`ks:metric:ad_v2/union_total_cost_amt`\",\"tags\":{},\"dataSetTimeField\":false,\"attributes\":{\"fieldDetailUrl\":\"https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_total_cost_amt\",\"primaryColIds\":\"[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]\",\"agg\":\"true\",\"metricInsightRules\":\"[]\",\"metricInsight\":\"true\",\"twiceCalc\":\"false\"},\"canInput\":false,\"canImport\":true,\"canSql\":false,\"uniqueId\":\"51c6dc4d-c5e8-4662-af9c-baae3c8f85f9\",\"altNames\":[],\"assessType\":\"NONE\",\"hotField\":true,\"partitionColumn\":false,\"canExtend\":true,\"available\":true,\"configAttribution\":false}},{\"type\":\"operator\",\"item\":{\"label\":\"iconchuhao\",\"value\":\"/\"}},{\"type\":\"column\",\"item\":{\"id\":2076869,\"dataSetId\":123403,\"name\":\"总消耗\",\"nickName\":\"总消耗\",\"newName\":\"总消耗\",\"type\":\"metric\",\"valueType\":\"number\",\"functionExpression\":\"\",\"isCount\":false,\"isExtend\":false,\"ordinalColumnType\":\"metric\",\"ordinalAggregatorType\":\"\",\"ordinalValueType\":\"ATOMIC\",\"length\":0,\"securityLevel\":\"C3\",\"privateLevel\":0,\"sensitiveDataId\":0,\"fieldComment\":\"广告主投放时产生的总收入，对外名称为花费，单位：元。总消耗=现金钱包消耗+前返扣费+后返扣费+激励账户实收+框返账户实收+信用账户实收+电商采买实收（别名扩展钱包）+优惠券消耗+纯现金消耗。粉条场景下要额外加上XYZ豆钻，且要排除掉优惠券消耗。\",\"isShow\":true,\"sort\":69,\"urn\":\"ks:metric:ad_v2/dsp_total_cost_amt\",\"supportAggregatorTypes\":[],\"unitVO\":{\"fieldId\":2076869,\"creator\":\"not-login\",\"used\":true,\"customized\":false,\"typeName\":\"MONEY\",\"unitName\":\"YUAN\",\"convertUnitName\":\"\",\"formatEnable\":false,\"dataSetId\":123403},\"queryName\":\"`ks:metric:ad_v2/dsp_total_cost_amt`\",\"tags\":{},\"dataSetTimeField\":false,\"attributes\":{\"fieldDetailUrl\":\"https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt\",\"primaryColIds\":\"[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]\",\"agg\":\"true\",\"metricInsightRules\":\"[]\",\"metricInsight\":\"true\",\"twiceCalc\":\"false\"},\"canInput\":false,\"canImport\":true,\"canSql\":false,\"uniqueId\":\"5fbb236b-0f5d-4f36-8845-5ad89d027a19\",\"altNames\":[],\"assessType\":\"NONE\",\"hotField\":true,\"partitionColumn\":false,\"canExtend\":true,\"available\":true,\"configAttribution\":false}}]}",
+      "functionExpression": "{\"type\":\"formula\",\"expression\":\"`ks:metric:ad_v2/union_total_cost_amt`/`ks:metric:ad_v2/dsp_total_cost_amt`\",\"formulaArr\":[{\"type\":\"column\",\"item\":{\"id\":2363514,\"dataSetId\":123403,\"name\":\"联盟总消耗\",\"nickName\":\"联盟总消耗\",\"newName\":\"联盟总消耗\",\"type\":\"metric\",\"valueType\":\"number\",\"functionExpression\":\"\",\"isCount\":false,\"isExtend\":false,\"ordinalColumnType\":\"metric\",\"ordinalAggregatorType\":\"\",\"ordinalValueType\":\"ATOMIC\",\"length\":0,\"securityLevel\":\"C3\",\"privateLevel\":0,\"sensitiveDataId\":0,\"fieldComment\":\"账户消费对应的总收入，也叫实际消耗，单位：元。总消耗=现金消耗+前返扣费+后返扣费+激励账户实收+框返账户实收+信用账户实收+电商采买实收。\",\"isShow\":true,\"sort\":164,\"urn\":\"ks:metric:ad_v2/union_total_cost_amt\",\"supportAggregatorTypes\":[],\"unitVO\":{\"fieldId\":2363514,\"creator\":\"not-login\",\"used\":true,\"customized\":false,\"typeName\":\"MONEY\",\"unitName\":\"YUAN\",\"convertUnitName\":\"\",\"formatEnable\":false,\"dataSetId\":123403},\"queryName\":\"`ks:metric:ad_v2/union_total_cost_amt`\",\"tags\":{},\"dataSetTimeField\":false,\"attributes\":{\"fieldDetailUrl\":\"https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/union_total_cost_amt\",\"primaryColIds\":\"[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]\",\"agg\":\"true\",\"metricInsightRules\":\"[]\",\"metricInsight\":\"true\",\"twiceCalc\":\"false\"},\"canInput\":false,\"canImport\":true,\"canSql\":false,\"uniqueId\":\"51c6dc4d-c5e8-4662-af9c-baae3c8f85f9\",\"altNames\":[],\"assessType\":\"NONE\",\"hotField\":true,\"partitionColumn\":false,\"canExtend\":true,\"available\":true,\"configAttribution\":false}},{\"type\":\"operator\",\"item\":{\"label\":\"iconchuhao\",\"value\":\"/\"}},{\"type\":\"column\",\"item\":{\"id\":2076869,\"dataSetId\":123403,\"name\":\"总消耗\",\"nickName\":\"总消耗\",\"newName\":\"总消耗\",\"type\":\"metric\",\"valueType\":\"number\",\"functionExpression\":\"\",\"isCount\":false,\"isExtend\":false,\"ordinalColumnType\":\"metric\",\"ordinalAggregatorType\":\"\",\"ordinalValueType\":\"ATOMIC\",\"length\":0,\"securityLevel\":\"C3\",\"privateLevel\":0,\"sensitiveDataId\":0,\"fieldComment\":\"广告主投放时产生的总收入，对外名称为花费，单位：元。总消耗=现金钱包消耗+前返扣费+后返扣费+激励账户实收+框返账户实收+信用账户实收+电商采买实收（别名扩展钱包）+优惠券消耗+纯现金消耗。粉条场景下要额外加上XYZ豆钻，且要排除掉优惠券消耗。\",\"isShow\":true,\"sort\":69,\"urn\":\"ks:metric:ad_v2/dsp_total_cost_amt\",\"supportAggregatorTypes\":[],\"unitVO\":{\"fieldId\":2076869,\"creator\":\"not-login\",\"used\":true,\"customized\":false,\"typeName\":\"MONEY\",\"unitName\":\"YUAN\",\"convertUnitName\":\"\",\"formatEnable\":false,\"dataSetId\":123403},\"queryName\":\"`ks:metric:ad_v2/dsp_total_cost_amt`\",\"tags\":{},\"dataSetTimeField\":false,\"attributes\":{\"fieldDetailUrl\":\"https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt\",\"primaryColIds\":\"[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]\",\"agg\":\"true\",\"metricInsightRules\":\"[]\",\"metricInsight\":\"true\",\"twiceCalc\":\"false\"},\"canInput\":false,\"canImport\":true,\"canSql\":false,\"uniqueId\":\"5fbb236b-0f5d-4f36-8845-5ad89d027a19\",\"altNames\":[],\"assessType\":\"NONE\",\"hotField\":true,\"partitionColumn\":false,\"canExtend\":true,\"available\":true,\"configAttribution\":false}}]}",
       "isExtend": true,
       "hotField": true,
       "isSystemField": false,
@@ -350,7 +350,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
         "primaryColIds": "[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -419,7 +419,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_over_cost_ratio",
         "primaryColIds": "[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -489,11 +489,11 @@
         "trim": true
       },
       "showFormat": "",
-      "fieldComment": "源自广告主在投放平台单元层级中设置的浅度出价（在mcb场景下为成效预估出价），按引擎下发次数求加权平均值。单位：元。详细释义见doc：https://internal.example.corp/d/home/fcADpr6HOkLAwSci4nDdc-QQa",
+      "fieldComment": "源自广告主在投放平台单元层级中设置的浅度出价（在mcb场景下为成效预估出价），按引擎下发次数求加权平均值。单位：元。详细释义见doc：https://app.example.corp/d/home/fcADpr6HOkLAwSci4nDdc-QQa",
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_avg_bid_cpa_bid_amt",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_avg_bid_cpa_bid_amt",
         "primaryColIds": "[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -549,7 +549,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_conversion_cnt",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_conversion_cnt",
         "primaryColIds": "[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]"
       },
       "isCount": true,
@@ -676,7 +676,7 @@
       "indicatorAttr": "",
       "abnormalValueConfig": "hidden",
       "attributes": {
-        "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_billing_income_roi_1d_game",
+        "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_billing_income_roi_1d_game",
         "primaryColIds": "[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]",
         "agg": "true",
         "metricInsightRules": "[]",
@@ -905,7 +905,7 @@
           "fieldComment": "广告主投放时产生的总收入，对外名称为花费，单位：元。总消耗=现金钱包消耗+前返扣费+后返扣费+激励账户实收+框返账户实收+信用账户实收+电商采买实收（别名扩展钱包）+优惠券消耗+纯现金消耗。粉条场景下要额外加上XYZ豆钻，且要排除掉优惠券消耗。",
           "isFieldCommentSet": false,
           "attributes": {
-            "fieldDetailUrl": "https://internal.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
+            "fieldDetailUrl": "https://app.example.corp/v2/#/assets/detail?category=METRIC&urn=ks:metric:ad_v2/dsp_total_cost_amt",
             "primaryColIds": "[2076896,2076862,2076872,2838925,2076884,2076919,3535267,2076914,2076879,2076889]",
             "agg": "true",
             "metricInsightRules": "[]",

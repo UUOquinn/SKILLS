@@ -45,7 +45,7 @@
   "ok": false,
   "mode": "normal",
   "steps": [
-    {"step": "check_pass", "ok": false, "error": "ORIENT_FAILED",
+    {"step": "check_pass", "ok": false, "error": "OPS_FAILED",
      "message": "操作[审核通过]无法应用于状态[发布成功]", "approve_id": 2630}
   ],
   "push": null,
@@ -61,7 +61,7 @@
 - `auditOk=true 且 publishOk=false` → 审核成功但发布失败。
 - `pushStatus`：`pushed`（已推全）/ `not_settled`（推全未收敛，仍在推全中）/ `ban_submitted` / `failed`。
 - 脚本会额外输出 `elapsedSec`（本次全流程总耗时）与 `stepTimings`（若 steps 含时间戳，则按相邻步骤计算环节耗时）；这是展示层派生字段，不会额外请求接口。
-- 单条超时（脚本 180s）后可能仍在推全中，先查 Orient 再决定是否重试。
+- 单条超时（脚本 180s）后可能仍在推全中，先查 Targeting 再决定是否重试。
 
 ## 幂等性
 

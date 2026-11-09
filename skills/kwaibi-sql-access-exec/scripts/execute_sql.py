@@ -11,10 +11,10 @@
 #
 # [[tool.uv.index]]
 # name = "kuaishou"
-# url = "https://internal.example.corp/kuaishou/prod/+simple/"
+# url = "https://app.example.corp/kuaishou/prod/+simple/"
 # publish = false
 # ///
-"""通过 SSO 直连 KwaiBI SQL 取数接口执行 Hive SQL 并下载 CSV 结果。
+"""通过 Auth 直连 BI SQL 取数接口执行 Hive SQL 并下载 CSV 结果。
 
 接口链（均已实测）：notebook/add → notebook/execute → snippet/record 轮询
 → task/exportCheck → task/exportCSVDirectly（CSV）。
@@ -38,9 +38,9 @@ import traceback
 import uuid
 from pathlib import Path
 
-from ks_aimate.sso_login_client import SmartSSOSession, get_username
+from auth_helper.sso_login_client import SmartAuthSession, get_username
 
-BASE = "https://bi-platform.example.corp"
+BASE = "https://bi.example.corp"
 NB_CACHE = Path("tmp") / "kwaibi_sql_access_notebook.json"
 START_MS = int(time.time() * 1000)
 
@@ -73,8 +73,8 @@ def emit(data: dict | None = None, code: int = 0, error: str | None = None,
     print(json.dumps(out, ensure_ascii=False))
 
 
-class KwaiBISqlExec:
-    def __init__(self, session: SmartSSOSession):
+class BISqlExec:
+    def __init__(self, session: SmartAuthSession):
         self.s = session
 
     def _post(self, path: str, body: dict) -> dict:
@@ -96,7 +96,7 @@ class KwaiBISqlExec:
         if NB_CACHE.exists():
             cached = json.loads(NB_CACHE.read_text(encoding="utf-8"))
             if cached.get("uuid") and cached.get("id"):
-                print(f"[kwaibi-exec] 复用 notebook {cached['name']} "
+                print(f"[bi-exec] 复用 notebook {cached['name']} "
                       f"(id={cached['id']})", flush=True)
                 return cached
         nb_uuid = str(uuid.uuid4())
@@ -109,7 +109,7 @@ class KwaiBISqlExec:
         NB_CACHE.parent.mkdir(parents=True, exist_ok=True)
         NB_CACHE.write_text(json.dumps(nb, ensure_ascii=False),
                             encoding="utf-8")
-        print(f"[kwaibi-exec] 新建 notebook {name} (id={nb['id']})", flush=True)
+        print(f"[bi-exec] 新建 notebook {name} (id={nb['id']})", flush=True)
         return nb
 
     def execute(self, nb: dict, sql: str, engine: dict) -> tuple[int, str]:
@@ -156,7 +156,7 @@ class KwaiBISqlExec:
             status = task.get("status")
             name = STATUS.get(status, f"UNKNOWN({status})")
             elapsed = int(time.time() * 1000) - START_MS
-            print(f"[kwaibi-exec] 状态 {name}（已用 {elapsed // 1000}s）",
+            print(f"[bi-exec] 状态 {name}（已用 {elapsed // 1000}s）",
                   flush=True)
             if status in TERMINAL_OK:
                 return task
@@ -204,7 +204,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--sql", help="要执行的 SQL（SELECT 为主）")
     ap.add_argument("--sql-file", type=Path, help="SQL 文件路径")
-    ap.add_argument("--name", default="kwaibi-sql-access-exec",
+    ap.add_argument("--name", default="bi-sql-access-exec",
                     help="自建 notebook 名称（首次创建，之后复用）")
     ap.add_argument("--out", type=Path, default=Path("tmp") / "kwaibi_result.csv",
                     help="CSV 结果输出路径")
@@ -250,14 +250,14 @@ def main() -> int:
             return 1
 
         username = get_username()
-        print(f"[kwaibi-exec] 当前用户 {username}", flush=True)
-        client = KwaiBISqlExec(SmartSSOSession())
+        print(f"[bi-exec] 当前用户 {username}", flush=True)
+        client = BISqlExec(SmartAuthSession())
         nb = client.get_or_create_notebook(args.name)
         engine = {"db_engine": args.db_engine, "hive_engine": args.hive_engine,
                   "data_source_id": args.data_source_id,
                   "user_group": args.user_group}
         task_id, snippet_uuid = client.execute(nb, sql, engine)
-        print(f"[kwaibi-exec] 已提交 taskId={task_id}", flush=True)
+        print(f"[bi-exec] 已提交 taskId={task_id}", flush=True)
         task = client.poll(nb["uuid"], snippet_uuid,
                            args.timeout_sec, args.poll_sec)
 
@@ -277,9 +277,9 @@ def main() -> int:
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(csv_text, encoding="utf-8")
             csv_path = str(out)
-            print(f"[kwaibi-exec] CSV 已写入 {out}（{csv_rows} 行）", flush=True)
+            print(f"[bi-exec] CSV 已写入 {out}（{csv_rows} 行）", flush=True)
         elif not rows:
-            print("[kwaibi-exec] 结果为空（0 行），跳过下载", flush=True)
+            print("[bi-exec] 结果为空（0 行），跳过下载", flush=True)
 
         emit({
             "task_id": task_id,

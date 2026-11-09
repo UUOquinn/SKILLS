@@ -1,13 +1,13 @@
 ---
 name: duanju-iaa-account-screening
-description: 筛选短剧 IAA 账户（含非番茄与番茄两套口径），三步/五步只读取数均直连 OLAP 并固化为脚本。非番茄：第一步按可投范围七猫、爱奇艺、番茄筛账户；第二步从第一步账户与 KConf 暗投白名单之外的账户里，按客户维度条件筛出账户清单；第三步把第二步账户放入实时效果数据集123403与客户看板68012103。番茄：第一步大池子（同非番茄）；第二步排除KConf与客户维度；第三步累加排除消耗10000到30000且超成本率低于0.15；第四步123403实时数据消耗大于500；第五步客户看板链出。当用户说非番茄短剧账户筛选、番茄短剧账户筛选、筛选番茄、205802取账户、暗投白名单排除、客户维度数据筛选、账户放123403或客户看板时使用。不触发短剧IAA后续取数/写回、实时滚动窗口、调价、其他数据集或看板修改。
+description: 筛选短剧 IAA 账户（含非番茄与番茄两套口径），三步/五步只读取数均直连 OLAP 并固化为脚本。非番茄：第一步按可投范围七猫、爱奇艺、番茄筛账户；第二步从第一步账户与 ConfigService 暗投白名单之外的账户里，按客户维度条件筛出账户清单；第三步把第二步账户放入实时效果数据集123403与客户看板68012103。番茄：第一步大池子（同非番茄）；第二步排除ConfigService与客户维度；第三步累加排除消耗10000到30000且超成本率低于0.15；第四步123403实时数据消耗大于500；第五步客户看板链出。当用户说非番茄短剧账户筛选、番茄短剧账户筛选、筛选番茄、205802取账户、暗投白名单排除、客户维度数据筛选、账户放123403或客户看板时使用。不触发短剧IAA后续取数/写回、实时滚动窗口、调价、其他数据集或看板修改。
 ---
 
 # 短剧 IAA 账户筛选（第一步 + 第二步）
 
 > 业务称谓：**非番茄短剧账户ID筛选**。本链路产出非七猫/爱奇艺/番茄版权方（其他版权方/版权方为空）、客户名排除番茄系与书读的短剧 IAA 账户。
 
-只读查询数据集 `205802`，直连 `https://internal.example.corp/api/v1/data/query`。请求模板从用户给定的 [KwaiBI 看板](https://bi-platform.example.corp/pc/dashboard/preview?dashboardId=2060503&insight-chart=7288287&sheetId=140171&tabIds=864253)（第一步 insightConfigId=66613605，第二步 insightConfigId=67782222）捕获并实测；不使用对话式取数，也不改看板。
+只读查询数据集 `205802`，直连 `https://app.example.corp/api/v1/data/query`。请求模板从用户给定的 [BI 看板](https://bi.example.corp/pc/dashboard/preview?dashboardId=2060503&insight-chart=7288287&sheetId=140171&tabIds=864253)（第一步 insightConfigId=66613605，第二步 insightConfigId=67782222）捕获并实测；不使用对话式取数，也不改看板。
 
 ## 第一步：筛选账户
 
@@ -30,11 +30,11 @@ uv run <skill_directory>/scripts/screen_step2.py
 窗口同样为**北京时间上一完整自然日**，可传 `--date YYYY-MM-DD` 对账。脚本按固定顺序串行执行：
 
 1. 用第一步模板查询同一自然日，得到第一步账户集；
-2. 读 KConf `ad.adtarget3.universeAddChainGrayConfig` 的 production 配置，解析出 `ab_key=enable_chain_antou_30_990_0` 的 `account_white_list`；
+2. 读 ConfigService `ad.demo.chainGrayConfig` 的 production 配置，解析出 `ab_key=enable_chain_antou_30_990_0` 的 `account_white_list`；
 3. 两者取并集，以 `账户ID NOT IN` 注入第二步查询（模板 `references/step2_query_template.json`），一次只读查询；
 4. 本地复核每一行满足全部条件，任一不满足即报错，不交付不完整名单。
 
-第二步固定条件（与看板一致）：时间=上一完整自然日；转化目标 IN 首日变现ROI（短剧IAA专用）；可投范围 IN 其他版权方、版权方为空；集团 NOT IN 硕才；运营定义客户名 NOT IN 番茄、番茄漫剧、阿里非电商、漫森长沙、漫森二部、漫森三部、山河、美偲、亿汇、云栖、鑫杰光年 且 NOT CONTAIN 书读；产品名称 NOT IN 月光阅读、青青剧场微短剧、快乐说漫；结果过滤：总消耗 >2000 且 <20000、变现ROI-iaa >0.85、超成本率 <0.15。KConf 配置内容带 `//` 注释，脚本会剥离注释后解析，每次运行记录 KConf version、snapshotId 用于审计。
+第二步固定条件（与看板一致）：时间=上一完整自然日；转化目标 IN 首日变现ROI（短剧IAA专用）；可投范围 IN 其他版权方、版权方为空；集团 NOT IN 硕才；运营定义客户名 NOT IN 番茄、番茄漫剧、阿里非电商、漫森长沙、漫森二部、漫森三部、山河、美偲、亿汇、云栖、鑫杰光年 且 NOT CONTAIN 书读；产品名称 NOT IN 月光阅读、青青剧场微短剧、快乐说漫；结果过滤：总消耗 >2000 且 <20000、变现ROI-iaa >0.85、超成本率 <0.15。ConfigService 配置内容带 `//` 注释，脚本会剥离注释后解析，每次运行记录 ConfigService version、snapshotId 用于审计。
 
 输出至工作区 `tmp/duanju_iaa_<日期>_step2_accounts.csv`（去重账户）与 `tmp/duanju_iaa_<日期>_step2_details.csv`（客户维度明细）。排除集为空时报错，防止误把口径保护当成功。第二步可以合法返回 0 行（排除后无命中），此时以标准 JSON 中 `row_count: 0` 为准。
 
@@ -71,7 +71,7 @@ uv run <skill_directory>/scripts/tomato_screen_step1.py [--date YYYY-MM-DD] [--i
 
 ### 番茄第二步（`scripts/tomato_screen_step2.py`）
 
-排除第一步账户 + KConf 暗投白名单（`ab_key=enable_chain_antou_30_990_0` 的 `account_white_list`）后，按固定客户维度条件筛选：营销目标=快手号推广-短剧推广、转化目标=首日变现ROI（短剧IAA专用）、可投范围=其他版权方/版权方为空、产品名称排除青青剧场微短剧/快乐说漫/月光阅读、客户名排除番茄/番茄漫剧/阿里非电商/漫森长沙/漫森二部/漫森三部/山河/美偲/亿汇/云栖/鑫杰光年+不含书读、总消耗大于0.1。产出 `tmp/tomato_iaa_<日期>_step2_accounts.csv`。
+排除第一步账户 + ConfigService 暗投白名单（`ab_key=enable_chain_antou_30_990_0` 的 `account_white_list`）后，按固定客户维度条件筛选：营销目标=快手号推广-短剧推广、转化目标=首日变现ROI（短剧IAA专用）、可投范围=其他版权方/版权方为空、产品名称排除青青剧场微短剧/快乐说漫/月光阅读、客户名排除番茄/番茄漫剧/阿里非电商/漫森长沙/漫森二部/漫森三部/山河/美偲/亿汇/云栖/鑫杰光年+不含书读、总消耗大于0.1。产出 `tmp/tomato_iaa_<日期>_step2_accounts.csv`。
 
 ```bash
 uv run <skill_directory>/scripts/tomato_screen_step2.py [--date YYYY-MM-DD]
@@ -101,13 +101,13 @@ uv run <skill_directory>/scripts/tomato_screen_step4.py [--date YYYY-MM-DD] --ac
 uv run <skill_directory>/scripts/tomato_screen_step5.py [--date YYYY-MM-DD] --accounts-file <step4 csv>
 ```
 
-番茄模板在 `references/tomato_step1~5_template.json`；番茄脚本共用 `scripts/tomato_common.py`（含 KConf 暗投白名单解析、公共查询函数）。交付样式与非番茄一致（固定汇总文本 + 看板不回转）。
+番茄模板在 `references/tomato_step1~5_template.json`；番茄脚本共用 `scripts/tomato_common.py`（含 ConfigService 暗投白名单解析、公共查询函数）。交付样式与非番茄一致（固定汇总文本 + 看板不回转）。
 
 ## 批量能力评估
 
 用户已确认需要一次筛选**所有命中账户**。三步均只读、单查询接口调用；第一步按三个可投范围（最多 3 个枚举项）支持 `--item` 补跑，第二步为单次查询无单项维度，第三步按账户集注入两个查询。不做并发写入、策略调整或编排续接。若将来某范围的记录数达到模板行上限而被截断，本流程停止并报告，不宣称已筛全。
 
-执行失败时先读 [错误处理](references/error-handling.md)，按脚本退出码及最后一行 JSON 处理；权限问题先处理目标 OLAP 域名的 SSO，不降级到另一个查询接口。
+执行失败时先读 [错误处理](references/error-handling.md)，按脚本退出码及最后一行 JSON 处理；权限问题先处理目标 OLAP 域名的 Auth，不降级到另一个查询接口。
 
 <!-- skill-creator: askuser-with-text-fallback-v1 -->
 

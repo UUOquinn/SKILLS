@@ -21,7 +21,7 @@
  *   # 查询历史
  *   node scripts/audit-trace.js query --date 2026-09-22
  *   node scripts/audit-trace.js query --strategy-id 25747
- *   node scripts/audit-trace.js query --auditor wb_example_user --limit 20
+ *   node scripts/audit-trace.js query --auditor sandbox_user --limit 20
  *
  * 环境变量：
  *   UNION_AUDIT_TRACE_DIR  日志目录（默认 <cwd>/audit-trace）

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# KConf generic-api 冒烟测试：只跑只读 + 无副作用接口，写操作（update/gray/rollback/review-*）只验证前置链路
+# ConfigService generic-api 冒烟测试：只跑只读 + 无副作用接口，写操作（update/gray/rollback/review-*）只验证前置链路
 set -u
 SKILL_DIR="/data/aime/0874fe2a-5050-414b-93da-cb896e173a71/workspace/user-skills/kconf-generic-api"
 CLI="$SKILL_DIR/scripts/kconf_client.py"
-K="ad.adtarget3.universeAddChainGrayConfig"
+K="ad.demo.chainGrayConfig"
 RESULT_FILE="/tmp/kconf_smoke_results.jsonl"
 : > "$RESULT_FILE"
 
@@ -33,12 +33,12 @@ run "dir-list" "$CLI" dir-list --dir ad --size 3
 run "dir-get" "$CLI" dir-get --dir ad
 run "dir-search" "$CLI" dir-search --path adtarget
 run "dir-search-first" "$CLI" dir-search-first --path ad
-run "config-lite-list" "$CLI" config-lite-list --dir ad.adtarget3 --size 3
-run "config-list" "$CLI" config-list --dir ad.adtarget3 --size 2
-run "config-list-keys" "$CLI" config-list-keys --dir ad.adtarget3
+run "config-lite-list" "$CLI" config-lite-list --dir ad.demoTarget --size 3
+run "config-list" "$CLI" config-list --dir ad.demoTarget --size 2
+run "config-list-keys" "$CLI" config-list-keys --dir ad.demoTarget
 sleep 2
-run "search-config" "$CLI" search-config --keyword universeAddChainGrayConfig
-run "search-config-legacy" "$CLI" search-config-legacy --keyword universeAddChainGrayConfig
+run "search-config" "$CLI" search-config --keyword chainGrayConfig
+run "search-config-legacy" "$CLI" search-config-legacy --keyword chainGrayConfig
 
 echo "=== 场景二：查配置 ==="
 run "islogin" "$CLI" islogin

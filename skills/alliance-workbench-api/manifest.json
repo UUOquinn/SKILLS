@@ -21,7 +21,7 @@
     "game-premium",
     "dataset",
     "DataAgent",
-    "COOKIE_EXPIRED",
+    "SESSION_EXPIRED",
     "3000"
   ]
 }
